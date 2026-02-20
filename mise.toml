@@ -25,3 +25,8 @@ dir = "{{config_root}}/workdata/star_t_server"
 run = "./run.sh --nogui --port 26767"
 raw = true
 
+[tasks.basic_server]
+description = "Run minimal server with mod"
+run = "./gradlew runServer"
+dir = "{{config_root}}/forgemod"
+
