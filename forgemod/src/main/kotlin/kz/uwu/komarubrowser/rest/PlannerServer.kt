@@ -1,9 +1,9 @@
 package kz.uwu.komarubrowser.rest
 
 import com.sun.net.httpserver.HttpServer
-import org.apache.logging.log4j.LogManager
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
+import org.apache.logging.log4j.LogManager
 
 class PlannerServer(private val port: Int = 8888) {
   private var server: HttpServer? = null
@@ -11,29 +11,33 @@ class PlannerServer(private val port: Int = 8888) {
   // the logger for our mod
   private val logger = LogManager.getLogger()
 
-
   fun start() {
     // Create a server that listens on localhost
-    server = HttpServer.create(InetSocketAddress(port), 0).apply {
+    server =
+        HttpServer.create(InetSocketAddress(port), 0).apply {
 
-      // Endpoint: /api/ping
-      createContext("/api/ping") { exchange ->
-        val response = """{"status":"ok"}"""
-        sendResponse(exchange, response)
-      }
+          // Endpoint: /api/ping
+          createContext("/api/ping") { exchange ->
+            val response = """{"status":"ok"}"""
+            sendResponse(exchange, response)
+          }
 
-      // Endpoint: /api/dummy
-      createContext("/api/dummy") { exchange ->
-        val response = """{
-                    "machine": "gtceu:macerator",
-                    "output": "gtceu:iron_dust"
-                }""".trimIndent()
-        sendResponse(exchange, response)
-      }
+          // Endpoint: /api/dummy
+          createContext("/api/dummy") { exchange ->
+            val response =
+                """
+                {
+                                    "machine": "gtceu:macerator",
+                                    "output": "gtceu:iron_dust"
+                                }
+                """
+                    .trimIndent()
+            sendResponse(exchange, response)
+          }
 
-      executor = null // Use default executor
-      start()
-    }
+          executor = null // Use default executor
+          start()
+        }
     logger.info("Minimalist API Server started on port $port")
   }
 

@@ -96,6 +96,27 @@ minecraft {
             args '--nogui', '--port', '26767'
         }
 
+        starT {
+            parent runs.server
+            // Override the default 'run' directory set in configureEach
+            workingDirectory project.file('../workdata/star_t_server')
+            
+            property 'forge.enabledGameTestNamespaces', mod_id
+  
+            // --- ADD THESE LINES ---
+            // This tells Mixin to translate the modpack's jars to your dev environment mappings
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            // -----------------------
+
+
+            // Standard server arguments
+            args '--nogui', '--port', '26767'
+            
+            // If the modpack uses specific JVM arguments (like heavy RAM usage), add them here:
+            jvmArgs '-Xmx4G', '-Xms4G'
+        }
+
         // This run config launches GameTestServer and runs all registered gametests, then exits.
         // By default, the server will crash when no gametests are provided.
         // The gametest system is also enabled by default for other run configs under the /test command.
@@ -129,8 +150,6 @@ dependencies {
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     // FORGE
     implementation 'thedarkcolour:kotlinforforge:4.10.0'
-    // NEOFORGE
-    implementation 'thedarkcolour:kotlinforforge-neoforge:4.10.0'
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -205,10 +224,17 @@ tasks.register('acceptEula') {
     }
 }
 
-// 2. Safely hook it into the server task once it's registered
-// This "whenTaskAdded" approach survives the Forge initialization order
+
+// Hook into tasks after the project is evaluated to ensure they exist
 tasks.whenTaskAdded { task ->
+    // Hook EULA into the standard server run
     if (task.name == 'runServer') {
         task.dependsOn 'acceptEula'
+    }
+    
+    // Hook Mappings generation into your custom run
+    // This ensures the remapping file exists before the server starts
+    if (task.name == 'runStarT') {
+        task.dependsOn 'createSrgToMcp'
     }
 }
