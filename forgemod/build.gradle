@@ -88,7 +88,7 @@ minecraft {
 
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
+            args '--nogui', '--port', '26767' 
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -204,4 +204,23 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+// 1. Register the eula task
+tasks.register('acceptEula') {
+    doLast {
+        def runDir = file('run')
+        if (!runDir.exists()) runDir.mkdirs()
+        def eulaFile = file('run/eula.txt')
+        eulaFile.text = 'eula=true'
+        println "EULA accepted in ${eulaFile.absolutePath}"
+    }
+}
+
+// 2. Safely hook it into the server task once it's registered
+// This "whenTaskAdded" approach survives the Forge initialization order
+tasks.whenTaskAdded { task ->
+    if (task.name == 'runServer') {
+        task.dependsOn 'acceptEula'
+    }
 }
