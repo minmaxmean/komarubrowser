@@ -3,14 +3,14 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    
+
     // Adds the Kotlin Gradle plugin
     id 'org.jetbrains.kotlin.jvm' version '1.9.22'
     // OPTIONAL Kotlin Serialization plugin
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22'
 }
 
-version = minecraft_version+'-'+mod_version
+version = minecraft_version + '-' + mod_version
 group = mod_group_id
 
 base {
@@ -93,7 +93,7 @@ minecraft {
 
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui', '--port', '26767' 
+            args '--nogui', '--port', '26767'
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -125,7 +125,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    
+
     // Adds KFF as dependency and Kotlin libs (use the variant matching your mod loader)
     // FORGE
     implementation 'thedarkcolour:kotlinforforge:4.10.0'
