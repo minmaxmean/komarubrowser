@@ -1,13 +1,18 @@
 package kz.uwu.komarubrowser.rest
 
 import com.sun.net.httpserver.HttpServer
+import kz.uwu.komarubrowser.search.getAllGTRecipesWith
+import kz.uwu.komarubrowser.search.searchItem
+import kz.uwu.komarubrowser.search.toJsonElement
+import net.minecraft.server.MinecraftServer
+import org.apache.logging.log4j.LogManager
 import java.net.InetSocketAddress
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import kz.uwu.komarubrowser.search.searchItem
-import org.apache.logging.log4j.LogManager
 
-class PlannerServer(private val port: Int = 8888) {
+class PlannerServer(
+  private val mcServer: MinecraftServer, private val port: Int = 8888
+) {
   private var server: HttpServer? = null
 
   // the logger for our mod
@@ -15,35 +20,52 @@ class PlannerServer(private val port: Int = 8888) {
 
   fun start() {
     // Create a server that listens on localhost
-    server =
-        HttpServer.create(InetSocketAddress(port), 0).apply {
+    server = HttpServer.create(InetSocketAddress(port), 0).apply {
 
-          // Endpoint: /api/ping
-          createContext("/api/ping") { exchange ->
-            val response = """{"status":"ok"}"""
-            sendResponse(exchange, response)
-          }
+      // Endpoint: /api/ping
+      createContext("/api/ping") { exchange ->
+        val response = """{"status":"ok"}"""
+        sendResponse(exchange, response)
+      }
 
-          // Endpoint: /api/searchItem
-          createContext("/api/searchItem") { exchange ->
-            val queryParams = parseQueryParams(exchange.requestURI.query ?: "")
-            val searchTerm = queryParams["q"] ?: ""
+      // Endpoint: /api/searchItem
+      createContext("/api/searchItem") { exchange ->
+        val queryParams = parseQueryParams(exchange.requestURI.query ?: "")
+        val searchTerm = queryParams["q"] ?: ""
 
-            val results = searchItem(searchTerm)
+        val results = searchItem(searchTerm)
 
-            // For a real mod, use a JSON library like Gson or kotlinx.serialization
-            // For now, we'll manually format a simple JSON list
-            val jsonResponse =
-                results.joinToString(prefix = "[", postfix = "]", separator = ",") {
-                  """{"id":"${it.id}","name":"${it.displayName}","type":"${it.type}","tags":${it.tags.map { t -> "\"$t\"" }}}"""
-                }
-
-            sendResponse(exchange, jsonResponse)
-          }
-
-          executor = null // Use default executor
-          start()
+        // For a real mod, use a JSON library like Gson or kotlinx.serialization
+        // For now, we'll manually format a simple JSON list
+        val jsonResponse = results.joinToString(prefix = "[", postfix = "]", separator = ",") {
+          """{"id":"${it.id}","name":"${it.displayName}","type":"${it.type}","tags":${it.tags.map { t -> "\"$t\"" }}}"""
         }
+
+        sendResponse(exchange, jsonResponse)
+      }
+
+      createContext("/api/searchRecipe") { exchange ->
+        val queryParams = parseQueryParams(exchange.requestURI.query ?: "")
+        val searchTerm = queryParams["q"] ?: ""
+
+        try {
+
+          // Use your existing extension function
+          val recipes = mcServer.recipeManager.getAllGTRecipesWith(searchTerm)
+
+          // Map GTRecipe to a JSON-friendly string
+          val jsonResponse = recipes.toJsonElement().toString()
+
+          sendResponse(exchange, jsonResponse)
+        } catch (e: Exception) {
+          logger.error(e)
+        }
+
+      }
+
+      executor = null // Use default executor
+      start()
+    }
     logger.info("Minimalist API Server started on port $port")
   }
 
@@ -56,15 +78,12 @@ class PlannerServer(private val port: Int = 8888) {
 }
 
 private fun parseQueryParams(query: String): Map<String, String> {
-  return query
-      .split("&")
-      .filter { it.contains("=") }
-      .associate {
-        val parts = it.split("=")
-        val key = URLDecoder.decode(parts[0], "UTF-8")
-        val value = URLDecoder.decode(parts[1], "UTF-8")
-        key to value
-      }
+  return query.split("&").filter { it.contains("=") }.associate {
+    val parts = it.split("=")
+    val key = URLDecoder.decode(parts[0], "UTF-8")
+    val value = URLDecoder.decode(parts[1], "UTF-8")
+    key to value
+  }
 }
 
 private fun sendResponse(exchange: com.sun.net.httpserver.HttpExchange, response: String) {

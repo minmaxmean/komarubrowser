@@ -27,7 +27,7 @@ object KomaruBrowser {
 
   private fun onServerStart(event: ServerStartedEvent) {
     LOGGER.log(Level.INFO, "ServerStartedEvent event", event)
-    apiServer = PlannerServer(6767).apply { start() }
+    apiServer = PlannerServer(event.server, 6767).apply { start() }
   }
 
   private fun onServerStop(event: ServerStoppingEvent) {
