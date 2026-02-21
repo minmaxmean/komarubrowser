@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpServer
 import java.net.InetSocketAddress
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import kz.uwu.komarubrowser.search.search
+import kz.uwu.komarubrowser.search.searchItem
 import org.apache.logging.log4j.LogManager
 
 class PlannerServer(private val port: Int = 8888) {
@@ -24,12 +24,12 @@ class PlannerServer(private val port: Int = 8888) {
             sendResponse(exchange, response)
           }
 
-          // Endpoint: /api/search
-          createContext("/api/search") { exchange ->
+          // Endpoint: /api/searchItem
+          createContext("/api/searchItem") { exchange ->
             val queryParams = parseQueryParams(exchange.requestURI.query ?: "")
             val searchTerm = queryParams["q"] ?: ""
 
-            val results = search(searchTerm)
+            val results = searchItem(searchTerm)
 
             // For a real mod, use a JSON library like Gson or kotlinx.serialization
             // For now, we'll manually format a simple JSON list

@@ -1,35 +1,34 @@
 package kz.uwu.komarubrowser.search
 
 import kotlin.jvm.optionals.getOrNull
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.registries.ForgeRegistries
 import net.minecraftforge.registries.IForgeRegistry
 
-data class SearchResult(
-    val id: ResourceLocation,
+data class ItemSearchResult(
+    val id: String,
     val displayName: String,
-    val type: ResourceLocation,
-    val tags: List<ResourceLocation>,
+    val type: String,
+    val tags: List<String>,
 )
 
-fun search(query: String): List<SearchResult> {
+fun searchItem(query: String): List<ItemSearchResult> {
   val lowercaseQuery = query.lowercase()
   return listOf(ForgeRegistries.ITEMS, ForgeRegistries.FLUIDS).flatMap { it.search(lowercaseQuery) }
 }
 
 /** Extension function to get tags for any registry object cleanly. */
-private fun <T> T.getTagsStrings(registry: IForgeRegistry<T>): List<ResourceLocation> {
+private fun <T> T.getTagsStrings(registry: IForgeRegistry<T>): List<String> {
   if (this == null) {
     return emptyList()
   }
   val reverseTag = registry.tags()?.getReverseTag(this)?.getOrNull() ?: return emptyList()
   val tagKeys = reverseTag.tagKeys.map { it.location() } ?: return emptyList()
-  return tagKeys.toList() ?: emptyList()
+  return tagKeys.map { it.toString() }.toList() ?: emptyList()
 }
 
-private fun <T> IForgeRegistry<T>.search(lowercaseQuery: String): List<SearchResult> {
+private fun <T> IForgeRegistry<T>.search(lowercaseQuery: String): List<ItemSearchResult> {
   return this.entries
       .filter { (key, entry) ->
         if (key.location().toString().contains(lowercaseQuery)) return@filter true
@@ -48,11 +47,11 @@ private fun <T> IForgeRegistry<T>.search(lowercaseQuery: String): List<SearchRes
               is Fluid -> entry.fluidType.description.string
               else -> "Unknown"
             }
-        SearchResult(
-            id = key.location(),
+        ItemSearchResult(
+            id = key.location().toString(),
             displayName = displayName,
             tags = entry.getTagsStrings(this).sorted(),
-            type = this.registryName,
+            type = this.registryName.toString(),
         )
       }
 }
