@@ -1,7 +1,9 @@
 package kz.uwu.komarubrowser.rest
 
+import com.google.gson.Gson
 import com.sun.net.httpserver.HttpServer
 import kz.uwu.komarubrowser.search.getAllGTRecipesWith
+import kz.uwu.komarubrowser.search.getAllIngrediens
 import kz.uwu.komarubrowser.search.searchItem
 import kz.uwu.komarubrowser.search.toJsonElement
 import net.minecraft.server.MinecraftServer
@@ -14,6 +16,7 @@ class PlannerServer(
   private val mcServer: MinecraftServer, private val port: Int = 8888
 ) {
   private var server: HttpServer? = null
+  val gson = Gson()
 
   // the logger for our mod
   private val logger = LogManager.getLogger()
@@ -25,7 +28,7 @@ class PlannerServer(
       // Endpoint: /api/ping
       createContext("/api/ping") { exchange ->
         val response = """{"status":"ok"}"""
-        sendResponse(exchange, response)
+        sendLegacyResponse(exchange, response)
       }
 
       // Endpoint: /api/searchItem
@@ -41,7 +44,7 @@ class PlannerServer(
           """{"id":"${it.id}","name":"${it.displayName}","type":"${it.type}","tags":${it.tags.map { t -> "\"$t\"" }}}"""
         }
 
-        sendResponse(exchange, jsonResponse)
+        sendLegacyResponse(exchange, jsonResponse)
       }
 
       createContext("/api/searchRecipe") { exchange ->
@@ -49,18 +52,18 @@ class PlannerServer(
         val searchTerm = queryParams["q"] ?: ""
 
         try {
-
-          // Use your existing extension function
           val recipes = mcServer.recipeManager.getAllGTRecipesWith(searchTerm)
 
-          // Map GTRecipe to a JSON-friendly string
           val jsonResponse = recipes.toJsonElement().toString()
-
-          sendResponse(exchange, jsonResponse)
+          sendJsonResponse(exchange, jsonResponse)
         } catch (e: Exception) {
           logger.error(e)
         }
+      }
 
+      createContext("/api/ingredients") { exchange ->
+        val allIngredients = getAllIngrediens()
+        sendJsonResponse(exchange,allIngredients)
       }
 
       executor = null // Use default executor
@@ -75,6 +78,21 @@ class PlannerServer(
       logger.info("API Server stopped.")
     }
   }
+
+  private fun sendRawResponse(exchange: com.sun.net.httpserver.HttpExchange, contentType: String, response: String) {
+    val bytes = response.toByteArray(StandardCharsets.UTF_8)
+    exchange.responseHeaders.add("Content-Type", contentType)
+    exchange.sendResponseHeaders(200, bytes.size.toLong())
+    exchange.responseBody.use { it.write(bytes) }
+  }
+
+  private fun sendLegacyResponse(exchange: com.sun.net.httpserver.HttpExchange, response: String) {
+    sendRawResponse(exchange, "application/json", response)
+  }
+
+  private fun sendJsonResponse(exchange: com.sun.net.httpserver.HttpExchange, response: Any) {
+    sendRawResponse(exchange, "application/json", gson.toJson(response))
+  }
 }
 
 private fun parseQueryParams(query: String): Map<String, String> {
@@ -86,9 +104,3 @@ private fun parseQueryParams(query: String): Map<String, String> {
   }
 }
 
-private fun sendResponse(exchange: com.sun.net.httpserver.HttpExchange, response: String) {
-  val bytes = response.toByteArray(StandardCharsets.UTF_8)
-  exchange.responseHeaders.add("Content-Type", "application/json")
-  exchange.sendResponseHeaders(200, bytes.size.toLong())
-  exchange.responseBody.use { it.write(bytes) }
-}

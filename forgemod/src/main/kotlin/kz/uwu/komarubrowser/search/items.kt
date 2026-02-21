@@ -1,6 +1,5 @@
 package kz.uwu.komarubrowser.search
 
-import kotlin.jvm.optionals.getOrNull
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.registries.ForgeRegistries
@@ -16,16 +15,6 @@ data class ItemSearchResult(
 fun searchItem(query: String): List<ItemSearchResult> {
   val lowercaseQuery = query.lowercase()
   return listOf(ForgeRegistries.ITEMS, ForgeRegistries.FLUIDS).flatMap { it.search(lowercaseQuery) }
-}
-
-/** Extension function to get tags for any registry object cleanly. */
-private fun <T> T.getTagsStrings(registry: IForgeRegistry<T>): List<String> {
-  if (this == null) {
-    return emptyList()
-  }
-  val reverseTag = registry.tags()?.getReverseTag(this)?.getOrNull() ?: return emptyList()
-  val tagKeys = reverseTag.tagKeys.map { it.location() } ?: return emptyList()
-  return tagKeys.map { it.toString() }.toList() ?: emptyList()
 }
 
 private fun <T> IForgeRegistry<T>.search(lowercaseQuery: String): List<ItemSearchResult> {

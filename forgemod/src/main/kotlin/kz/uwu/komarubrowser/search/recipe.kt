@@ -53,7 +53,12 @@ fun RecipeManager.getAllGTRecipes(): List<GTRecipe> {
 fun RecipeManager.getAllGTRecipesWith(target: String): List<GTRecipe> {
   val targetId = ResourceLocation(target)
   return if (ForgeRegistries.FLUIDS.containsKey(targetId)) {
-    this.getAllGTRecipes().filter { it.inputs.containsFluid(targetId) || it.outputs.containsFluid(targetId) }
+    this.getAllGTRecipes().filter {
+      if (it.inputs.containsFluid(targetId)){
+        return@filter true }
+      if (it.outputs.containsFluid(targetId)) { return@filter true }
+      return@filter false
+    }
   } else if (ForgeRegistries.ITEMS.containsKey(targetId)) {
     this.getAllGTRecipes().filter { it.inputs.containsItem(targetId) || it.outputs.containsItem(targetId) }
   } else {
