@@ -205,27 +205,8 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-// 1. Register the eula task
-tasks.register('acceptEula') {
-    doLast {
-        def runDir = file('run')
-        if (!runDir.exists()) runDir.mkdirs()
-        def eulaFile = file('run/eula.txt')
-        eulaFile.text = 'eula=true'
-        println "EULA accepted in ${eulaFile.absolutePath}"
-    }
-}
-
-// Hook into tasks after the project is evaluated to ensure they exist
-tasks.whenTaskAdded { task ->
-    // Hook EULA into the standard server run
-    if (task.name == 'runServer') {
-        task.dependsOn 'acceptEula'
-    }
-
-    // Hook Mappings generation into your custom run
-    // This ensures the remapping file exists before the server starts
-    if (task.name == 'runStarT') {
-        task.dependsOn 'createSrgToMcp'
-    }
+tasks.register('copyModToStarT', Copy) {
+    dependsOn jar
+    from jar.archiveFile
+    into "../workdata/star_t_server/mods"
 }
