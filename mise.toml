@@ -4,6 +4,10 @@ node = "latest"
 "npm:npm-groovy-lint" = "latest"
 pnpm = "latest"
 
+[env]
+json_input_dir = "./workdata/raw_assets/dump"
+json_output_dir = "./frontend/static/assets/dump"
+extract_output_dir = "./frontend/static/assets/extracted"
 
 [tasks.forgemod-build]
 description = "Build mod"
@@ -36,5 +40,6 @@ dir = "{{config_root}}/forgemod"
 description = "Exctracrt assets from Jar mods"
 run = "./scripts/extract_assets.sh"
 dir = "{{config_root}}"
-sources = ["./workdata/ingredients.json"]
-outputs = ["./workdata/assets/extracted"]
+sources = ["{{env.json_input_dir}}/ingredients.json"]
+outputs = ["{{env.extract_output_dir}}/"]
+
