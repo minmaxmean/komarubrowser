@@ -6,39 +6,24 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { cn } from '$lib/utils.js';
+	import { ingredientStore } from '$lib/data/ingredientStore.svelte';
+	import IngredientItem from '../IngredientItem/IngredientItem.svelte';
+	import { filterByQuery } from './search';
 
-	const frameworks = [
-		{
-			value: 'sveltekit',
-			label: 'SvelteKit',
-		},
-		{
-			value: 'next.js',
-			label: 'Next.js',
-		},
-		{
-			value: 'nuxt.js',
-			label: 'Nuxt.js',
-		},
-		{
-			value: 'remix',
-			label: 'Remix',
-		},
-		{
-			value: 'astro',
-			label: 'Astro',
-		},
-	];
+	let query = $state('');
+	$inspect(query, 'query');
+	const scoredItems = $derived(filterByQuery(ingredientStore.data, query));
+	$inspect(scoredItems.length, 'scoredItems.length');
+	$inspect(scoredItems.slice(0, 3), 'scoredItems[0:3]');
+	const items = $derived(scoredItems.map((val) => val.item));
+	$inspect(ingredientStore.data, 'ingredientStore.data');
 
 	let open = $state(false);
-	let value = $state('');
+	let selectedItemId = $state('');
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	const selectedValue = $derived(frameworks.find((f) => f.value === value)?.label);
+	const selectedItem = $derived(items.find((f) => f.id === selectedItemId));
 
-	// We want to refocus the trigger button when the user selects
-	// an item from the list so users can continue navigating the
-	// rest of the form with the keyboard.
 	function closeAndFocusTrigger() {
 		open = false;
 		tick().then(() => {
@@ -53,31 +38,36 @@
 			<Button
 				{...props}
 				variant="outline"
-				class="w-[200px] justify-between"
+				class="w-100 justify-between"
 				role="combobox"
 				aria-expanded={open}
 			>
-				{selectedValue || 'Select a framework...'}
+				{#if selectedItem}
+					<IngredientItem size="sm" ingredient={selectedItem} />
+				{:else}
+					Select a item...
+				{/if}
 				<ChevronsUpDownIcon class="opacity-50" />
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class="w-[200px] p-0">
-		<Command.Root>
-			<Command.Input placeholder="Search framework..." />
+	<Popover.Content class="w-100 p-0">
+		<Command.Root shouldFilter={false}>
+			<Command.Input placeholder="Search item..." bind:value={query} />
 			<Command.List>
-				<Command.Empty>No framework found.</Command.Empty>
-				<Command.Group value="frameworks">
-					{#each frameworks as framework (framework.value)}
+				<Command.Empty>No item found.</Command.Empty>
+				<Command.Group value="item">
+					{#each items as item (item.id)}
 						<Command.Item
-							value={framework.value}
+							value={item.id}
+							keywords={[item.displayName]}
 							onSelect={() => {
-								value = framework.value;
+								selectedItemId = item.id;
 								closeAndFocusTrigger();
 							}}
 						>
-							<CheckIcon class={cn(value !== framework.value && 'text-transparent')} />
-							{framework.label}
+							<CheckIcon class={cn(selectedItemId !== item.id && 'text-transparent')} />
+							<IngredientItem ingredient={item} />
 						</Command.Item>
 					{/each}
 				</Command.Group>
