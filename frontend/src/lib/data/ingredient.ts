@@ -28,3 +28,5 @@ export function ingredientUrl(item: Ingredient): string {
 	const type = item.isFluid ? 'block' : 'item';
 	return `/assets/extracted/${item.sourceJar}/${namespace}/${type}/${png_id}.png`;
 }
+
+export const ingredientIdFn = (item: Ingredient): string => item.id;

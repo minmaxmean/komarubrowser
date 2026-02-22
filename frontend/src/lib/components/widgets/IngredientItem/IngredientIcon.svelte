@@ -2,11 +2,11 @@
 	import { ingredientUrl, type Ingredient } from '$lib/data/ingredient';
 	import { iconVariants, type IconVariants } from './iconVariants';
 
-	type Props = { ingredient: Ingredient } & IconVariants;
+	type Props = { item: Ingredient } & IconVariants;
 
-	const { ingredient, size }: Props = $props();
+	const { item, size }: Props = $props();
 
-	const iconURL = $derived(ingredientUrl(ingredient));
+	const iconURL = $derived(ingredientUrl(item));
 </script>
 
-<img src={iconURL} class={iconVariants({ size })} alt={ingredient.displayName} />
+<img src={iconURL} class={iconVariants({ size })} alt={item.displayName} />

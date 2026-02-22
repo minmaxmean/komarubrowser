@@ -1,47 +1,36 @@
-import { type Ingredient } from '$lib/data/ingredient';
+import type { ScorerFn } from './scorers';
 
-export const scoreItem = (item: Ingredient, query: string): number => {
-	if (query === '') {
-		return 1;
-	}
-	if (item.displayName.toLowerCase().includes(query)) {
-		return query.length / item.displayName.length;
-	}
-	if (item.id.toLowerCase().includes(query)) {
-		return query.length / item.id.length;
-	}
-	return 0;
-};
-
-type ScoredIngredient = {
-	item: Ingredient;
+type ScoredItem<I> = {
+	item: I;
 	score: number;
 };
 
-export class QueryEngine {
-	private allItems: Ingredient[];
+export class QueryEngine<I> {
+	private allItems: I[];
 	private lastQuery = '';
-	private lastScoredItems: Ingredient[];
+	private lastScoredItems: I[];
 
-	constructor(allItems: Ingredient[]) {
+	private scorer: ScorerFn<I>;
+
+	constructor(allItems: I[], scorer: ScorerFn<I>) {
 		this.allItems = allItems;
 		this.lastScoredItems = this.allItems;
+		this.scorer = scorer;
 	}
 
 	public checkReset(query: string) {
 		if (!query.includes(this.lastQuery)) {
 			this.lastQuery = '';
 			this.lastScoredItems = this.allItems;
-		} else {
 		}
 	}
 
-	public query(query: string, limit = 30): ScoredIngredient[] {
+	public query(query: string, limit = 30): ScoredItem<I>[] {
 		query = query.toLowerCase();
 		this.checkReset(query);
 
 		const scoredItems = this.lastScoredItems
-			.map((item) => ({ score: scoreItem(item, query), item }) as const)
+			.map((item) => ({ score: this.scorer(item, query), item }) as const)
 			.filter((p) => p.score > 0)
 			.toSorted((a, b) => b.score - a.score);
 

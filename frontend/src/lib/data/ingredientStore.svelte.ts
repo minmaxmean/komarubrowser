@@ -42,8 +42,10 @@ const preprocessIngredients = (items: Ingredient[]): Ingredient[] =>
 			return 0;
 		})
 		.filter((_, idx, arr) => {
-			if (idx > 0 && arr[idx].id === arr[idx - 1].id && arr[idx - 1].isFluid == arr[idx].isFluid) {
-				console.warn('Duplicate Ingredients', arr[idx - 1], arr[idx]);
+			if (idx > 0 && arr[idx].id === arr[idx - 1].id) {
+				if (arr[idx - 1].isFluid == arr[idx].isFluid) {
+					console.warn('Duplicate Ingredients', arr[idx - 1], arr[idx]);
+				}
 				return false;
 			}
 			return true;
