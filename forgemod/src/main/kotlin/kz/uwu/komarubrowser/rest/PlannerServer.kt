@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
+import kz.uwu.komarubrowser.dump.RecipeDTO
 import kz.uwu.komarubrowser.search.getAllGTRecipesWith
 import kz.uwu.komarubrowser.dump.getAllIngredient
+import kz.uwu.komarubrowser.search.getAllGTRecipes
 import kz.uwu.komarubrowser.search.searchItem
 import kz.uwu.komarubrowser.search.toJsonElement
 import net.minecraft.server.MinecraftServer
@@ -35,18 +37,22 @@ class PlannerServer(
 
       // Endpoint: /api/searchItem
       createContext("/api/searchItem") { exchange ->
-        val queryParams = parseQueryParams(exchange.requestURI.query ?: "")
-        val searchTerm = queryParams["q"] ?: ""
+        try {
+          val queryParams = parseQueryParams(exchange.requestURI.query ?: "")
+          val searchTerm = queryParams["q"] ?: ""
 
-        val results = searchItem(searchTerm)
+          val results = searchItem(searchTerm)
 
-        // For a real mod, use a JSON library like Gson or kotlinx.serialization
-        // For now, we'll manually format a simple JSON list
-        val jsonResponse = results.joinToString(prefix = "[", postfix = "]", separator = ",") {
-          """{"id":"${it.id}","name":"${it.displayName}","type":"${it.type}","tags":${it.tags.map { t -> "\"$t\"" }}}"""
+          // For a real mod, use a JSON library like Gson or kotlinx.serialization
+          // For now, we'll manually format a simple JSON list
+          val jsonResponse = results.joinToString(prefix = "[", postfix = "]", separator = ",") {
+            """{"id":"${it.id}","name":"${it.displayName}","type":"${it.type}","tags":${it.tags.map { t -> "\"$t\"" }}}"""
+          }
+
+          sendLegacyResponse(exchange, jsonResponse)
+        } catch (e: Exception) {
+          sendError(exchange, e)
         }
-
-        sendLegacyResponse(exchange, jsonResponse)
       }
 
       createContext("/api/searchRecipe") { exchange ->
@@ -55,7 +61,7 @@ class PlannerServer(
 
         try {
           val recipes = mcServer.recipeManager.getAllGTRecipesWith(searchTerm)
-          logger.debug("Found ${recipes.size} recipes")
+          logger.debug("Found ${recipes.size} recipes for $searchTerm")
 
           val jsonResponse = recipes.toJsonElement().toString()
           sendJsonResponse(exchange, jsonResponse)
@@ -65,9 +71,22 @@ class PlannerServer(
       }
 
       createContext("/api/ingredients") { exchange ->
-        val allIngredients = getAllIngredient()
-        logger.debug("Found ${allIngredients.size} ingredients")
-        sendJsonResponse(exchange, allIngredients)
+        try {
+          val allIngredients = getAllIngredient()
+          logger.info("Found ${allIngredients.size} ingredients")
+          sendJsonResponse(exchange, allIngredients)
+        } catch (e: Exception) {
+          sendError(exchange, e)
+        }
+      }
+      createContext("/api/recipes") { exchange ->
+        try {
+          val recipes = mcServer.recipeManager.getAllGTRecipes().map { RecipeDTO.fromGTRecipe(it) }
+          logger.info("Found ${recipes.size} recipes")
+          sendJsonResponse(exchange, recipes)
+        } catch (e: Exception) {
+          sendError(exchange, e)
+        }
       }
 
       executor = null // Use default executor
@@ -81,6 +100,14 @@ class PlannerServer(
       server?.stop(0)
       logger.info("API Server stopped.")
     }
+  }
+
+  private fun sendError(exchange: HttpExchange, e: Exception) {
+    logger.error("Unexpected error", e)
+    val bytes = "{\"error\": ${e.toString()}}".toByteArray(StandardCharsets.UTF_8)
+    exchange.responseHeaders.add("Content-Type", "application/json; charset=utf-8")
+    exchange.sendResponseHeaders(500, bytes.size.toLong())
+    exchange.responseBody.use { it.write(bytes) }
   }
 
   private fun sendRawResponse(exchange: HttpExchange, contentType: String, response: String) {
