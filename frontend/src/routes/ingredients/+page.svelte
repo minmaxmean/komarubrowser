@@ -1,7 +1,29 @@
 <script lang="ts">
-	import DataTable from './data-table.svelte';
-	import { columns } from './columns.js';
 	import { ingredientStore } from '$lib/data/ingredientStore.svelte.js';
+	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
+	import type { ColumnDef } from '@tanstack/table-core';
+	import type { Ingredient } from '$lib/data/ingredient';
+	import { energyTiers } from '$lib/data/energyTier';
+	import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
+
+	const columns: ColumnDef<Ingredient>[] = [
+		{
+			accessorKey: 'id',
+			header: 'ID',
+		},
+		{
+			accessorKey: 'displayName',
+			header: 'Name',
+		},
+		{
+			accessorKey: 'isFluid',
+			header: 'Fluid',
+		},
+		{
+			accessorKey: 'tags',
+			header: 'tags',
+		},
+	];
 </script>
 
 {#if ingredientStore.status === 'loading'}

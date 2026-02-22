@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData, TValue">
 	import {
 		type ColumnDef,
+		type FilterFnOption,
 		getCoreRowModel,
 		getFilteredRowModel,
 		getPaginationRowModel,
@@ -15,9 +16,14 @@
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
+		filterFnOption?: FilterFnOption<TData>;
 	};
 
-	let { data, columns }: DataTableProps<TData, TValue> = $props();
+	let {
+		data,
+		columns,
+		filterFnOption = 'includesString'
+	}: DataTableProps<TData, TValue> = $props();
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 20 });
 	let globalFilter = $state('');
@@ -41,13 +47,11 @@
 				return globalFilter;
 			}
 		},
-		globalFilterFn: 'includesString',
+		// svelte-ignore state_referenced_locally
+		globalFilterFn: filterFnOption,
 		onPaginationChange: (updater: Updater<PaginationState>) => {
-			if (typeof updater === 'function') {
-				pagination = updater(pagination);
-			} else {
-				pagination = pagination;
-			}
+			const newValue = typeof updater === 'function' ? updater(pagination) : updater;
+			pagination = newValue;
 		},
 		onGlobalFilterChange: (updater: any) => {
 			const newValue = typeof updater === 'function' ? updater(globalFilter) : updater;

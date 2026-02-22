@@ -4,8 +4,12 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import { onMount } from 'svelte';
 	import { ingredientStore } from '$lib/data/ingredientStore.svelte';
+	import { recipeStore } from '$lib/data/recipeStore.svelte';
 
-	onMount(async () => ingredientStore.fetch());
+	onMount(() => {
+		ingredientStore.fetch();
+		recipeStore.fetch();
+	});
 	let { children } = $props();
 </script>
 
