@@ -1,5 +1,4 @@
 import { type Ingredient } from '$lib/data/ingredient';
-import { computeCommandScore } from 'bits-ui';
 
 export const filterByQuery = (items: Ingredient[], query: string, limit = 30) => {
 	console.time('filterByQuery');
@@ -24,10 +23,15 @@ export const scoreItem = (item: Ingredient, query: string): number => {
 	return 0;
 };
 
-class QueryEngine {
+type ScoredIngredient = {
+	item: Ingredient;
+	score: number;
+};
+
+export class QueryEngine {
 	private allItems: Ingredient[];
 	private lastQuery = '';
-	private lastItems?: Ingredient[];
+	private lastScoredItems?: ScoredIngredient[];
 
 	constructor(allItems: Ingredient[]) {
 		this.allItems = allItems;
@@ -35,8 +39,23 @@ class QueryEngine {
 
 	public reset() {
 		this.lastQuery = '';
-		this.lastItems = undefined;
+		this.lastScoredItems = undefined;
 	}
 
-	public query(query: string): Ingredient[] {}
+	public query(query: string, limit = 30): ScoredIngredient[] {
+		console.time('query()');
+		query = query.toLowerCase();
+		const scoredItems = this.allItems
+			.map((item) => ({ score: scoreItem(item, query), item }) as const)
+			.filter((p) => p.score > 0)
+			.toSorted((a, b) => b.score - a.score);
+
+		this.lastQuery = query;
+		this.lastScoredItems = scoredItems;
+
+		limit = Math.min(limit, scoredItems.length);
+		const result = scoredItems.slice(0, limit);
+		console.timeEnd('query()');
+		return result;
+	}
 }

@@ -8,15 +8,15 @@
 	import { cn } from '$lib/utils.js';
 	import { ingredientStore } from '$lib/data/ingredientStore.svelte';
 	import IngredientItem from '../IngredientItem/IngredientItem.svelte';
-	import { filterByQuery } from './search';
+	import { filterByQuery, QueryEngine } from './search';
 
 	let query = $state('');
 	$inspect(query, 'query');
-	const scoredItems = $derived(filterByQuery(ingredientStore.data, query));
-	// $inspect(scoredItems.length, 'scoredItems.length');
-	// $inspect(scoredItems.slice(0, 3), 'scoredItems[0:3]');
+	const searchEngine = $derived(new QueryEngine(ingredientStore.data));
+	const scoredItems = $derived(searchEngine.query(query));
+	// const scoredItems = $derived(filterByQuery(ingredientStore.data, query));
+
 	const items = $derived(scoredItems.map((val) => val.item));
-	// $inspect(ingredientStore.data, 'ingredientStore.data');
 
 	let open = $state(false);
 	let selectedItemId = $state('');
