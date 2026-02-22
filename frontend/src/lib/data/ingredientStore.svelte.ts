@@ -25,23 +25,33 @@ const preprocessIngredients = (items: Ingredient[]): Ingredient[] =>
 			}
 			return true;
 		})
-		.toSorted(({ id: nameA }, { id: nameB }) => {
-			if (nameA < nameB) {
+		.toSorted((a, b) => {
+			if (a.id < b.id) {
 				return -1;
 			}
-			if (nameA > nameB) {
+			if (a.id > b.id) {
 				return 1;
+			}
+			if (a.isFluid != b.isFluid) {
+				if (a.isFluid) {
+					return -1;
+				} else {
+					return 1;
+				}
 			}
 			return 0;
 		})
 		.filter((_, idx, arr) => {
-			if (idx > 0 && arr[idx].id === arr[idx - 1].id) {
+			if (idx > 0 && arr[idx].id === arr[idx - 1].id && arr[idx - 1].isFluid == arr[idx].isFluid) {
 				console.warn('Duplicate Ingredients', arr[idx - 1], arr[idx]);
 				return false;
 			}
 			return true;
+		})
+		.map((item) => {
+			item.displayName = item.displayName.replace(/§./gs, '');
+			return item;
 		});
-
 class IngredientStore {
 	public data = $state<Ingredient[]>([]);
 	public status = $state<FetchStatus>('idle');
