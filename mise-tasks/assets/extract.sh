@@ -1,11 +1,16 @@
-# extract_assets_final_v5_the_structure_strike_back.sh
-#!/bin/bash
+#!/usr/bin/env bash
+#MISE description="Exctracrt assets from Jar mods"
+#MISE dir="{{config_root}}"
+
+#MISE sources=["{{env.raw_assets_dir}}/dump/ingredients.json"]
+#MISE outputs=["{{env.assets_dir}}/extracted"]
+
 set -e 
 
 # Configuration
 MODS_DIR="./workdata/star_t_server/mods"
-OUTPUT_BASE="./workdata/assets/extracted"
-INGREDIENTS_FILE="./workdata/ingredients.json"
+INGREDIENTS_FILE="$raw_assets_dir/dump/ingredients.json"
+OUTPUT_BASE="$assets_dir/extracted"
 
 if ! command -v jq &> /dev/null; then
   echo "Error: 'jq' is not installed."
@@ -61,6 +66,7 @@ jq -r 'map(.sourceJar) | unique | .[]' "$INGREDIENTS_FILE" | while IFS= read -r 
         done
       done
       ((SUCCESS_COUNT++))
+      # break
     fi
     rm -rf "$TEMP_DIR"
   else
@@ -68,4 +74,5 @@ jq -r 'map(.sourceJar) | unique | .[]' "$INGREDIENTS_FILE" | while IFS= read -r 
   fi
 done
 
-echo "\nExtraction complete. Assets stored in $OUTPUT_BASE"
+echo "===================="
+echo "Extraction complete. Assets stored in $OUTPUT_BASE"

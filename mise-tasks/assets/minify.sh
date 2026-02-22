@@ -2,22 +2,16 @@
 #MISE description="Minify all JSON files"
 #MISE dir="{{config_root}}"
 
-# 1. Reference the environment variables for Mise's cache tracking
-#MISE sources=["{{env.json_input_dir}}/*.json"]
-#MISE outputs=["{{env.json_output_dir}}/*.json"]
-
-# 2. Define args WITHOUT templates. 
-# If not provided on CLI, the shell logic below will handle the defaults.
-#USAGE arg "input_dir" env="json_input_dir" help="Source folder"
-#USAGE arg "output_dir" env="json_output_dir" help="Destination folder"
+#MISE sources=["{{env.raw_assets_dir}}/dump/*.json"]
+#MISE outputs=["{{env.assets_dir}}/dump/*.min.json"]
 
 set -e
 
 # 3. Use Bash "Parameter Expansion" to set defaults.
 # This says: Use the CLI arg if it exists; otherwise use the ENV var; 
 # otherwise use a hardcoded fallback string.
-input_path="${usage_input_dir?}"
-output_path="${usage_output_dir?}"
+input_path="${raw_assets_dir?}/dump"
+output_path="${assets_dir?}/dump"
 
 mkdir -p "$output_path"
 
@@ -42,7 +36,10 @@ fi
 for file in "${files[@]}"; do
     filename=$(basename "$file")
     echo "Minifying $filename..."
-    jq -c . "$file" > "$output_path/${filename%.json}.min.json"
+		output_file="$output_path/${filename%.json}.min.json"
+    jq -c . "$file" > "$output_file"
+    echo " minifed to $output_file"
 done
 
 echo "Successfully minified ${#files[@]} files."
+echo "  Output folder: $output_path"

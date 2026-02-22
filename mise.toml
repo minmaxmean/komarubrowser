@@ -5,18 +5,22 @@ node = "latest"
 pnpm = "latest"
 
 [env]
+raw_assets_dir = "./workdata/raw_assets"
+assets_dir = "./frontend/static/assets"
+
 json_input_dir = "./workdata/raw_assets/dump"
 json_output_dir = "./frontend/static/assets/dump"
+extract_input_file = "./workdata/raw_assets/dump/ingredients.json"
 extract_output_dir = "./frontend/static/assets/extracted"
 
-[tasks.forgemod-build]
+[tasks."forgemod:build"]
 description = "Build mod"
 run = "./gradlew build"
 dir = "{{config_root}}/forgemod"
 sources = ["*.gradle", "src/**/*.java", "src/**/*.kt", "src/main/resources"]
 outputs = ["build/libs/komarubrowser-*.jar"]
 
-[tasks.star_t-copy]
+[tasks."star_t:copy"]
 description = "Run Star Technologu with mod"
 depends = ["forgemod-build"]
 dir = "{{config_root}}"
@@ -24,22 +28,16 @@ run = "./scripts/run_star_t.sh"
 # sources = ["build/libs/komarubrowser-*.jar"]
 # outputs = ["workdata/star_t_server/mods/komarubrowser-*.jar"]
 
-[tasks.star_t]
+[tasks."star_t:run"]
 description = "Run Star Technologu with mod"
-depends = ["star_t-copy"]
+depends = ["star_t:copy"]
 dir = "{{config_root}}/workdata/star_t_server"
 run = "./run.sh --nogui --port 26767"
 raw = true
 
-[tasks.basic_server]
-description = "Run minimal server with mod"
-run = "./gradlew runServer"
-dir = "{{config_root}}/forgemod"
 
-[tasks.assets_extract]
-description = "Exctracrt assets from Jar mods"
-run = "./scripts/extract_assets.sh"
-dir = "{{config_root}}"
-sources = ["{{env.json_input_dir}}/ingredients.json"]
-outputs = ["{{env.extract_output_dir}}/"]
+[tasks.assets]
+description = "Prepare assets"
+run = "# dummy task to combine all assets tasks"
+depends = ["assets:*"]
 
