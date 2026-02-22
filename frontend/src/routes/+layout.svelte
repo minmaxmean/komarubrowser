@@ -15,4 +15,6 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <ModeWatcher defaultMode="dark" />
-{@render children()}
+<div class="m-4">
+	{@render children()}
+</div>
