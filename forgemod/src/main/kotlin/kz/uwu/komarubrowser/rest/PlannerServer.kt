@@ -1,9 +1,11 @@
 package kz.uwu.komarubrowser.rest
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kz.uwu.komarubrowser.search.getAllGTRecipesWith
-import kz.uwu.komarubrowser.search.getAllIngrediens
+import kz.uwu.komarubrowser.search.getAllIngredient
 import kz.uwu.komarubrowser.search.searchItem
 import kz.uwu.komarubrowser.search.toJsonElement
 import net.minecraft.server.MinecraftServer
@@ -16,7 +18,7 @@ class PlannerServer(
   private val mcServer: MinecraftServer, private val port: Int = 8888
 ) {
   private var server: HttpServer? = null
-  val gson = Gson()
+  val gson: Gson = GsonBuilder().setPrettyPrinting().create()
 
   // the logger for our mod
   private val logger = LogManager.getLogger()
@@ -53,6 +55,7 @@ class PlannerServer(
 
         try {
           val recipes = mcServer.recipeManager.getAllGTRecipesWith(searchTerm)
+          logger.debug("Found ${recipes.size} recipes")
 
           val jsonResponse = recipes.toJsonElement().toString()
           sendJsonResponse(exchange, jsonResponse)
@@ -62,14 +65,15 @@ class PlannerServer(
       }
 
       createContext("/api/ingredients") { exchange ->
-        val allIngredients = getAllIngrediens()
-        sendJsonResponse(exchange,allIngredients)
+        val allIngredients = getAllIngredient()
+        logger.debug("Found ${allIngredients.size} ingredients")
+        sendJsonResponse(exchange, allIngredients)
       }
 
       executor = null // Use default executor
       start()
     }
-    logger.info("Minimalist API Server started on port $port")
+    logger.info("KomaruBrowser server started on port $port")
   }
 
   fun stop() {
@@ -79,18 +83,18 @@ class PlannerServer(
     }
   }
 
-  private fun sendRawResponse(exchange: com.sun.net.httpserver.HttpExchange, contentType: String, response: String) {
+  private fun sendRawResponse(exchange: HttpExchange, contentType: String, response: String) {
     val bytes = response.toByteArray(StandardCharsets.UTF_8)
     exchange.responseHeaders.add("Content-Type", contentType)
     exchange.sendResponseHeaders(200, bytes.size.toLong())
     exchange.responseBody.use { it.write(bytes) }
   }
 
-  private fun sendLegacyResponse(exchange: com.sun.net.httpserver.HttpExchange, response: String) {
+  private fun sendLegacyResponse(exchange: HttpExchange, response: String) {
     sendRawResponse(exchange, "application/json", response)
   }
 
-  private fun sendJsonResponse(exchange: com.sun.net.httpserver.HttpExchange, response: Any) {
+  private fun sendJsonResponse(exchange: HttpExchange, response: Any) {
     sendRawResponse(exchange, "application/json", gson.toJson(response))
   }
 }
