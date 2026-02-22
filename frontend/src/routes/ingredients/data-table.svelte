@@ -1,13 +1,16 @@
 <script lang="ts" generics="TData, TValue">
 	import {
 		type ColumnDef,
+		type ColumnFiltersState,
 		getCoreRowModel,
+		getFilteredRowModel,
 		getPaginationRowModel,
 		type PaginationState
 	} from '@tanstack/table-core';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
 
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
@@ -17,17 +20,19 @@
 	let { data, columns }: DataTableProps<TData, TValue> = $props();
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 20 });
+	let columnFilters = $state<ColumnFiltersState>([]);
 
 	const table = createSvelteTable({
 		get data() {
 			return data;
 		},
-		columns,
-		state: {
-			get pagination() {
-				return pagination;
-			}
+		get columns() {
+			return columns;
 		},
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+
 		onPaginationChange: (updater) => {
 			if (typeof updater === 'function') {
 				pagination = updater(pagination);
@@ -35,13 +40,38 @@
 				pagination = pagination;
 			}
 		},
-
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel()
+		onColumnFiltersChange: (updater) => {
+			if (typeof updater === 'function') {
+				columnFilters = updater(columnFilters);
+			} else {
+				columnFilters = updater;
+			}
+		},
+		state: {
+			get pagination() {
+				return pagination;
+			},
+			get columnFilters() {
+				return columnFilters;
+			}
+		}
 	});
 </script>
 
 <div>
+	<div class="flex items-center py-4">
+		<Input
+			placeholder="Filter ingredients"
+			value={(table.getColumn('displayName')?.getFilterValue() as string) ?? ''}
+			onchange={(e) => {
+				table.getColumn('displayName')?.setFilterValue(e.currentTarget.value);
+			}}
+			oninput={(e) => {
+				table.getColumn('displayName')?.setFilterValue(e.currentTarget.value);
+			}}
+			class="max-w-sm"
+		/>
+	</div>
 	<div class="rounded-md border">
 		<Table.Root>
 			<Table.Header>

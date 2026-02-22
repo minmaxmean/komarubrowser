@@ -36,7 +36,7 @@ fi
 for file in "${files[@]}"; do
     filename=$(basename "$file")
     echo "Minifying $filename..."
-		output_file="$output_path/${filename%.json}.min.json"
+    output_file="$output_path/${filename%.json}.min.json"
     jq -c . "$file" > "$output_file"
     echo " minifed to $output_file"
 done

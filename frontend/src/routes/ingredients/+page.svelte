@@ -27,6 +27,6 @@
 	<p>Loaded {jsonData.length} items.</p>
 {/if}
 
-<div class="m-4 w-200">
+<div class="m-4">
 	<DataTable data={jsonData} {columns} />
 </div>
