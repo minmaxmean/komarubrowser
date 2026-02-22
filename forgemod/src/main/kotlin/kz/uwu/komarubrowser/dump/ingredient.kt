@@ -1,4 +1,4 @@
-package kz.uwu.komarubrowser.search
+package kz.uwu.komarubrowser.dump
 
 import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component

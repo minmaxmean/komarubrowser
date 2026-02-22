@@ -1,5 +1,6 @@
 package kz.uwu.komarubrowser.search
 
+import kz.uwu.komarubrowser.dump.getTagsStrings
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.material.Fluid
 import net.minecraftforge.registries.ForgeRegistries

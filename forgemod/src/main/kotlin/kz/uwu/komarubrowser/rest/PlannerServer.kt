@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kz.uwu.komarubrowser.search.getAllGTRecipesWith
-import kz.uwu.komarubrowser.search.getAllIngredient
+import kz.uwu.komarubrowser.dump.getAllIngredient
 import kz.uwu.komarubrowser.search.searchItem
 import kz.uwu.komarubrowser.search.toJsonElement
 import net.minecraft.server.MinecraftServer
