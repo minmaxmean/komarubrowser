@@ -11,21 +11,33 @@ data class IngredientDTO(
   val displayName: String,
   val isFluid: Boolean,
   val tags: List<String>,
+  val assetPath: String,
+  val sourceJar: String,
 ) {
   companion object {
-    fun fromItem(item: Item) = IngredientDTO(
-      id = ForgeRegistries.ITEMS.getKey(item).toString(),
-      displayName = resolveComponent(item.description),
-      isFluid = false,
-      tags = item.getTagsStrings(ForgeRegistries.ITEMS),
-    )
+    fun fromItem(item: Item): IngredientDTO {
+      val res = ForgeRegistries.ITEMS.getKey(item)!!
+      return IngredientDTO(
+        id = res.toString(),
+        displayName = resolveComponent(item.description),
+        isFluid = false,
+        tags = item.getTagsStrings(ForgeRegistries.ITEMS),
+        assetPath = "assets/${res.namespace}/textures/item/${res.path}.png",
+        sourceJar = getJarName(res.namespace),
+      )
+    }
 
-    fun fromFluid(fluid: Fluid) = IngredientDTO(
-      id = ForgeRegistries.FLUIDS.getKey(fluid).toString(),
-      displayName = resolveComponent(fluid.fluidType.description),
-      isFluid = true,
-      tags = fluid.getTagsStrings(ForgeRegistries.FLUIDS),
-    )
+    fun fromFluid(fluid: Fluid): IngredientDTO {
+      val res = ForgeRegistries.FLUIDS.getKey(fluid)!!
+      return IngredientDTO(
+        id = res.toString(),
+        displayName = resolveComponent(fluid.fluidType.description),
+        isFluid = true,
+        tags = fluid.getTagsStrings(ForgeRegistries.FLUIDS),
+        assetPath = "assets/${res.namespace}/textures/block/${res.path}_still.png",
+        sourceJar = getJarName(res.namespace),
+      )
+    }
   }
 }
 

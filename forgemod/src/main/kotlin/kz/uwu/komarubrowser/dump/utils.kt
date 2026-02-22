@@ -4,9 +4,12 @@ import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.contents.LiteralContents
 import net.minecraft.network.chat.contents.TranslatableContents
+import net.minecraftforge.fml.ModList
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.*
+import kotlin.jvm.optionals.getOrDefault
+import kotlin.jvm.optionals.getOrNull
 
 
 // Converts "material.gtceu.abyssal_alloy" -> "Abyssal Alloy"
@@ -57,4 +60,10 @@ fun resolveComponent(component: Component): String {
 
   val siblingsText = component.siblings.joinToString("") { resolveComponent(it) }
   return text + siblingsText
+}
+
+
+fun getJarName(namespace: String): String {
+  val container = ModList.get().getModContainerById(namespace).getOrNull() ?: return "minecraft"
+  return container.modInfo.owningFile.file.fileName
 }
