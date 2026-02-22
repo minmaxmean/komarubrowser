@@ -1,65 +1,71 @@
+# extract_assets_final_v5_the_structure_strike_back.sh
 #!/bin/bash
+set -e 
 
 # Configuration
 MODS_DIR="./workdata/star_t_server/mods"
-OUTPUT_BASE="./workdata/assets"
+OUTPUT_BASE="./workdata/assets/extracted"
 INGREDIENTS_FILE="./workdata/ingredients.json"
 
 if ! command -v jq &> /dev/null; then
-    echo "Error: 'jq' is not installed."
-    exit 1
+  echo "Error: 'jq' is not installed."
+  exit 1
 fi
 
 SUCCESS_COUNT=0
-
 echo "Reading JAR list from $INGREDIENTS_FILE..."
 
-while IFS= read -r JAR; do
-    [ -z "$JAR" ] && continue
+# Get absolute path for output
+mkdir -p "$OUTPUT_BASE"
+ABS_OUTPUT_BASE=$(cd "$OUTPUT_BASE" && pwd)
 
-    case "$JAR" in
-        "thermal_core-1.20.1-11.0.6.24.jar") EXTRACT_JAR="cofh_core-1.20.1-11.0.2.56.jar" ;;
-        "server-1.20.1-20230612.114412-srg.jar") EXTRACT_JAR="1.20.1.jar" ;;
-        *) EXTRACT_JAR="$JAR" ;;
-    esac
+jq -r 'map(.sourceJar) | unique | .[]' "$INGREDIENTS_FILE" | while IFS= read -r JAR; do
+  [ -z "$JAR" ] && continue
 
-    JAR_PATH="$MODS_DIR/$EXTRACT_JAR"
-    # Temp dir for extraction
-    TEMP_DIR="$OUTPUT_BASE/temp_$JAR"
-    # Final flat dir for this jar
-    FINAL_DIR="$OUTPUT_BASE/$JAR"
+  case "$JAR" in
+    "thermal_core-1.20.1-11.0.6.24.jar") EXTRACT_JAR="cofh_core-1.20.1-11.0.2.56.jar" ;;
+    "server-1.20.1-20230612.114412-srg.jar") EXTRACT_JAR="1.20.1.jar" ;;
+    *) EXTRACT_JAR="$JAR" ;;
+  esac
 
-    if [ -f "$JAR_PATH" ]; then
-        echo "Processing: $JAR"
-        rm -rf "$TEMP_DIR" "$FINAL_DIR"
-        mkdir -p "$TEMP_DIR"
+  JAR_PATH="$MODS_DIR/$EXTRACT_JAR"
+  TEMP_DIR="$ABS_OUTPUT_BASE/temp_$JAR"
+  FINAL_DIR="$ABS_OUTPUT_BASE/$JAR"
 
-        # Extract everything in assets
-        echo "  unzipping..."
-        unzip -nq "$JAR_PATH" "assets/*/textures/item/**" "assets/*/textures/block/**" -d "$TEMP_DIR" 2>/dev/null
+  if [ -f "$JAR_PATH" ]; then
+    echo "Processing: $JAR"
+    rm -rf "$TEMP_DIR" "$FINAL_DIR"
+    mkdir -p "$TEMP_DIR"
+
+    # Extract PNGs
+    echo "  unzipping: $JAR_PATH"
+    unzip -nq "$JAR_PATH" 'assets/*/textures/item/*.png' 'assets/*/textures/block/*.png' -d "$TEMP_DIR" 2>/dev/null || [ $? -eq 11 ]
+    
+    if [ -d "$TEMP_DIR/assets" ]; then
+      # Walk through each namespace
+      for NS_PATH in "$TEMP_DIR/assets"/*; do
+        [ ! -d "$NS_PATH" ] && continue
+        NAMESPACE=$(basename "$NS_PATH")
         
-        # Check if we got anything
-        if [ -d "$TEMP_DIR/assets" ]; then
-            # Create the final flat structure: assets/<jar>/<namespace>/<file>.png
-            # We look for any png in item or block folders
-            echo "  flattenning..."
-            find "$TEMP_DIR/assets" -name "*.png" | while read -r PNG_PATH; do
-                # Extract namespace from path: assets/<namespace>/textures/...
-                NAMESPACE=$(echo "$PNG_PATH" | cut -d'/' -f4)
-                FILE_NAME=$(basename "$PNG_PATH")
-                
-                DEST_DIR="$FINAL_DIR/$NAMESPACE"
-                mkdir -p "$DEST_DIR"
-                
-                # Move and flatten
-                mv "$PNG_PATH" "$DEST_DIR/$FILE_NAME"
-            done
+        # We want to preserve 'item' and 'block' categories
+        for TYPE in item block; do
+          TYPE_PATH="$NS_PATH/textures/$TYPE"
+          if [ -d "$TYPE_PATH" ]; then
+            DEST_DIR="$FINAL_DIR/$NAMESPACE/$TYPE"
+            mkdir -p "$DEST_DIR"
             
-            ((SUCCESS_COUNT++))
-            echo "  Flattened assets"
-        fi
-        rm -rf "$TEMP_DIR"
+            # Move all PNGs from any subfolder into the flat TYPE folder
+            echo "  moving: $TYPE_PATH"
+            find "$TYPE_PATH" -name "*.png" -type f -exec cp -f {} "$DEST_DIR/" ';'
+          fi
+        done
+      done
+      ((SUCCESS_COUNT++))
     fi
-done < <(jq -r 'map(.sourceJar) | unique | .[]' "$INGREDIENTS_FILE")
+    rm -rf "$TEMP_DIR"
+  else
+    echo "Warning: JAR not found: $JAR_PATH"
+  fi
+done
 
-echo -e "\nExtraction and Flattening complete."
+echo "\nExtraction complete. Assets stored in $OUTPUT_BASE"

@@ -30,3 +30,9 @@ description = "Run minimal server with mod"
 run = "./gradlew runServer"
 dir = "{{config_root}}/forgemod"
 
+[tasks.assets_extract]
+description = "Exctracrt assets from Jar mods"
+run = "./scripts/extract_assets.sh"
+dir = "{{config_root}}"
+sources = ["./workdata/ingredients.json"]
+outputs = ["./workdata/assets/extracted"]
