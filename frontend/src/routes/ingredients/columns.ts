@@ -1,12 +1,5 @@
+import type { Ingredient } from '$lib/data/ingredient';
 import type { ColumnDef } from '@tanstack/table-core';
-export type Ingredient = {
-	id: string;
-	displayName: string;
-	isFluid: boolean;
-	tags: string[];
-	assetPath: string;
-	sourceJar: string;
-};
 
 export const columns: ColumnDef<Ingredient>[] = [
 	{

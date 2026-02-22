@@ -4,7 +4,6 @@
 		getCoreRowModel,
 		getFilteredRowModel,
 		getPaginationRowModel,
-		type GlobalFilterTableState,
 		type PaginationState,
 		type Updater
 	} from '@tanstack/table-core';

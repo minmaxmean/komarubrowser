@@ -1,32 +1,17 @@
 <script lang="ts">
 	import DataTable from './data-table.svelte';
-	import { columns, type Ingredient } from './columns.js';
-	import { onMount } from 'svelte';
-
-	let jsonData: Ingredient[] = $state([]);
-	let status = $state('idle');
-
-	onMount(async () => {
-		status = 'loading';
-		try {
-			const res = await fetch('/assets/dump/ingredients.min.json');
-			jsonData = await res.json();
-			status = 'success';
-		} catch (e) {
-			console.error(e);
-			status = 'error';
-		}
-	});
+	import { columns } from './columns.js';
+	import { ingredientStore } from '$lib/data/ingredientStore.svelte.js';
 </script>
 
-{#if status === 'loading'}
+{#if ingredientStore.status === 'loading'}
 	<p>Downloadng ingredients.json...</p>
-{:else if status === 'error'}
+{:else if ingredientStore.status === 'error'}
 	<p>Error fetching ingredients.json</p>
-{:else if status === 'success'}
-	<p>Loaded {jsonData.length} items.</p>
+{:else if ingredientStore.status === 'successful'}
+	<p>Loaded {ingredientStore.data.length} items.</p>
 {/if}
 
 <div class="m-4">
-	<DataTable data={jsonData} {columns} />
+	<DataTable data={ingredientStore.data} {columns} />
 </div>

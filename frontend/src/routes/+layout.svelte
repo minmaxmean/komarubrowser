@@ -2,7 +2,10 @@
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { ModeWatcher } from 'mode-watcher';
+	import { onMount } from 'svelte';
+	import { ingredientStore } from '$lib/data/ingredientStore.svelte';
 
+	onMount(async () => ingredientStore.fetch());
 	let { children } = $props();
 </script>
 
