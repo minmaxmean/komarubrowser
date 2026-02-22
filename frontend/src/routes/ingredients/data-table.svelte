@@ -1,11 +1,12 @@
 <script lang="ts" generics="TData, TValue">
 	import {
 		type ColumnDef,
-		type ColumnFiltersState,
 		getCoreRowModel,
 		getFilteredRowModel,
 		getPaginationRowModel,
-		type PaginationState
+		type GlobalFilterTableState,
+		type PaginationState,
+		type Updater
 	} from '@tanstack/table-core';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
@@ -20,7 +21,7 @@
 	let { data, columns }: DataTableProps<TData, TValue> = $props();
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 20 });
-	let columnFilters = $state<ColumnFiltersState>([]);
+	let globalFilter = $state('');
 
 	const table = createSvelteTable({
 		get data() {
@@ -33,27 +34,25 @@
 		getPaginationRowModel: getPaginationRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 
-		onPaginationChange: (updater) => {
+		state: {
+			get pagination() {
+				return pagination;
+			},
+			get globalFilter() {
+				return globalFilter;
+			}
+		},
+		globalFilterFn: 'includesString',
+		onPaginationChange: (updater: Updater<PaginationState>) => {
 			if (typeof updater === 'function') {
 				pagination = updater(pagination);
 			} else {
 				pagination = pagination;
 			}
 		},
-		onColumnFiltersChange: (updater) => {
-			if (typeof updater === 'function') {
-				columnFilters = updater(columnFilters);
-			} else {
-				columnFilters = updater;
-			}
-		},
-		state: {
-			get pagination() {
-				return pagination;
-			},
-			get columnFilters() {
-				return columnFilters;
-			}
+		onGlobalFilterChange: (updater: any) => {
+			const newValue = typeof updater === 'function' ? updater(globalFilter) : updater;
+			globalFilter = newValue;
 		}
 	});
 </script>
@@ -62,13 +61,8 @@
 	<div class="flex items-center py-4">
 		<Input
 			placeholder="Filter ingredients"
-			value={(table.getColumn('displayName')?.getFilterValue() as string) ?? ''}
-			onchange={(e) => {
-				table.getColumn('displayName')?.setFilterValue(e.currentTarget.value);
-			}}
-			oninput={(e) => {
-				table.getColumn('displayName')?.setFilterValue(e.currentTarget.value);
-			}}
+			bind:value={globalFilter}
+			oninput={() => table.setGlobalFilter(globalFilter)}
 			class="max-w-sm"
 		/>
 	</div>
