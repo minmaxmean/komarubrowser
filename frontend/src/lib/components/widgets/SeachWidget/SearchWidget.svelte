@@ -13,10 +13,10 @@
 	let query = $state('');
 	$inspect(query, 'query');
 	const scoredItems = $derived(filterByQuery(ingredientStore.data, query));
-	$inspect(scoredItems.length, 'scoredItems.length');
-	$inspect(scoredItems.slice(0, 3), 'scoredItems[0:3]');
+	// $inspect(scoredItems.length, 'scoredItems.length');
+	// $inspect(scoredItems.slice(0, 3), 'scoredItems[0:3]');
 	const items = $derived(scoredItems.map((val) => val.item));
-	$inspect(ingredientStore.data, 'ingredientStore.data');
+	// $inspect(ingredientStore.data, 'ingredientStore.data');
 
 	let open = $state(false);
 	let selectedItemId = $state('');
