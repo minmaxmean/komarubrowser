@@ -1,4 +1,4 @@
-import type { Ingredient } from '$lib/data/ingredient';
+import type { Ingredient } from '$lib/types/ingredient';
 
 export type ScorerFn<I> = (item: I, lowercaseQuery: string) => number;
 

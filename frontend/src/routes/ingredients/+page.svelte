@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { ingredientStore } from '$lib/data/ingredientStore.svelte.js';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import type { ColumnDef } from '@tanstack/table-core';
-	import type { Ingredient } from '$lib/data/ingredient';
-	import { energyTiers } from '$lib/data/energyTier';
-	import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
+	import type { Ingredient } from '$lib/types/ingredient';
+	import { ingredientStore } from '$lib/store/ingStore.svelte';
 
 	const columns: ColumnDef<Ingredient>[] = [
 		{

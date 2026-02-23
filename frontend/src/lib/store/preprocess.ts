@@ -1,7 +1,5 @@
-import { type FetchStatus } from './common';
-import { ingredientNamesapce, type Ingredient } from './ingredient';
-
-const INGREDIENTS_URL = '/assets/dump/ingredients.min.json';
+import { parseNamespace } from '$lib/types/common';
+import type { Ingredient } from '$lib/types/ingredient';
 
 const disabledNamespaces = [
 	'chipped',
@@ -9,13 +7,14 @@ const disabledNamespaces = [
 	'create',
 	'xtonesreworked',
 	'architects_palette',
-	'chisel_chipped_integration'
+	'chisel_chipped_integration',
+	'thermal_extra'
 ];
 
-const preprocessIngredients = (items: Ingredient[]): Ingredient[] =>
+export const preprocessIngredients = (items: Ingredient[]): Ingredient[] =>
 	items
 		.filter((item) => {
-			const [namespace, id] = ingredientNamesapce(item.id);
+			const [namespace, id] = parseNamespace(item.id);
 			if (disabledNamespaces.includes(namespace)) return false;
 			if (id.includes('flowing')) {
 				return false;
@@ -54,23 +53,3 @@ const preprocessIngredients = (items: Ingredient[]): Ingredient[] =>
 			item.displayName = item.displayName.replace(/§./gs, '');
 			return item;
 		});
-class IngredientStore {
-	public data = $state<Ingredient[]>([]);
-	public status = $state<FetchStatus>('idle');
-	async fetch() {
-		if (this.data.length > 0) {
-			return;
-		}
-		this.status = 'loading';
-		try {
-			const resp = await fetch(INGREDIENTS_URL);
-			this.data = preprocessIngredients(await resp.json());
-			this.status = 'successful';
-		} catch (e: any) {
-			console.error(e);
-			this.status = 'error';
-		}
-	}
-}
-
-export const ingredientStore = new IngredientStore();

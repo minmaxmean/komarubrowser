@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { recipeStore } from '$lib/data/recipeStore.svelte.js';
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import { createColumnHelper, type ColumnDef } from '@tanstack/table-core';
-	import type { Recipe } from '$lib/data/recipe';
+	import type { Recipe } from '$lib/types/recipe';
 	import { renderComponent } from '$lib/components/ui/data-table';
 	import RecipeIngredientList from './RecipeIngredientList.svelte';
 	import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
+	import { recipeStore } from '$lib/store/recipeStore.svelte';
 
 	const columnHelper = createColumnHelper<Recipe>();
 

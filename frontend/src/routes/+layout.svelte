@@ -3,8 +3,8 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { ModeWatcher } from 'mode-watcher';
 	import { onMount } from 'svelte';
-	import { ingredientStore } from '$lib/data/ingredientStore.svelte';
-	import { recipeStore } from '$lib/data/recipeStore.svelte';
+	import { recipeStore } from '$lib/store/recipeStore.svelte';
+	import { ingredientStore } from '$lib/store/ingStore.svelte';
 
 	onMount(() => {
 		ingredientStore.fetch();

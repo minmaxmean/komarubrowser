@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { RecipeIngredient } from '$lib/data/recipe';
+	import type { RecipeIngredient } from '$lib/types/recipe';
 
 	type RecipeIngredienListProps = {
 		items: RecipeIngredient[];

@@ -3,8 +3,8 @@
 	import IngredientItem from '$lib/components/widgets/IngredientItem/IngredientItem.svelte';
 	import { scoreIngredient } from '$lib/components/widgets/SeachWidget/scorers';
 	import SearchWidget from '$lib/components/widgets/SeachWidget/SearchWidget.svelte';
-	import { ingredientIdFn } from '$lib/data/ingredient';
-	import { ingredientStore } from '$lib/data/ingredientStore.svelte';
+	import { ingredientStore } from '$lib/store/ingStore.svelte';
+	import { ingredientIdFn } from '$lib/types/ingredient';
 </script>
 
 <div class="flex w-full max-w-md flex-col gap-6">
