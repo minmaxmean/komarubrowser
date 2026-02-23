@@ -4,13 +4,15 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "declaration": true,
-    "emitDeclarationOnly": true,
+    "declarationMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "composite": true
   },
   "include": ["src/**/*"]
 }

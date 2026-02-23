@@ -1,3 +1,10 @@
+experimental_monorepo_root = true
+[monorepo]
+config_roots = [
+  "packages/*"
+]
+
+
 [tools]
 java = "21"
 node = "latest"
@@ -7,16 +14,20 @@ python = "latest"
 uv = "latest"
 
 [env]
+MISE_EXPERIMENTAL="1"
 # This tells mise to automatically activate the .venv in this directory
 _.python.venv = ".venv"
 
-workdata = "./workdata"
-common_dir = "./packages/common"
-frontend_dir = "./packages/frontend"
+workdata     = "{{config_root}}/workdata"
+common_dir   = "{{config_root}}/packages/common"
+frontend_dir = "{{config_root}}/packages/frontend"
 
 star_t_dir = "{{env.workdata}}/star_t_server"
 raw_assets_dir = "{{env.workdata}}/raw_assets"
 assets_dir = "{{env.frontend_dir}}/static/assets"
+
+common_dist = "{{env.common_dir}}/dist/**/*"
+
 
 [tasks."forgemod:build"]
 description = "Build mod"
@@ -43,8 +54,5 @@ raw = true
 
 [tasks.assets]
 description = "Prepare assets"
-run = "# dummy task to combine all assets tasks"
-depends = ["assets:*"]
-
-[tasks.common]
+run = [ { task = "assets:*" } ] 
 

@@ -5,7 +5,13 @@
 	import SearchWidget from '$lib/components/widgets/SeachWidget/SearchWidget.svelte';
 	import { ingredientStore } from '$lib/store/ingStore.svelte';
 	import { ingredientIdFn } from '$lib/types/ingredient';
+	import { message } from '@komarubrowser/common';
 </script>
+
+
+<div>
+  Message from common: "{message}"
+</div>
 
 <div class="flex w-full max-w-md flex-col gap-6">
 	<Item.Root variant="outline">

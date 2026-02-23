@@ -1,0 +1,10 @@
+[tasks.build]
+description = "Build Common"
+run = "pnpm tsc --build && echo 'packages/common build'"
+sources = ["package.json", "tsconfig.json", "src/**/*.ts"]
+outputs = ["{{env.common_dist}}"]
+
+[tasks.dev]
+description = "Prepare assets"
+run = "pnpm tsc --watch --build"
+

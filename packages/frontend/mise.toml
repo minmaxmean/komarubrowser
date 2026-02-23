@@ -1,0 +1,26 @@
+[tasks.build]
+description = "Prepare assets"
+depends = ["//packages/common:build"]
+run = "pnpm vite build"
+sources = [
+  "package.json", "tsconfig.json",
+  "src/**/*",
+  "{{env.common_dist}}",
+]
+outputs = ["./build/**/*"]
+
+[tasks.dev_only]
+description = "Start only frontend dev"
+depends = ["//packages/common:build"]
+run = "pnpm vite dev"
+
+[tasks.dev]
+description = "Start frontend dev+common"
+run = [{
+  tasks= ["dev_only", "//packages/common:dev"],
+}]
+
+[tasks.preview]
+description = "Prepare assets"
+run = "pnpm vite preview"
+

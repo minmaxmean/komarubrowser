@@ -1,11 +1,9 @@
 {
-	"name": "frontend",
+	"name": "@komarubrowser/frontend",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "pnpm --filter common build && vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -38,7 +36,7 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
-		"common": "workspace:*",
+		"@komarubrowser/common": "workspace:*",
 		"mode-watcher": "^1.1.0"
 	}
 }

@@ -8,3 +8,5 @@ export interface ManifestItem {
 }
 
 export type Manifest = ManifestItem[];
+
+export const message = 'Hello from common'
