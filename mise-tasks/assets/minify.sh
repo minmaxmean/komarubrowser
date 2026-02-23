@@ -4,6 +4,7 @@
 
 #MISE sources=["{{env.raw_assets_dir}}/dump/*.json"]
 #MISE outputs=["{{env.assets_dir}}/dump/*.min.json"]
+#MISE depends=["assets:manifest"]
 
 set -e
 

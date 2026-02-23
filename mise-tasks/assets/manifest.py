@@ -2,7 +2,8 @@
 #MISE description="Build a manifest for extracted pngs"
 #MISE dir="{{config_root}}"
 #MISE sources=["{{env.assets_dir}}/extracted"]
-#MISE outputs=["{{env.assets_dir}}/manifest.json"]
+#MISE outputs=["{{env.raw_assets_dir}}/dump/manifest.json"]
+#MISE depends=["assets:extract"]
 
 import os
 import sys
@@ -82,19 +83,25 @@ def build_manifest_parallel(base_dir: str, max_workers: int | None=None):
 
 if __name__ == "__main__":
   # Pull the directory dynamically from the environment variable mise injects
-  target_dir = os.environ.get("assets_dir")
+  assets_dir = os.environ.get("assets_dir")
+  raw_assets_dir = os.environ.get("raw_assets_dir")
   
-  if not target_dir:
+  if not assets_dir:
     print("Error: 'assets_dir' environment variable is not set.")
     print("Make sure your mise.toml defines this variable.")
     sys.exit(1)
+
+  if not raw_assets_dir:
+    print("Error: 'raw_assets_dir' environment variable is not set.")
+    print("Make sure your mise.toml defines this variable.")
+    sys.exit(1)
     
-  print(f"Building manifest for {target_dir}...")
-  manifest_data = build_manifest_parallel(target_dir)
+  print(f"Building manifest for {assets_dir}...")
+  manifest_data = build_manifest_parallel(assets_dir)
   
-  output_path = os.path.join(target_dir, "manifest.json")
+  output_path = os.path.join(raw_assets_dir,"dump", "manifest.json")
   with open(output_path, "w") as f:
     # Save as minified JSON
-    json.dump(manifest_data, f, separators=(',', ':'))
+    json.dump(manifest_data, f, indent = 2)
     
   print(f"Manifest successfully generated at {output_path}")
