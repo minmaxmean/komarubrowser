@@ -10,13 +10,13 @@ uv = "latest"
 # This tells mise to automatically activate the .venv in this directory
 _.python.venv = ".venv"
 
-raw_assets_dir = "./workdata/raw_assets"
-assets_dir = "./frontend/static/assets"
+workdata = "./workdata"
+common_dir = "./packages/common"
+frontend_dir = "./packages/frontend"
 
-json_input_dir = "./workdata/raw_assets/dump"
-json_output_dir = "./frontend/static/assets/dump"
-extract_input_file = "./workdata/raw_assets/dump/ingredients.json"
-extract_output_dir = "./frontend/static/assets/extracted"
+star_t_dir = "{{env.workdata}}/star_t_server"
+raw_assets_dir = "{{env.workdata}}/raw_assets"
+assets_dir = "{{env.frontend_dir}}/static/assets"
 
 [tasks."forgemod:build"]
 description = "Build mod"
@@ -36,7 +36,7 @@ run = "./scripts/run_star_t.sh"
 [tasks."star_t:run"]
 description = "Run Star Technologu with mod"
 depends = ["star_t:copy"]
-dir = "{{config_root}}/workdata/star_t_server"
+dir = "{{env.star_t_dir}}"
 run = "./run.sh --nogui --port 26767"
 raw = true
 
@@ -45,4 +45,6 @@ raw = true
 description = "Prepare assets"
 run = "# dummy task to combine all assets tasks"
 depends = ["assets:*"]
+
+[tasks.common]
 

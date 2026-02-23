@@ -8,7 +8,7 @@
 set -e 
 
 # Configuration
-MODS_DIR="./workdata/star_t_server/mods"
+MODS_DIR="$star_t_dir/mods"
 INGREDIENTS_FILE="$raw_assets_dir/dump/ingredients.json"
 OUTPUT_BASE="$assets_dir/extracted"
 
