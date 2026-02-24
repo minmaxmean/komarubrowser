@@ -56,9 +56,7 @@ raw = true
 description = "Prepare assets"
 run = [{
   tasks=[
-    # "assets:extract",
     "//packages/extractor:run",
-    "assets:minify",
-    "assets:manifest",
-]}] 
+    "//packages/extractor:minify",
+  ]}]
 

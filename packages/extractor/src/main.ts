@@ -15,6 +15,8 @@ const MODS_DIR = path.join(process.env.star_t_dir!, "mods");
 const INGREDIENTS_FILE = path.join(process.env.raw_assets_dir!, "dump", "ingredients.json");
 const OUTPUT_BASE = path.join(process.env.assets_dir!, "extracted");
 const MANIFEST_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "manifest.json");
+const INPUT_PATH = path.join(process.env.raw_assets_dir!, "dump");
+const OUTPUT_PATH = path.join(process.env.assets_dir!, "dump");
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
@@ -230,7 +232,47 @@ async function buildManifest(): Promise<void> {
   console.log(`Manifest successfully generated at ${MANIFEST_OUTPUT}`);
 }
 
+async function minifyJson(): Promise<void> {
+  console.log(`Looking for JSON files in: ${INPUT_PATH}`);
+
+  if (!(await pathExists(INPUT_PATH))) {
+    console.error(`Error: Directory ${INPUT_PATH} does not exist.`);
+    process.exit(1);
+  }
+
+  await fs.mkdir(OUTPUT_PATH, { recursive: true });
+
+  const files = await fs.readdir(INPUT_PATH);
+  const jsonFiles = files.filter((f) => f.endsWith(".json"));
+
+  if (jsonFiles.length === 0) {
+    console.log(`No JSON files found in ${INPUT_PATH}`);
+    return;
+  }
+
+  for (const filename of jsonFiles) {
+    const inputFile = path.join(INPUT_PATH, filename);
+    const outputFile = path.join(OUTPUT_PATH, filename.replace(/\.json$/, ".min.json"));
+    console.log(`Minifying ${filename}...`);
+    const content = await fs.readFile(inputFile, "utf-8");
+    const parsed = JSON.parse(content);
+    const minified = JSON.stringify(parsed);
+    await fs.writeFile(outputFile, minified);
+    console.log(`  minified to ${outputFile}`);
+  }
+
+  console.log(`Successfully minified ${jsonFiles.length} files.`);
+  console.log(`  Output folder: ${OUTPUT_PATH}`);
+}
+
+const args = process.argv.slice(2);
+const isMinifyMode = args.includes("--minify");
+
 async function main(): Promise<void> {
+  if (isMinifyMode) {
+    await minifyJson();
+    return;
+  }
   await extractAssets();
   await buildManifest();
 }

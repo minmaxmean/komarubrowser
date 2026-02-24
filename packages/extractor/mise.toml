@@ -19,3 +19,10 @@ depends = [":build"]
 sources = ["{{env.raw_assets_dir}}/dump/ingredients.json"]
 outputs = ["{{env.assets_dir}}/extracted", "{{env.raw_assets_dir}}/dump/manifest.json"]
 run = "pnpm node dist/main.js"
+
+[tasks.minify]
+description = "Minify all JSON files"
+depends = [":build"]
+sources = ["{{env.raw_assets_dir}}/dump/*.json"]
+outputs = ["{{env.assets_dir}}/dump/*.min.json"]
+run = "pnpm node dist/main.js --minify"
