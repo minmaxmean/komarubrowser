@@ -21,16 +21,20 @@ sources = ["{{env.raw_assets_dir}}/dump/ingredients.json", "./dist/**/*.js"]
 outputs = ["{{env.assets_dir}}/extracted/**/*.png"]
 run = "pnpm node dist/main.js --extract"
 
-[tasks.manifest]
-description = "Build manifest from extracted assets"
+[tasks.db]
+description = "Build SQLite database from ingredients and extracted assets"
 depends = [":jar"]
-sources = ["{{env.assets_dir}}/extracted/**/*", "./dist/**/*.js"]
-outputs = ["{{env.raw_assets_dir}}/dump/manifest.json"]
-run = "pnpm node dist/main.js --build-manifest"
+sources = [
+  "{{env.raw_assets_dir}}/dump/ingredients.json",
+  "{{env.assets_dir}}/extracted/**/*",
+  "./dist/**/*.js",
+]
+outputs = ["{{env.raw_assets_dir}}/dump/assets.db"]
+run = "pnpm node dist/main.js --build-db"
 
 [tasks.minify]
 description = "Minify all JSON files"
-depends = [":build", ":manifest"]
+depends = [":build", ":db"]
 sources = ["{{env.raw_assets_dir}}/dump/*.json", "./dist/**/*.js"]
 outputs = ["{{env.assets_dir}}/dump/*.min.json"]
 run = "pnpm node dist/main.js --minify"

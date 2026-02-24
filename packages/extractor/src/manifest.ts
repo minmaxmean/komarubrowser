@@ -2,8 +2,8 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import sizeOf from "image-size";
 import cliProgress from "cli-progress";
-import type { Manifest, ManifestItem } from "@komarubrowser/common/types";
-import { OUTPUT_BASE, MANIFEST_OUTPUT, pathExists } from "./shared.js";
+import type { ManifestRow } from "@komarubrowser/common/tables";
+import { OUTPUT_BASE, pathExists } from "./shared.js";
 
 async function getPngInfo(
   filePath: string,
@@ -11,7 +11,7 @@ async function getPngInfo(
   modId: string,
   itemType: string,
   filename: string,
-): Promise<ManifestItem | null> {
+): Promise<ManifestRow | null> {
   try {
     const fileBuffer = await fs.readFile(filePath);
     const dimensions = sizeOf(fileBuffer);
@@ -28,7 +28,7 @@ async function getPngInfo(
   }
 }
 
-export async function buildManifest(): Promise<void> {
+export async function buildManifestItems(): Promise<ManifestRow[]> {
   console.log(`Building manifest for ${OUTPUT_BASE}...`);
 
   const extractedDir = OUTPUT_BASE;
@@ -39,7 +39,7 @@ export async function buildManifest(): Promise<void> {
   }
 
   const jarDirs = await fs.readdir(extractedDir, { withFileTypes: true });
-  const tasks: { task: Promise<ManifestItem | null>; info: string }[] = [];
+  const tasks: { task: Promise<ManifestRow | null>; info: string }[] = [];
 
   for (const jar of jarDirs) {
     if (!jar.isDirectory()) continue;
@@ -79,7 +79,7 @@ export async function buildManifest(): Promise<void> {
 
   progressBar.start(tasks.length, 0);
 
-  const results: ManifestItem[] = [];
+  const results: ManifestRow[] = [];
   for (const { task } of tasks) {
     const result = await task;
     if (result) results.push(result);
@@ -88,10 +88,5 @@ export async function buildManifest(): Promise<void> {
 
   progressBar.stop();
 
-  const manifest: Manifest = results;
-
-  await fs.mkdir(path.dirname(MANIFEST_OUTPUT), { recursive: true });
-  await fs.writeFile(MANIFEST_OUTPUT, JSON.stringify(manifest, null, 2));
-
-  console.log(`Manifest successfully generated at ${MANIFEST_OUTPUT}`);
+  return results;
 }
