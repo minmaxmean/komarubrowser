@@ -71,11 +71,11 @@ description = "Prepare assets"
 run = [{
   tasks=[
     "//packages/extractor:jar",
-    "//packages/extractor:manifest",
+    "//packages/extractor:db",
     "//packages/extractor:minify",
   ]}]
 
 [tasks."assets:clean"]
 description = "clean"
-run = "rm -rf {{env.assets_dir}} {{env.raw_assets_dir}}/dump/manifest.json"
+run = "rm -rf {{env.assets_dir}} {{env.raw_assets_dir}}/dump/assets.db"
 

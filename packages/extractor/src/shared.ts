@@ -30,3 +30,39 @@ export async function pathExists(filePath: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function copyDir(src: string, dest: string): Promise<void> {
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      await copyDir(srcPath, destPath);
+    } else {
+      await fs.copyFile(srcPath, destPath);
+    }
+  }
+}
+
+export async function atomicMove(src: string, dest: string): Promise<void> {
+  try {
+    // Try simple rename first
+    await fs.rename(src, dest);
+  } catch (err: any) {
+    if (err.code === "EXDEV") {
+      // Cross-device link, fallback to copy + delete
+      const stat = await fs.stat(src);
+      if (stat.isDirectory()) {
+        await copyDir(src, dest);
+        await fs.rm(src, { recursive: true });
+      } else {
+        await fs.copyFile(src, dest);
+        await fs.unlink(src);
+      }
+    } else {
+      throw err;
+    }
+  }
+}

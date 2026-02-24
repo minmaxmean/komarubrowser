@@ -4,13 +4,12 @@ import * as path from "path";
 import { DB_OUTPUT, pathExists } from "./shared.js";
 import type { IngredientRow, ManifestRow } from "@komarubrowser/common/tables";
 
-export async function initDb(): Promise<Database.Database> {
-  if (await pathExists(DB_OUTPUT)) {
-    await fs.unlink(DB_OUTPUT);
+export async function initDb(dbPath: string = DB_OUTPUT): Promise<Database.Database> {
+  if (await pathExists(dbPath)) {
+    await fs.unlink(dbPath);
   }
 
-  const db = new Database(DB_OUTPUT);
-  db.pragma("journal_mode = WAL");
+  const db = new Database(dbPath);
 
   db.exec(`
     CREATE TABLE ingredients (

@@ -9,14 +9,16 @@ import {
   OUTPUT_BASE,
   JAR_MAPPINGS,
   pathExists,
+  copyDir,
+  atomicMove,
 } from "./shared.js";
 import type { Ingredient } from '@komarubrowser/common/types';
 
-async function extractJar(jar: string): Promise<boolean> {
+async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
   const extractName = JAR_MAPPINGS[jar] || jar;
   const jarPath = path.join(MODS_DIR, extractName);
-  const tempDir = path.join(os.tmpdir(), `komaru_${jar}`);
-  const finalDir = path.join(OUTPUT_BASE, jar);
+  const tempDir = path.join(os.tmpdir(), `komaru_${jar}_${Math.random().toString(36).slice(2)}`);
+  const finalDirInStaging = path.join(stagingBase, jar);
 
   if (!(await pathExists(jarPath))) {
     console.log(`Warning: JAR not found: ${jar}`);
@@ -72,8 +74,8 @@ async function extractJar(jar: string): Promise<boolean> {
       }
     }
 
-    await fs.mkdir(finalDir, { recursive: true });
-    await copyDir(path.join(tempDir, "assets"), path.join(finalDir, "assets"));
+    await fs.mkdir(finalDirInStaging, { recursive: true });
+    await copyDir(path.join(tempDir, "assets"), path.join(finalDirInStaging, "assets"));
 
     if (await pathExists(tempDir)) {
       await fs.rm(tempDir, { recursive: true });
@@ -86,21 +88,6 @@ async function extractJar(jar: string): Promise<boolean> {
       await fs.rm(tempDir, { recursive: true });
     }
     return false;
-  }
-}
-
-async function copyDir(src: string, dest: string): Promise<void> {
-  await fs.mkdir(dest, { recursive: true });
-  const entries = await fs.readdir(src, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    if (entry.isDirectory()) {
-      await copyDir(srcPath, destPath);
-    } else {
-      await fs.copyFile(srcPath, destPath);
-    }
   }
 }
 
@@ -123,18 +110,6 @@ async function getAllPngFiles(dir: string): Promise<string[]> {
   return files;
 }
 
-async function cleanupOutputDirs(): Promise<void> {
-  if (!(await pathExists(OUTPUT_BASE))) return;
-
-  const entries = await fs.readdir(OUTPUT_BASE, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      const fullPath = path.join(OUTPUT_BASE, entry.name);
-      await fs.rm(fullPath, { recursive: true });
-    }
-  }
-}
-
 export async function extractAssets(): Promise<void> {
   if (!(await pathExists(INGREDIENTS_FILE))) {
     console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
@@ -147,34 +122,44 @@ export async function extractAssets(): Promise<void> {
 
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);
 
-  await fs.mkdir(OUTPUT_BASE, { recursive: true });
+  const stagingBase = await fs.mkdtemp(path.join(os.tmpdir(), "komaru-extract-"));
 
-  console.log("Cleaning output directories...");
-  await cleanupOutputDirs();
+  try {
+    console.log(`Processing ${uniqueJars.length} JARs into staging area...`);
 
-  console.log(`Processing ${uniqueJars.length} JARs...`);
+    const progressBar = new cliProgress.SingleBar({
+      format: "  {bar} {percentage}% | {value}/{total} | {jar}",
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591",
+      hideCursor: true,
+    });
 
-  const progressBar = new cliProgress.SingleBar({
-    format: "  {bar} {percentage}% | {value}/{total} | {jar}",
-    barCompleteChar: "\u2588",
-    barIncompleteChar: "\u2591",
-    hideCursor: true,
-  });
+    progressBar.start(uniqueJars.length, 0);
 
-  progressBar.start(uniqueJars.length, 0);
+    let completed = 0;
+    await Promise.all(
+      uniqueJars.map(async (jar) => {
+        progressBar.update(completed, { jar });
+        await extractJar(jar!, stagingBase);
+        completed++;
+        progressBar.update(completed);
+      }),
+    );
 
-  let completed = 0;
-  await Promise.all(
-    uniqueJars.map(async (jar) => {
-      progressBar.update(completed, { jar });
-      await extractJar(jar!);
-      completed++;
-      progressBar.update(completed);
-    }),
-  );
+    progressBar.stop();
 
-  progressBar.stop();
+    console.log(`Committing assets to ${OUTPUT_BASE}...`);
+    if (await pathExists(OUTPUT_BASE)) {
+      await fs.rm(OUTPUT_BASE, { recursive: true });
+    }
+    await fs.mkdir(path.dirname(OUTPUT_BASE), { recursive: true });
+    await atomicMove(stagingBase, OUTPUT_BASE);
 
-  console.log("====================");
-  console.log(`Extraction complete. Assets stored in ${OUTPUT_BASE}`);
+    console.log("====================");
+    console.log(`Extraction complete. Assets stored in ${OUTPUT_BASE}`);
+  } catch (err) {
+    console.error("Extraction failed, cleaning up staging area...");
+    await fs.rm(stagingBase, { recursive: true, force: true });
+    throw err;
+  }
 }
