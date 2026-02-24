@@ -6,9 +6,12 @@
   "main": "./dist/main.js",
   "types": "./dist/main.d.ts",
   "dependencies": {
-    "@komarubrowser/common": "workspace:*"
+    "@komarubrowser/common": "workspace:*",
+    "adm-zip": "^0.5.16"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^22.13.1",
     "ts-node": "^10.9.2"
   }
 }
