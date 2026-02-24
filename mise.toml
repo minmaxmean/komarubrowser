@@ -41,8 +41,6 @@ description = "Run Star Technologu with mod"
 depends = ["forgemod-build"]
 dir = "{{config_root}}"
 run = "./scripts/run_star_t.sh"
-# sources = ["build/libs/komarubrowser-*.jar"]
-# outputs = ["workdata/star_t_server/mods/komarubrowser-*.jar"]
 
 [tasks."star_t:run"]
 description = "Run Star Technologu with mod"
@@ -52,11 +50,24 @@ run = "./run.sh --nogui --port 26767"
 raw = true
 
 
+[tasks.clean]
+description = "clean"
+run = [{
+  tasks = [
+    "assets:clean",
+    "//packages/...:clean",
+]}]
+
+
 [tasks.assets]
 description = "Prepare assets"
 run = [{
   tasks=[
-    "//packages/extractor:run",
+    "//packages/extractor:extract",
     "//packages/extractor:minify",
   ]}]
+
+[tasks."assets:clean"]
+description = "clean"
+run = "rm -rf {{env.assets_dir}} {{env.raw_assets_dir}}/dump/manifest.json"
 

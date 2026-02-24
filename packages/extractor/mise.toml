@@ -3,26 +3,27 @@ description = "Build extractor"
 depends = ["//packages/common:build"]
 run = "pnpm tsc --build"
 sources = [
-  "package.json", "tsconfig.json",
+  "package.json",
+  "tsconfig.json",
   "src/**/*",
-  "{{env.common_dist}}",
+  "../common/dist/**/*",
 ]
-outputs = ["./dist/**/*"]
+outputs = ["./dist/**/*.js", "./dist/**/*.d.ts"]
 
 [tasks.clean]
 description = "Remove build files"
 run = "rm -rf ./dist"
 
-[tasks.run]
+[tasks.extract]
 description = "Extract assets from Jar mods and build manifest"
 depends = [":build"]
-sources = ["{{env.raw_assets_dir}}/dump/ingredients.json"]
-outputs = ["{{env.assets_dir}}/extracted", "{{env.raw_assets_dir}}/dump/manifest.json"]
-run = "pnpm node dist/main.js"
+sources = ["{{env.raw_assets_dir}}/dump/ingredients.json", "./dist/**/*.js"]
+outputs = ["{{env.assets_dir}}/extracted/**/*.png", "{{env.raw_assets_dir}}/dump/manifest.json"]
+run = "pnpm node dist/main.js --extract"
 
 [tasks.minify]
 description = "Minify all JSON files"
-depends = [":build"]
-sources = ["{{env.raw_assets_dir}}/dump/*.json"]
+depends = [":build", ":extract"]
+sources = ["{{env.raw_assets_dir}}/dump/*.json", "./dist/**/*.js"]
 outputs = ["{{env.assets_dir}}/dump/*.min.json"]
 run = "pnpm node dist/main.js --minify"
