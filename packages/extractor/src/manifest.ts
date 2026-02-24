@@ -1,6 +1,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import sizeOf from "image-size";
+import cliProgress from "cli-progress";
 import type { Manifest, ManifestItem } from "@komarubrowser/common/types";
 import { OUTPUT_BASE, MANIFEST_OUTPUT, pathExists } from "./shared.js";
 
@@ -23,7 +24,6 @@ async function getPngInfo(
       height: dimensions.height || 0,
     };
   } catch (err) {
-    console.log(`Warning: Failed to parse ${filePath} - ${err}`);
     return null;
   }
 }
@@ -39,7 +39,7 @@ export async function buildManifest(): Promise<void> {
   }
 
   const jarDirs = await fs.readdir(extractedDir, { withFileTypes: true });
-  const tasks: Promise<ManifestItem | null>[] = [];
+  const tasks: { task: Promise<ManifestItem | null>; info: string }[] = [];
 
   for (const jar of jarDirs) {
     if (!jar.isDirectory()) continue;
@@ -59,16 +59,36 @@ export async function buildManifest(): Promise<void> {
         for (const file of files) {
           if (!file.endsWith(".png")) continue;
           const filePath = path.join(typePath, file);
-          tasks.push(getPngInfo(filePath, jar.name, mod.name, itemType.name, file));
+          tasks.push({
+            task: getPngInfo(filePath, jar.name, mod.name, itemType.name, file),
+            info: file,
+          });
         }
       }
     }
   }
 
-  console.log(`Queued ${tasks.length} images for processing. Reading headers...`);
+  console.log(`Processing ${tasks.length} images...`);
 
-  const results = await Promise.all(tasks);
-  const manifest: Manifest = results.filter((r): r is ManifestItem => r !== null);
+  const progressBar = new cliProgress.SingleBar({
+    format: "  {bar} {percentage}% | {value}/{total}",
+    barCompleteChar: "\u2588",
+    barIncompleteChar: "\u2591",
+    hideCursor: true,
+  });
+
+  progressBar.start(tasks.length, 0);
+
+  const results: ManifestItem[] = [];
+  for (const { task } of tasks) {
+    const result = await task;
+    if (result) results.push(result);
+    progressBar.increment();
+  }
+
+  progressBar.stop();
+
+  const manifest: Manifest = results;
 
   await fs.mkdir(path.dirname(MANIFEST_OUTPUT), { recursive: true });
   await fs.writeFile(MANIFEST_OUTPUT, JSON.stringify(manifest, null, 2));

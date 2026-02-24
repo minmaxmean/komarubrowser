@@ -2,6 +2,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
 import AdmZip from "adm-zip";
+import cliProgress from "cli-progress";
 import {
   MODS_DIR,
   INGREDIENTS_FILE,
@@ -22,8 +23,6 @@ async function extractJar(jar: string): Promise<boolean> {
     return false;
   }
 
-  console.log(`Processing: ${jar}`);
-
   try {
     if (await pathExists(tempDir)) {
       await fs.rm(tempDir, { recursive: true });
@@ -42,7 +41,6 @@ async function extractJar(jar: string): Promise<boolean> {
       );
     });
 
-    console.log(`  unzipping: ${jarPath}`);
     for (const entry of pngEntries) {
       zip.extractEntryTo(entry, tempDir, true, true);
     }
@@ -62,7 +60,6 @@ async function extractJar(jar: string): Promise<boolean> {
             const destDir = path.join(tempDir, namespace, type);
             await fs.mkdir(destDir, { recursive: true });
 
-            console.log(`  copying: ${typePath}`);
             const pngFiles = await getAllPngFiles(typePath);
             await Promise.all(
               pngFiles.map(async (pngFile) => {
@@ -75,7 +72,6 @@ async function extractJar(jar: string): Promise<boolean> {
       }
     }
 
-    console.log(`  moving to final: ${finalDir}`);
     await fs.mkdir(finalDir, { recursive: true });
     await copyDir(path.join(tempDir, "assets"), path.join(finalDir, "assets"));
 
@@ -134,7 +130,6 @@ async function cleanupOutputDirs(): Promise<void> {
   for (const entry of entries) {
     if (entry.isDirectory()) {
       const fullPath = path.join(OUTPUT_BASE, entry.name);
-      console.log(`  cleaning: ${fullPath}`);
       await fs.rm(fullPath, { recursive: true });
     }
   }
@@ -157,7 +152,28 @@ export async function extractAssets(): Promise<void> {
   console.log("Cleaning output directories...");
   await cleanupOutputDirs();
 
-  await Promise.all(uniqueJars.map((jar) => extractJar(jar!)));
+  console.log(`Processing ${uniqueJars.length} JARs...`);
+
+  const progressBar = new cliProgress.SingleBar({
+    format: "  {bar} {percentage}% | {value}/{total} | {jar}",
+    barCompleteChar: "\u2588",
+    barIncompleteChar: "\u2591",
+    hideCursor: true,
+  });
+
+  progressBar.start(uniqueJars.length, 0);
+
+  let completed = 0;
+  await Promise.all(
+    uniqueJars.map(async (jar) => {
+      progressBar.update(completed, { jar });
+      await extractJar(jar!);
+      completed++;
+      progressBar.update(completed);
+    }),
+  );
+
+  progressBar.stop();
 
   console.log("====================");
   console.log(`Extraction complete. Assets stored in ${OUTPUT_BASE}`);
