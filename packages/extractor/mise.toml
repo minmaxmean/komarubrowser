@@ -14,6 +14,8 @@ description = "Remove build files"
 run = "rm -rf ./dist"
 
 [tasks.run]
-description = "Run Extractor"
+description = "Extract assets from Jar mods"
 depends = [":build"]
+sources = ["{{env.raw_assets_dir}}/dump/ingredients.json"]
+outputs = ["{{env.assets_dir}}/extracted"]
 run = "pnpm node dist/main.js"

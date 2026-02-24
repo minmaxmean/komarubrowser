@@ -3,7 +3,7 @@
 #MISE dir="{{config_root}}"
 #MISE sources=["{{env.assets_dir}}/extracted"]
 #MISE outputs=["{{env.raw_assets_dir}}/dump/manifest.json"]
-#MISE depends=["assets:extract"]
+#MISE depends=["//packages/extractor:run"]
 
 import os
 import sys
