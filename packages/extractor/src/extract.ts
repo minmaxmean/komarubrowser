@@ -6,9 +6,9 @@ import {
   INGREDIENTS_FILE,
   OUTPUT_BASE,
   JAR_MAPPINGS,
-  Ingredient,
   pathExists,
 } from "./shared.js";
+import type { Ingredient } from '@komarubrowser/common/types';
 
 async function extractJar(jar: string): Promise<boolean> {
   const extractName = JAR_MAPPINGS[jar] || jar;

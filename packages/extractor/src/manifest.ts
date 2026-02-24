@@ -1,7 +1,8 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import sizeOf from "image-size";
-import { OUTPUT_BASE, MANIFEST_OUTPUT, ManifestItem, pathExists } from "./shared.js";
+import type { Manifest, ManifestItem } from "@komarubrowser/common/types";
+import { OUTPUT_BASE, MANIFEST_OUTPUT, pathExists } from "./shared.js";
 
 async function getPngInfo(
   filePath: string,
@@ -67,7 +68,7 @@ export async function buildManifest(): Promise<void> {
   console.log(`Queued ${tasks.length} images for processing. Reading headers...`);
 
   const results = await Promise.all(tasks);
-  const manifest = results.filter((r): r is ManifestItem => r !== null);
+  const manifest: Manifest = results.filter((r): r is ManifestItem => r !== null);
 
   await fs.mkdir(path.dirname(MANIFEST_OUTPUT), { recursive: true });
   await fs.writeFile(MANIFEST_OUTPUT, JSON.stringify(manifest, null, 2));

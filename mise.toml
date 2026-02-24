@@ -50,8 +50,15 @@ run = "./run.sh --nogui --port 26767"
 raw = true
 
 
+[tasks.build]
+description = "Build everything"
+run = [{
+  tasks = [
+    "//packages/...:build",
+]}]
+
 [tasks.clean]
-description = "clean"
+description = "Clean all artifacts"
 run = [{
   tasks = [
     "assets:clean",

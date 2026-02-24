@@ -21,19 +21,6 @@ export const JAR_MAPPINGS: Record<string, string> = {
   "server-1.20.1-20230612.114412-srg.jar": "1.20.1.jar",
 };
 
-export type Ingredient = {
-  sourceJar?: string;
-};
-
-export type ManifestItem = {
-  filename: string;
-  width: number;
-  height: number;
-  jar: string;
-  mod: string;
-  type: string;
-};
-
 export async function pathExists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath);
