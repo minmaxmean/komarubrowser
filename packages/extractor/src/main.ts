@@ -8,15 +8,17 @@ const args = process.argv.slice(2);
 async function main(): Promise<void> {
   if (args.includes("--extract")) {
     await extractAssets();
+    return;
+  } else if (args.includes("--build-manifest")) {
     await buildManifest();
     return;
-  }
-  if (args.includes("--minify")) {
+  } else if (args.includes("--minify")) {
     await minifyJson();
     return;
+  } else {
+    console.log("provide --extract|--build-manifest|--minify");
+    process.exit(1);
   }
-  await extractAssets();
-  await buildManifest();
 }
 
 await main();

@@ -1,5 +1,6 @@
 import * as fs from "fs/promises";
 import * as path from "path";
+import * as os from "os";
 import AdmZip from "adm-zip";
 import {
   MODS_DIR,
@@ -13,7 +14,7 @@ import type { Ingredient } from '@komarubrowser/common/types';
 async function extractJar(jar: string): Promise<boolean> {
   const extractName = JAR_MAPPINGS[jar] || jar;
   const jarPath = path.join(MODS_DIR, extractName);
-  const tempDir = path.join(OUTPUT_BASE, `temp_${jar}`);
+  const tempDir = path.join(os.tmpdir(), `komaru_${jar}`);
   const finalDir = path.join(OUTPUT_BASE, jar);
 
   if (!(await pathExists(jarPath))) {
@@ -24,8 +25,9 @@ async function extractJar(jar: string): Promise<boolean> {
   console.log(`Processing: ${jar}`);
 
   try {
-    if (await pathExists(tempDir)) await fs.rm(tempDir, { recursive: true });
-    if (await pathExists(finalDir)) await fs.rm(finalDir, { recursive: true });
+    if (await pathExists(tempDir)) {
+      await fs.rm(tempDir, { recursive: true });
+    }
     await fs.mkdir(tempDir, { recursive: true });
 
     const zip = new AdmZip(jarPath);
@@ -57,10 +59,10 @@ async function extractJar(jar: string): Promise<boolean> {
         for (const type of ["item", "block"]) {
           const typePath = path.join(nsPath, "textures", type);
           if (await pathExists(typePath)) {
-            const destDir = path.join(finalDir, namespace, type);
+            const destDir = path.join(tempDir, namespace, type);
             await fs.mkdir(destDir, { recursive: true });
 
-            console.log(`  moving: ${typePath}`);
+            console.log(`  copying: ${typePath}`);
             const pngFiles = await getAllPngFiles(typePath);
             await Promise.all(
               pngFiles.map(async (pngFile) => {
@@ -73,6 +75,10 @@ async function extractJar(jar: string): Promise<boolean> {
       }
     }
 
+    console.log(`  moving to final: ${finalDir}`);
+    await fs.mkdir(finalDir, { recursive: true });
+    await copyDir(path.join(tempDir, "assets"), path.join(finalDir, "assets"));
+
     if (await pathExists(tempDir)) {
       await fs.rm(tempDir, { recursive: true });
     }
@@ -84,6 +90,21 @@ async function extractJar(jar: string): Promise<boolean> {
       await fs.rm(tempDir, { recursive: true });
     }
     return false;
+  }
+}
+
+async function copyDir(src: string, dest: string): Promise<void> {
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      await copyDir(srcPath, destPath);
+    } else {
+      await fs.copyFile(srcPath, destPath);
+    }
   }
 }
 
@@ -106,6 +127,19 @@ async function getAllPngFiles(dir: string): Promise<string[]> {
   return files;
 }
 
+async function cleanupOutputDirs(): Promise<void> {
+  if (!(await pathExists(OUTPUT_BASE))) return;
+
+  const entries = await fs.readdir(OUTPUT_BASE, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      const fullPath = path.join(OUTPUT_BASE, entry.name);
+      console.log(`  cleaning: ${fullPath}`);
+      await fs.rm(fullPath, { recursive: true });
+    }
+  }
+}
+
 export async function extractAssets(): Promise<void> {
   if (!(await pathExists(INGREDIENTS_FILE))) {
     console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
@@ -119,6 +153,9 @@ export async function extractAssets(): Promise<void> {
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);
 
   await fs.mkdir(OUTPUT_BASE, { recursive: true });
+
+  console.log("Cleaning output directories...");
+  await cleanupOutputDirs();
 
   await Promise.all(uniqueJars.map((jar) => extractJar(jar!)));
 

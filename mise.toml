@@ -70,7 +70,8 @@ run = [{
 description = "Prepare assets"
 run = [{
   tasks=[
-    "//packages/extractor:extract",
+    "//packages/extractor:jar",
+    "//packages/extractor:manifest",
     "//packages/extractor:minify",
   ]}]
 

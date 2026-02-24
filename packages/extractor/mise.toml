@@ -14,16 +14,23 @@ outputs = ["./dist/**/*.js", "./dist/**/*.d.ts"]
 description = "Remove build files"
 run = "rm -rf ./dist"
 
-[tasks.extract]
-description = "Extract assets from Jar mods and build manifest"
+[tasks.jar]
+description = "Extract assets from Jar mods"
 depends = [":build"]
 sources = ["{{env.raw_assets_dir}}/dump/ingredients.json", "./dist/**/*.js"]
-outputs = ["{{env.assets_dir}}/extracted/**/*.png", "{{env.raw_assets_dir}}/dump/manifest.json"]
+outputs = ["{{env.assets_dir}}/extracted/**/*.png"]
 run = "pnpm node dist/main.js --extract"
+
+[tasks.manifest]
+description = "Build manifest from extracted assets"
+depends = [":jar"]
+sources = ["{{env.assets_dir}}/extracted/**/*", "./dist/**/*.js"]
+outputs = ["{{env.raw_assets_dir}}/dump/manifest.json"]
+run = "pnpm node dist/main.js --build-manifest"
 
 [tasks.minify]
 description = "Minify all JSON files"
-depends = [":build", ":extract"]
+depends = [":build", ":manifest"]
 sources = ["{{env.raw_assets_dir}}/dump/*.json", "./dist/**/*.js"]
 outputs = ["{{env.assets_dir}}/dump/*.min.json"]
 run = "pnpm node dist/main.js --minify"
