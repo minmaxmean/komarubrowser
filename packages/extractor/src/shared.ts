@@ -11,6 +11,7 @@ for (const key of REQUIRED_ENV) {
 
 export const MODS_DIR = path.join(process.env.star_t_dir!, "mods");
 export const INGREDIENTS_FILE = path.join(process.env.raw_assets_dir!, "dump", "ingredients.json");
+export const RECIPES_FILE = path.join(process.env.raw_assets_dir!, "dump", "recipes.json");
 export const OUTPUT_BASE = path.join(process.env.assets_dir!, "extracted");
 export const MANIFEST_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "manifest.json");
 export const DB_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "assets.db");

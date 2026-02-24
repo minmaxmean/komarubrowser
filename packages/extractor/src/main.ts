@@ -5,10 +5,10 @@ import "./shared.js";
 import { extractAssets } from "./extract.js";
 import { buildManifestItems } from "./manifest.js";
 import { minifyJson } from "./minify.js";
-import { initDb, insertIngredients, insertManifest } from "./database.js";
-import { INGREDIENTS_FILE, DB_OUTPUT, atomicMove } from "./shared.js";
-import type { Ingredient } from "@komarubrowser/common/types";
-import type { IngredientRow } from "@komarubrowser/common/tables";
+import { initDb, insertIngredients, insertManifest, insertRecipes } from "./database.js";
+import { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT, atomicMove } from "./shared.js";
+import type { Ingredient, Recipe } from "@komarubrowser/common/types";
+import type { IngredientRow, RecipeRow } from "@komarubrowser/common/tables";
 
 const args = process.argv.slice(2);
 
@@ -48,6 +48,25 @@ async function buildDb(): Promise<void> {
     const manifestRows = await buildManifestItems();
     console.log(`Inserting ${manifestRows.length} manifest entries...`);
     insertManifest(db, manifestRows);
+
+    // 3. Process Recipes
+    console.log(`Reading recipes from ${RECIPES_FILE}...`);
+    const recipesRaw = await fs.readFile(RECIPES_FILE, "utf-8");
+    const recipes: Recipe[] = JSON.parse(recipesRaw);
+
+    const recipeRows: RecipeRow[] = recipes.map((r) => ({
+      id: r.id,
+      machine: r.machine,
+      inputs: JSON.stringify(r.inputs),
+      outputs: JSON.stringify(r.outputs),
+      duration: r.duration,
+      min_tier: r.minTier,
+      eut_consumed: r.eutConsumed,
+      eut_produced: r.eutProduced,
+    }));
+
+    console.log(`Inserting ${recipeRows.length} recipes...`);
+    insertRecipes(db, recipeRows);
 
     db.close();
 

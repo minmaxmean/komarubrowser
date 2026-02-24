@@ -1,4 +1,4 @@
-import type { EnergyTier } from './energyTier';
+import type { EnergyTierID } from './energyTier';
 import type { IngredientID } from './ingredient';
 
 export type RecipeID = string;
@@ -18,7 +18,7 @@ export type Recipe = {
 	outputs: RecipeIngredient[];
 	duration: number;
 
-	minTier: EnergyTier;
+	minTier: EnergyTierID;
 	eutConsumed: number;
 	eutProduced: number;
 };

@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { DB_OUTPUT, pathExists } from "./shared.js";
-import type { IngredientRow, ManifestRow } from "@komarubrowser/common/tables";
+import type { IngredientRow, ManifestRow, RecipeRow } from "@komarubrowser/common/tables";
 
 export async function initDb(dbPath: string = DB_OUTPUT): Promise<Database.Database> {
   if (await pathExists(dbPath)) {
@@ -31,6 +31,17 @@ export async function initDb(dbPath: string = DB_OUTPUT): Promise<Database.Datab
     );
 
     CREATE INDEX idx_manifest_jar_mod ON manifest (jar, mod);
+    
+    CREATE TABLE recipes (
+      id TEXT PRIMARY KEY,
+      machine TEXT NOT NULL,
+      inputs TEXT NOT NULL,
+      outputs TEXT NOT NULL,
+      duration INTEGER NOT NULL,
+      min_tier INTEGER NOT NULL,
+      eut_consumed INTEGER NOT NULL,
+      eut_produced INTEGER NOT NULL
+    );
   `);
 
   return db;
@@ -60,4 +71,17 @@ export function insertManifest(db: Database.Database, manifest: ManifestRow[]): 
   });
 
   insertMany(manifest);
+}
+
+export function insertRecipes(db: Database.Database, recipes: RecipeRow[]): void {
+  const insert = db.prepare(`
+    INSERT INTO recipes (id, machine, inputs, outputs, duration, min_tier, eut_consumed, eut_produced)
+    VALUES (@id, @machine, @inputs, @outputs, @duration, @min_tier, @eut_consumed, @eut_produced)
+  `);
+
+  const insertMany = db.transaction((rows: RecipeRow[]) => {
+    for (const row of rows) insert.run(row);
+  });
+
+  insertMany(recipes);
 }
