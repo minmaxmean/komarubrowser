@@ -1,6 +1,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import AdmZip from "adm-zip";
+import sizeOf from "image-size";
 
 const REQUIRED_ENV = ["star_t_dir", "raw_assets_dir", "assets_dir"] as const;
 
@@ -11,12 +12,9 @@ for (const key of REQUIRED_ENV) {
 }
 
 const MODS_DIR = path.join(process.env.star_t_dir!, "mods");
-const INGREDIENTS_FILE = path.join(
-  process.env.raw_assets_dir!,
-  "dump",
-  "ingredients.json",
-);
+const INGREDIENTS_FILE = path.join(process.env.raw_assets_dir!, "dump", "ingredients.json");
 const OUTPUT_BASE = path.join(process.env.assets_dir!, "extracted");
+const MANIFEST_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "manifest.json");
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
@@ -25,6 +23,15 @@ const JAR_MAPPINGS: Record<string, string> = {
 
 type Ingredient = {
   sourceJar?: string;
+};
+
+type ManifestItem = {
+  filename: string;
+  width: number;
+  height: number;
+  jar: string;
+  mod: string;
+  type: string;
 };
 
 async function pathExists(filePath: string): Promise<boolean> {
@@ -61,8 +68,7 @@ async function extractJar(jar: string): Promise<boolean> {
       const entryName = entry.entryName;
       return (
         entryName.startsWith("assets/") &&
-        (entryName.includes("/textures/item/") ||
-          entryName.includes("/textures/block/")) &&
+        (entryName.includes("/textures/item/") || entryName.includes("/textures/block/")) &&
         entryName.endsWith(".png")
       );
     });
@@ -93,7 +99,7 @@ async function extractJar(jar: string): Promise<boolean> {
               pngFiles.map(async (pngFile) => {
                 const destPath = path.join(destDir, path.basename(pngFile));
                 await fs.copyFile(pngFile, destPath);
-              })
+              }),
             );
           }
         }
@@ -133,6 +139,29 @@ async function getAllPngFiles(dir: string): Promise<string[]> {
   return files;
 }
 
+async function getPngInfo(
+  filePath: string,
+  jarName: string,
+  modId: string,
+  itemType: string,
+  filename: string,
+): Promise<ManifestItem | null> {
+  try {
+    const dimensions = sizeOf(filePath);
+    return {
+      jar: jarName,
+      mod: modId,
+      type: itemType,
+      filename,
+      width: dimensions.width || 0,
+      height: dimensions.height || 0,
+    };
+  } catch (err) {
+    console.log(`Warning: Failed to parse ${filePath} - ${err}`);
+    return null;
+  }
+}
+
 async function extractAssets(): Promise<void> {
   if (!(await pathExists(INGREDIENTS_FILE))) {
     console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
@@ -141,19 +170,69 @@ async function extractAssets(): Promise<void> {
 
   const ingredientsRaw = await fs.readFile(INGREDIENTS_FILE, "utf-8");
   const ingredients: Ingredient[] = JSON.parse(ingredientsRaw);
-  const uniqueJars = [
-    ...new Set(ingredients.map((i) => i.sourceJar).filter(Boolean)),
-  ] as string[];
+  const uniqueJars = [...new Set(ingredients.map((i) => i.sourceJar).filter(Boolean))] as string[];
 
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);
 
   await fs.mkdir(OUTPUT_BASE, { recursive: true });
 
-  const results = await Promise.all(uniqueJars.map((jar) => extractJar(jar!)));
-  const successCount = results.filter(Boolean).length;
+  await Promise.all(uniqueJars.map((jar) => extractJar(jar!)));
 
   console.log("====================");
   console.log(`Extraction complete. Assets stored in ${OUTPUT_BASE}`);
 }
 
-await extractAssets();
+async function buildManifest(): Promise<void> {
+  console.log(`Building manifest for ${OUTPUT_BASE}...`);
+
+  const extractedDir = OUTPUT_BASE;
+
+  if (!(await pathExists(extractedDir))) {
+    console.error(`Error: Directory ${extractedDir} does not exist.`);
+    process.exit(1);
+  }
+
+  const jarDirs = await fs.readdir(extractedDir, { withFileTypes: true });
+  const tasks: Promise<ManifestItem | null>[] = [];
+
+  for (const jar of jarDirs) {
+    if (!jar.isDirectory()) continue;
+    const jarPath = path.join(extractedDir, jar.name);
+
+    const modDirs = await fs.readdir(jarPath, { withFileTypes: true });
+    for (const mod of modDirs) {
+      if (!mod.isDirectory()) continue;
+      const modPath = path.join(jarPath, mod.name);
+
+      const typeDirs = await fs.readdir(modPath, { withFileTypes: true });
+      for (const itemType of typeDirs) {
+        if (!itemType.isDirectory()) continue;
+        const typePath = path.join(modPath, itemType.name);
+
+        const files = await fs.readdir(typePath);
+        for (const file of files) {
+          if (!file.endsWith(".png")) continue;
+          const filePath = path.join(typePath, file);
+          tasks.push(getPngInfo(filePath, jar.name, mod.name, itemType.name, file));
+        }
+      }
+    }
+  }
+
+  console.log(`Queued ${tasks.length} images for processing. Reading headers...`);
+
+  const results = await Promise.all(tasks);
+  const manifest = results.filter((r): r is ManifestItem => r !== null);
+
+  await fs.mkdir(path.dirname(MANIFEST_OUTPUT), { recursive: true });
+  await fs.writeFile(MANIFEST_OUTPUT, JSON.stringify(manifest, null, 2));
+
+  console.log(`Manifest successfully generated at ${MANIFEST_OUTPUT}`);
+}
+
+async function main(): Promise<void> {
+  await extractAssets();
+  await buildManifest();
+}
+
+await main();
