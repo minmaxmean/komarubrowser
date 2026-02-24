@@ -1,4 +1,4 @@
-import type { Ingredient } from '$lib/types/ingredient';
+import type { Ingredient } from '@komarubrowser/common/types';
 
 export type ScorerFn<I> = (item: I, lowercaseQuery: string) => number;
 

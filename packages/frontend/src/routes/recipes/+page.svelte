@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import { createColumnHelper, type ColumnDef } from '@tanstack/table-core';
-	import type { Recipe } from '$lib/types/recipe';
+	import type { Recipe } from '@komarubrowser/common/types';
 	import { renderComponent } from '$lib/components/ui/data-table';
 	import RecipeIngredientList from './RecipeIngredientList.svelte';
 	import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';

@@ -1,5 +1,4 @@
-import { parseNamespace } from '$lib/types/common';
-import type { Ingredient } from '$lib/types/ingredient';
+import { parseNamespace, type Ingredient } from '@komarubrowser/common/types';
 
 const disabledNamespaces = [
 	'chipped',

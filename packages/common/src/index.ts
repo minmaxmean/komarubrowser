@@ -1,12 +1,1 @@
-export interface ManifestItem {
-  filename: string;
-  width: number;
-  height: number;
-  jar: string;
-  mod: string;
-  type: string;
-}
-
-export type Manifest = ManifestItem[];
-
-export const message = 'Hello from common'
+export const message = "Hello from common";

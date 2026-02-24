@@ -1,5 +1,4 @@
-import { type FetchStatus } from '$lib/types/common';
-import type { Recipe } from '$lib/types/recipe';
+import { type FetchStatus, type Recipe } from '@komarubrowser/common/types';
 
 const RECIPE_URL = '/assets/dump/recipes.min.json';
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Item from '$lib/components/ui/item/index.js';
 	import type { ItemSize } from '$lib/components/ui/item/item.svelte';
-	import { type Ingredient } from '$lib/types/ingredient';
+	import type { Ingredient } from '@komarubrowser/common/types';
 	import IngredientIcon from './IngredientIcon.svelte';
 
 	type Props = { item: Ingredient; size?: ItemSize };

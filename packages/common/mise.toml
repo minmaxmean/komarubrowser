@@ -6,5 +6,9 @@ outputs = ["{{env.common_dist}}"]
 
 [tasks.dev]
 description = "Prepare assets"
-run = "pnpm tsc --watch --build"
+run = "pnpm tsc --build --watch"
+
+[tasks.clean]
+description = "Clean dist files"
+run = "rm -rf ./dist"
 

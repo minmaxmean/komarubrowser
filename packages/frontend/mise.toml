@@ -1,6 +1,6 @@
 [tasks.build]
 description = "Prepare assets"
-depends = ["//packages/common:build"]
+depends = ["//packages/common:build", "check"]
 run = "pnpm vite build"
 sources = [
   "package.json", "tsconfig.json",
@@ -23,4 +23,17 @@ run = [{
 [tasks.preview]
 description = "Prepare assets"
 run = "pnpm vite preview"
+
+[tasks.clean]
+description = "Remove build files"
+run = "rm -rf ./build"
+
+[tasks.check]
+description = "Typecheck"
+run = "pnpm run check"
+sources = [
+  "package.json", "tsconfig.json",
+  "src/**/*",
+  "{{env.common_dist}}",
+]
 

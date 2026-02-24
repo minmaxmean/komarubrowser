@@ -1,5 +1,4 @@
-import { type FetchStatus } from '$lib/types/common';
-import type { Ingredient } from '$lib/types/ingredient';
+import { type FetchStatus, type Ingredient } from '@komarubrowser/common/types';
 import { preprocessIngredients } from './preprocess';
 
 const INGREDIENTS_URL = '/assets/dump/ingredients.min.json';
