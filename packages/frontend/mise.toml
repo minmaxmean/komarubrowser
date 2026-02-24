@@ -31,6 +31,7 @@ run = "rm -rf ./build"
 [tasks.check]
 description = "Typecheck"
 run = "pnpm run check"
+depends = ["//packages/common:build"]
 sources = [
   "package.json", "tsconfig.json",
   "src/**/*",

@@ -1,0 +1,19 @@
+[tasks.build]
+description = "Build extractor"
+depends = ["//packages/common:build"]
+run = "pnpm tsc --build"
+sources = [
+  "package.json", "tsconfig.json",
+  "src/**/*",
+  "{{env.common_dist}}",
+]
+outputs = ["./dist/**/*"]
+
+[tasks.clean]
+description = "Remove build files"
+run = "rm -rf ./dist"
+
+[tasks.run]
+description = "Run Extractor"
+depends = [":build"]
+run = "pnpm node dist/main.js"

@@ -1,0 +1,14 @@
+{
+  "name": "@komarubrowser/extractor",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "dependencies": {
+    "@komarubrowser/common": "workspace:*"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
