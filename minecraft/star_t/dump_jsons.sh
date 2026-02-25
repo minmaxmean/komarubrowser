@@ -24,6 +24,6 @@ echo "Dumping recipes to $OUTPUT_DIR/recipes.json..."
 http ":6767/api/recipes" --sorted --pretty=format > "$OUTPUT_DIR/recipes.json"
 
 echo "Dumping ingredients to $OUTPUT_DIR/ingredients.json..."
-http ":6767/api/ingredients" --sorted --pretty=format > "$OUTPUT_DIR/ingredients.json"
+http ":7676/api/ingredients" --sorted --pretty=format > "$OUTPUT_DIR/ingredients.json"
 
 echo "Done!"

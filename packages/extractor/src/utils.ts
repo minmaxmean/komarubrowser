@@ -2,10 +2,17 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
 
+export const mkdirp = async (...parts: string[]): Promise<string> => {
+  const fullpath = path.join(...parts);
+  await fs.mkdir(fullpath, { recursive: true });
+  return fullpath;
+};
+
 // Will make temp directory at /tmp/komaru/{command}_<random_hashjf>
 export const makeTmpDir = async (command: string): Promise<string> => {
-  await fs.mkdir(path.join(os.tmpdir(), "komaru"), { recursive: true });
-  return await fs.mkdtemp(path.join(os.tmpdir(), "komaru", command + "_"));
+  const fullpath = path.join(os.tmpdir(), "komaru", command + "_");
+  await mkdirp(path.dirname(fullpath));
+  return await fs.mkdtemp(fullpath);
 };
 
 export async function pathExists(filePath: string): Promise<boolean> {
@@ -18,15 +25,12 @@ export async function pathExists(filePath: string): Promise<boolean> {
 }
 
 export const recreateDir = async (dir: string): Promise<string> => {
-  if (await pathExists(dir)) {
-    await fs.rm(dir, { recursive: true });
-  }
-  await fs.mkdir(dir, { recursive: true });
-  return dir;
+  await rmrf(dir);
+  return mkdirp(dir);
 };
 
 export async function copyDir(src: string, dest: string): Promise<void> {
-  await fs.mkdir(dest, { recursive: true });
+  await mkdirp(dest);
   const entries = await fs.readdir(src, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -41,7 +45,7 @@ export async function copyDir(src: string, dest: string): Promise<void> {
 }
 
 export async function atomicMove(src: string, dest: string): Promise<void> {
-  await fs.mkdir(path.dirname(dest), { recursive: true });
+  await mkdirp(path.dirname(dest));
   try {
     // Try simple rename first
     await fs.rename(src, dest);
@@ -53,7 +57,7 @@ export async function atomicMove(src: string, dest: string): Promise<void> {
     const stat = await fs.stat(src);
     if (stat.isDirectory()) {
       await copyDir(src, dest);
-      await fs.rm(src, { recursive: true });
+      await rmrf(src);
     } else {
       await fs.copyFile(src, dest);
       await fs.unlink(src);
@@ -62,8 +66,6 @@ export async function atomicMove(src: string, dest: string): Promise<void> {
 }
 
 export const rmrf = async (dir: string): Promise<string> => {
-  if (await pathExists(dir)) {
-    await fs.unlink(dir);
-  }
+  await fs.rm(dir, { recursive: true, force: true });
   return dir;
 };

@@ -5,8 +5,6 @@ import cliProgress from "cli-progress";
 import type { Ingredient } from "@komarubrowser/common/types";
 import * as utils from "./utils.js";
 
-// const { MODS_DIR, INGREDIENTS_FILE, JAR_OUTPUT_DIR } = getJarEnv();
-
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
   "server-1.20.1-20230612.114412-srg.jar": "1.20.1.jar",
@@ -21,59 +19,28 @@ async function extractJar(jar: string, outputDir: string, MODS_DIR: string): Pro
     return false;
   }
 
-  const tmpDir = await utils.makeTmpDir(`extract/${jar}_tree`);
+  const jarTmpDir = await utils.makeTmpDir(`extract_tree/${jar}`);
   try {
     const zip = new AdmZip(jarPath);
     const entries = zip.getEntries();
 
-    const pngEntries = entries.filter(
-      ({ entryName }) =>
-        entryName.startsWith("assets/") &&
-        (entryName.includes("/textures/item/") || entryName.includes("/textures/block/")) &&
-        entryName.endsWith(".png"),
-    );
+    const pngEntries = entries.filter(({ entryName }) => entryName.startsWith("assets/") && entryName.endsWith(".png"));
+
+    if (pngEntries.length === 0) {
+      console.warn(`  jar ${jar} doesn't have any assets`);
+    }
 
     for (const entry of pngEntries) {
-      zip.extractEntryTo(entry, tmpDir, true, true);
+      zip.extractEntryTo(entry, jarTmpDir, true, true);
     }
 
-    const assetsPath = path.join(tmpDir, "assets");
-    if (!(await utils.pathExists(assetsPath))) {
-      return false;
-    }
-    // Pattern: Look inside any namespace, then textures, then item/block, for any .png
-    // The 'cwd' option allows us to use relative paths for easier mapping
-    const pngFiles = fs.glob("/{item,block}/**/*.png", { cwd: assetsPath });
-
-    for await (const relativePath of pngFiles) {
-      // relativePath will look like: "minecraft/textures/item/apple.png"
-      const parts = relativePath.split(path.sep);
-      const namespace = parts[0];
-      const type = parts[2]; // 'item' or 'block' based on our glob
-      const fileName = parts[parts.length - 1];
-
-      const srcPath = path.join(assetsPath, relativePath);
-      const destDir = path.join(tmpDir, namespace, type);
-      const destPath = path.join(destDir, fileName);
-
-      await fs.mkdir(destDir, { recursive: true });
-      await fs.copyFile(srcPath, destPath);
-    }
-
-    await utils.copyDir(path.join(tmpDir, "assets"), path.join(outputDir, "assets"));
-
-    if (await utils.pathExists(tmpDir)) {
-      await fs.rm(tmpDir, { recursive: true });
-    }
-
+    await utils.copyDir(path.join(jarTmpDir, "assets"), path.join(outputDir, "assets"));
     return true;
   } catch (err) {
     console.error(`\nError processing ${jar}: ${err}\n`);
     return false;
   } finally {
-    if (await utils.pathExists(tmpDir)) {
-      await fs.rm(tmpDir, { recursive: true });
-    }
+    await utils.rmrf(jarTmpDir);
   }
 }
 
@@ -120,16 +87,16 @@ export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR }
 
     console.log(`Committing assets to ${JAR_OUTPUT_DIR}...`);
     if (await utils.pathExists(JAR_OUTPUT_DIR)) {
-      await fs.rm(JAR_OUTPUT_DIR, { recursive: true });
+      await utils.rmrf(JAR_OUTPUT_DIR);
     }
-    await fs.mkdir(path.dirname(JAR_OUTPUT_DIR), { recursive: true });
+    await utils.mkdirp(path.dirname(JAR_OUTPUT_DIR));
     await utils.atomicMove(stagingBase, JAR_OUTPUT_DIR);
 
     console.log("====================");
     console.log(`Extraction complete. Assets stored in ${JAR_OUTPUT_DIR}`);
   } catch (err) {
     console.error("Extraction failed, cleaning up staging area...");
-    await fs.rm(stagingBase, { recursive: true, force: true });
+    await utils.rmrf(stagingBase);
     throw err;
   }
 }

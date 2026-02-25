@@ -1,7 +1,7 @@
 import { extractPngs } from "./extract.js";
 import { minifyJson } from "./minify.js";
 import { buildDb } from "./build-db.js";
-import { getJarEnv } from "./shared.js";
+import { getJarEnv } from "./args.js";
 
 const args = process.argv.slice(2);
 
