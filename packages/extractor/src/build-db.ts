@@ -6,7 +6,8 @@ import { initDb, insertIngredients, insertManifest, insertRecipes } from "./data
 import { getDBEnv } from "./shared.js";
 import { parseNamespace, type Ingredient, type Recipe } from "@komarubrowser/common/types";
 import type { IngredientRow, RecipeRow } from "@komarubrowser/common/tables";
-import { atomicMove, rmrf } from "./utils.js";
+import { rmrf } from "./utils.js";
+import { atomicMove } from "./atomicMove.js";
 
 export async function buildDb(): Promise<void> {
   const { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = getDBEnv();

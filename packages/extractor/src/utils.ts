@@ -46,18 +46,17 @@ export async function atomicMove(src: string, dest: string): Promise<void> {
     // Try simple rename first
     await fs.rename(src, dest);
   } catch (err: any) {
-    if (err.code === "EXDEV") {
-      // Cross-device link, fallback to copy + delete
-      const stat = await fs.stat(src);
-      if (stat.isDirectory()) {
-        await copyDir(src, dest);
-        await fs.rm(src, { recursive: true });
-      } else {
-        await fs.copyFile(src, dest);
-        await fs.unlink(src);
-      }
-    } else {
+    if (err.code !== "EXDEV") {
       throw err;
+    }
+    // Cross-device link, fallback to copy + delete
+    const stat = await fs.stat(src);
+    if (stat.isDirectory()) {
+      await copyDir(src, dest);
+      await fs.rm(src, { recursive: true });
+    } else {
+      await fs.copyFile(src, dest);
+      await fs.unlink(src);
     }
   }
 }
