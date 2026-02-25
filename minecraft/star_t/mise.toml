@@ -43,13 +43,13 @@ run = "rm -rf {{env.dumps_from_mod_dir}}"
 [tasks.client_copy]
 description = "Copy KomaruBrower mod to Star Technology server"
 depends = ["//minecraft/forgemod:build"]
-run = "cp {{env.forgemod}}/build/libs/komarubrowser-*.jar {{env.star_t_client_dir}}/mods/."
+run = "cp {{env.forgemod}}/build/libs/komarubrowser-*.jar '{{env.star_t_client_dir}}/mods/.'"
 sources = [ "{{env.forgemod}}/build/libs/komarubrowser-*.jar" ]
 outputs = [ "{{env.star_t_client_dir}}/mods/komarubrowser-*.jar" ]
 
 [tasks.client]
 description = "Run Star Technologu with mod"
-depends = [":copy"]
+depends = [":client_copy"]
 dir = "{{env.star_t_data_dir}}"
-run = "prismlauncher --launch 'KomaruBrowser' -s 'DEV' 2>/dev/null"
+run = "prismlauncher --launch 'KomaruBrowser' -s 'localhost:26767' 2>/dev/null"
 
