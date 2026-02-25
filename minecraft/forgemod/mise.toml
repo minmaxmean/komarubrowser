@@ -1,0 +1,13 @@
+[tools]
+java = "21"
+"npm:npm-groovy-lint" = "latest"
+
+[tasks.build]
+description = "Build mod"
+run = "./gradlew build"
+sources = ["*.gradle", "src/**/*.java", "src/**/*.kt", "src/main/resources"]
+outputs = ["build/libs/komarubrowser-*.jar"]
+
+[tasks.clean]
+description = "Clean build output"
+run = "./gradlew clean"

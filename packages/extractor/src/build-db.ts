@@ -51,7 +51,6 @@ export async function buildDb(): Promise<void> {
         display_name: i.displayName,
         is_fluid: i.isFluid ? 1 : 0,
         tags: JSON.stringify(i.tags),
-        asset_path: i.assetPath,
         source_jar: sourceJar,
         icon_url: iconUrl,
       };

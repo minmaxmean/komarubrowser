@@ -1,0 +1,23 @@
+[tools]
+java = "21"
+
+[tasks.clean]
+description = "Run Star Technologu with mod"
+dir = "{{env.star_t_dir}}"
+run = "rm -rf {{env.star_t_dir}}/mods/komarubrowser-*.jar"
+
+[tasks.copy]
+description = "Run Star Technologu with mod"
+depends = ["//minecraft/forgemod:build", ":clean"]
+dir = "{{env.star_t_dir}}"
+run = "cp {{env.forgemod}}/build/libs/komarubrowser-*.jar {{env.star_t_dir}}/mods/."
+sources = [ "{{env.forgemod}}/build/libs/komarubrowser-*.jar" ]
+outputs = [ "{{env.star_t_dir}}/mods/komarubrowser-*.jar" ]
+
+[tasks.dev]
+description = "Run Star Technologu with mod"
+depends = [":copy"]
+dir = "{{env.star_t_dir}}"
+run = "./run.sh --nogui --port 26767"
+raw = true
+
