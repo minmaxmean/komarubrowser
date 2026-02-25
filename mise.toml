@@ -23,7 +23,7 @@ frontend_dir = "{{config_root}}/packages/frontend"
 forgemod     = "{{config_root}}/minecraft/forgemod"
 star_t       = "{{config_root}}/minecraft/star_t"
 
-star_t_dir         = "{{env.workdata}}/star_t_server"
+star_t_data_dir    = "{{env.star_t}}/minecraft-data"
 dumps_from_mod_dir = "{{env.workdata}}/00_dumps_from_mod"
 extracted_pngs_dir = "{{env.workdata}}/01_extracted_pngs"
 db_dir             = "{{env.workdata}}/02_db"

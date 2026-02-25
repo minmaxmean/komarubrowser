@@ -3,14 +3,14 @@ import * as path from "path";
 import { ExtractAssetsArgs } from "./extract";
 
 export function getJarEnv(): ExtractAssetsArgs {
-  const REQUIRED_ENV = ["star_t_dir", "dumps_from_mod_dir", "extracted_pngs_dir"] as const;
+  const REQUIRED_ENV = ["star_t_data_dir", "dumps_from_mod_dir", "extracted_pngs_dir"] as const;
   for (const key of REQUIRED_ENV) {
     if (!process.env[key]) {
       throw new Error(`Missing required environment variable: ${key}`);
     }
   }
   return {
-    MODS_DIR: path.join(process.env.star_t_dir!, "mods"),
+    MODS_DIR: path.join(process.env.star_t_data_dir!, "mods"),
     INGREDIENTS_FILE: path.join(process.env.dumps_from_mod_dir!, "ingredients.json"),
     JAR_OUTPUT_DIR: path.join(process.env.extracted_pngs_dir!),
   };

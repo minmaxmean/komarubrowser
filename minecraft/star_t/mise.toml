@@ -4,21 +4,21 @@ java = "21"
 
 [tasks.clean_dist]
 description = "Clean build files"
-dir = "{{env.star_t_dir}}"
-run = "rm -rf {{env.star_t_dir}}/mods/komarubrowser-*.jar"
+dir = "{{env.star_t_data_dir}}"
+run = "rm -rf {{env.star_t_data_dir}}/mods/komarubrowser-*.jar"
 
 [tasks.copy]
 description = "Copy KomaruBrower mod to Star Technology server"
 depends = ["//minecraft/forgemod:build"]
-dir = "{{env.star_t_dir}}"
-run = "cp {{env.forgemod}}/build/libs/komarubrowser-*.jar {{env.star_t_dir}}/mods/."
+dir = "{{env.star_t_data_dir}}"
+run = "cp {{env.forgemod}}/build/libs/komarubrowser-*.jar {{env.star_t_data_dir}}/mods/."
 sources = [ "{{env.forgemod}}/build/libs/komarubrowser-*.jar" ]
-outputs = [ "{{env.star_t_dir}}/mods/komarubrowser-*.jar" ]
+outputs = [ "{{env.star_t_data_dir}}/mods/komarubrowser-*.jar" ]
 
 [tasks.dev]
 description = "Run Star Technologu with mod"
 depends = [":copy"]
-dir = "{{env.star_t_dir}}"
+dir = "{{env.star_t_data_dir}}"
 run = "./run.sh --nogui --port 26767"
 raw = true
 
@@ -26,7 +26,7 @@ raw = true
 description = "Dump ingredients.json & recipe.json"
 depends = [":copy"]
 sources = [
-  "{{env.star_t_dir}}/mods/komarubrowser-*.jar",
+  "{{env.star_t_data_dir}}/mods/komarubrowser-*.jar",
   "./dump_jsons.sh",
 ]
 outputs = [
@@ -36,5 +36,5 @@ run = "./dump_jsons.sh"
 
 [tasks.clean_artifacts]
 description = "Cleanup"
-dir = "{{env.star_t_dir}}"
+dir = "{{env.star_t_data_dir}}"
 run = "rm -rf {{env.dumps_from_mod_dir}}"

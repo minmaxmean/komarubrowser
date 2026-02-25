@@ -16,7 +16,7 @@ run = "rm -rf ./dist"
 
 [tasks.pngs]
 description = "Extract pngassets from Jar mods"
-depends = [":build"]
+depends = [":build", "//minecraft/star_t:dump_json"]
 sources = [
   "./dist/**/*.js",
   "{{env.dumps_from_mod_dir}}/ingredients.json",
@@ -28,7 +28,11 @@ run = "pnpm node dist/main.js --extract-pngs"
 
 [tasks.db]
 description = "Build SQLite database from ingredients and extracted assets"
-depends = [":pngs"]
+depends = [
+  ":build",
+  "//minecraft/star_t:dump_json",
+  ":pngs",
+]
 sources = [
   "./dist/**/*.js",
   "{{env.dumps_from_mod_dir}}/ingredients.json",
@@ -42,7 +46,11 @@ run = "pnpm node dist/main.js --build-db"
 
 [tasks.minify]
 description = "Minify all JSON files"
-depends = [":build", ":db"]
+depends = [
+  ":build",
+  ":db",
+  "//minecraft/star_t:dump_json",
+]
 sources = [
   "./dist/**/*.js",
   "{{env.dumps_from_mod_dir}}/*.json",
