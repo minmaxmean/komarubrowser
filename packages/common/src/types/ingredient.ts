@@ -1,4 +1,4 @@
-import { parseNamespace } from "./common";
+import { parseNamespace } from "./common.js";
 
 export type IngredientID = string;
 

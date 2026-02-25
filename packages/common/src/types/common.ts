@@ -1,5 +1,5 @@
-import type { IngredientID } from './ingredient';
-import type { RecipeID } from './recipe';
+import type { IngredientID } from './ingredient.js';
+import type { RecipeID } from './recipe.js';
 
 export type FetchStatus = 'idle' | 'loading' | 'error' | 'successful';
 

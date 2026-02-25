@@ -1,5 +1,5 @@
-import type { EnergyTierID } from './energyTier';
-import type { IngredientID } from './ingredient';
+import type { EnergyTierID } from './energyTier.js';
+import type { IngredientID } from './ingredient.js';
 
 export type RecipeID = string;
 export type MachineID = string;

@@ -48,6 +48,7 @@ export async function copyDir(src: string, dest: string): Promise<void> {
 }
 
 export async function atomicMove(src: string, dest: string): Promise<void> {
+  await fs.mkdir(path.dirname(dest), { recursive: true });
   try {
     // Try simple rename first
     await fs.rename(src, dest);
