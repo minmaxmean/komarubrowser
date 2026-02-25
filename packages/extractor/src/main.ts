@@ -7,7 +7,7 @@ import { buildManifestItems } from "./manifest.js";
 import { minifyJson } from "./minify.js";
 import { initDb, insertIngredients, insertManifest, insertRecipes } from "./database.js";
 import { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT, atomicMove } from "./shared.js";
-import type { Ingredient, Recipe } from "@komarubrowser/common/types";
+import { parseNamespace, type Ingredient, type Recipe } from "@komarubrowser/common/types";
 import type { IngredientRow, RecipeRow } from "@komarubrowser/common/tables";
 
 const args = process.argv.slice(2);
@@ -19,7 +19,17 @@ async function buildDb(): Promise<void> {
   const db = await initDb(tempDbPath);
 
   try {
-    // 1. Process Ingredients
+    // 1. Process Manifest
+    const manifestRows = await buildManifestItems();
+    console.log(`Inserting ${manifestRows.length} manifest entries...`);
+    insertManifest(db, manifestRows);
+
+    // Create a set for fast lookup: "jar/mod/type/filename"
+    const manifestSet = new Set(
+      manifestRows.map((m) => `${m.jar}/${m.mod}/${m.type}/${m.filename}`)
+    );
+
+    // 2. Process Ingredients
     console.log(`Reading ingredients from ${INGREDIENTS_FILE}...`);
     const ingredientsRaw = await fs.readFile(INGREDIENTS_FILE, "utf-8");
     const ingredients: Ingredient[] = JSON.parse(ingredientsRaw);
@@ -32,22 +42,29 @@ async function buildDb(): Promise<void> {
       }
     }
 
-    const ingredientRows: IngredientRow[] = Array.from(deduplicated.values()).map((i) => ({
-      id: i.id,
-      display_name: i.displayName,
-      is_fluid: i.isFluid ? 1 : 0,
-      tags: JSON.stringify(i.tags),
-      asset_path: i.assetPath,
-      source_jar: i.sourceJar || "",
-    }));
+    const ingredientRows: IngredientRow[] = Array.from(deduplicated.values()).map((i) => {
+      const [namespace, png_id] = parseNamespace(i.id);
+      const type = i.isFluid ? "block" : "item";
+      const filename = `${png_id}.png`;
+      const sourceJar = i.sourceJar || "";
+      
+      const manifestPath = `${sourceJar}/${namespace}/${type}/${filename}`;
+      const hasIcon = manifestSet.has(manifestPath);
+      const iconUrl = hasIcon ? `/assets/extracted/${manifestPath}` : null;
+
+      return {
+        id: i.id,
+        display_name: i.displayName,
+        is_fluid: i.isFluid ? 1 : 0,
+        tags: JSON.stringify(i.tags),
+        asset_path: i.assetPath,
+        source_jar: sourceJar,
+        icon_url: iconUrl,
+      };
+    });
 
     console.log(`Inserting ${ingredientRows.length} ingredients (deduplicated from ${ingredients.length})...`);
     insertIngredients(db, ingredientRows);
-
-    // 2. Process Manifest
-    const manifestRows = await buildManifestItems();
-    console.log(`Inserting ${manifestRows.length} manifest entries...`);
-    insertManifest(db, manifestRows);
 
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);

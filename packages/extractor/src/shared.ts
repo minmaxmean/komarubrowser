@@ -14,7 +14,7 @@ export const INGREDIENTS_FILE = path.join(process.env.raw_assets_dir!, "dump", "
 export const RECIPES_FILE = path.join(process.env.raw_assets_dir!, "dump", "recipes.json");
 export const OUTPUT_BASE = path.join(process.env.assets_dir!, "extracted");
 export const MANIFEST_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "manifest.json");
-export const DB_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "assets.db");
+export const DB_OUTPUT = path.join(process.env.assets_dir!, "dump", "assets.db");
 export const INPUT_PATH = path.join(process.env.raw_assets_dir!, "dump");
 export const OUTPUT_PATH = path.join(process.env.assets_dir!, "dump");
 

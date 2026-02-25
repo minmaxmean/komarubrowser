@@ -1,0 +1,8 @@
+[
+  {
+    "id": "file_source_/PYP7TKxyB1",
+    "url": "{{ env `assets_dir` }}/dump/assets.db",
+    "name": "assets.db",
+    "type": "sqlite"
+  }
+]

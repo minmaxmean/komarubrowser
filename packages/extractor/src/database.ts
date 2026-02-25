@@ -1,6 +1,5 @@
 import Database from "better-sqlite3";
 import * as fs from "fs/promises";
-import * as path from "path";
 import { DB_OUTPUT, pathExists } from "./shared.js";
 import type { IngredientRow, ManifestRow, RecipeRow } from "@komarubrowser/common/tables";
 
@@ -18,7 +17,8 @@ export async function initDb(dbPath: string = DB_OUTPUT): Promise<Database.Datab
       is_fluid INTEGER NOT NULL,
       tags TEXT NOT NULL,
       asset_path TEXT NOT NULL,
-      source_jar TEXT NOT NULL
+      source_jar TEXT NOT NULL,
+      icon_url TEXT
     );
 
     CREATE TABLE manifest (
@@ -49,8 +49,8 @@ export async function initDb(dbPath: string = DB_OUTPUT): Promise<Database.Datab
 
 export function insertIngredients(db: Database.Database, ingredients: IngredientRow[]): void {
   const insert = db.prepare(`
-    INSERT INTO ingredients (id, display_name, is_fluid, tags, asset_path, source_jar)
-    VALUES (@id, @display_name, @is_fluid, @tags, @asset_path, @source_jar)
+    INSERT INTO ingredients (id, display_name, is_fluid, tags, asset_path, source_jar, icon_url)
+    VALUES (@id, @display_name, @is_fluid, @tags, @asset_path, @source_jar, @icon_url)
   `);
 
   const insertMany = db.transaction((rows: IngredientRow[]) => {

@@ -29,7 +29,7 @@ sources = [
   "{{env.assets_dir}}/extracted/**/*",
   "./dist/**/*.js",
 ]
-outputs = ["{{env.raw_assets_dir}}/dump/assets.db"]
+outputs = ["{{env.assets_dir}}/dump/assets.db"]
 run = "pnpm node dist/main.js --build-db"
 
 [tasks.minify]

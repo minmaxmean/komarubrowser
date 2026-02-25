@@ -5,4 +5,5 @@ export interface IngredientRow {
 	tags: string;
 	asset_path: string;
 	source_jar: string;
+	icon_url: string | null;
 }
