@@ -14,28 +14,29 @@ outputs = ["./dist/**/*.js", "./dist/**/*.d.ts"]
 description = "Remove build files"
 run = "rm -rf ./dist"
 
-[tasks.jar]
-description = "Extract assets from Jar mods"
+[tasks.pngs]
+description = "Extract pngassets from Jar mods"
 depends = [":build"]
 sources = [
-  "./dist/**/*.js"
-  "{{env.raw_assets_dir}}/dump/ingredients.json",
+  "./dist/**/*.js",
+  "{{env.dumps_from_mod_dir}}/ingredients.json",
 ]
 outputs = [
-  "{{env.assets_dir}}/extracted/**/*.png"
+  "{{env.extracted_pngs_dir}}/**/*.png",
 ]
-run = "pnpm node dist/main.js --extract"
+run = "pnpm node dist/main.js --extract-pngs"
 
 [tasks.db]
 description = "Build SQLite database from ingredients and extracted assets"
-depends = [":jar"]
+depends = [":pngs"]
 sources = [
   "./dist/**/*.js",
-  "{{env.raw_assets_dir}}/dump/ingredients.json",
-  "{{env.assets_dir}}/extracted/**/*.png",
+  "{{env.dumps_from_mod_dir}}/ingredients.json",
+  "{{env.dumps_from_mod_dir}}/recipes.json",
+  "{{env.extracted_pngs_dir}}/**/*.png",
 ]
 outputs = [
-  "{{env.assets_dir}}/dump/assets.db"
+  "{{env.db_dir}}/assets.db"
 ]
 run = "pnpm node dist/main.js --build-db"
 
@@ -44,9 +45,9 @@ description = "Minify all JSON files"
 depends = [":build", ":db"]
 sources = [
   "./dist/**/*.js",
-  "{{env.raw_assets_dir}}/dump/*.json",
+  "{{env.dumps_from_mod_dir}}/*.json",
 ]
 outputs = [
-  "{{env.assets_dir}}/minified/*.min.json",
+  "{{env.minifed_json_dir}}/*.json",
 ]
 run = "pnpm node dist/main.js --minify"

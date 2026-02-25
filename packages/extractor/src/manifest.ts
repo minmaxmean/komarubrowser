@@ -3,7 +3,7 @@ import * as path from "path";
 import sizeOf from "image-size";
 import cliProgress from "cli-progress";
 import type { ManifestRow } from "@komarubrowser/common/tables";
-import { JAR_OUTPUT_DIR, pathExists } from "./shared.js";
+import { pathExists } from "./shared.js";
 
 async function getPngInfo(
   filePath: string,
@@ -28,10 +28,8 @@ async function getPngInfo(
   }
 }
 
-export async function buildManifestItems(): Promise<ManifestRow[]> {
-  console.log(`Building manifest for ${JAR_OUTPUT_DIR}...`);
-
-  const extractedDir = JAR_OUTPUT_DIR;
+export async function buildManifestItems(extractedDir: string): Promise<ManifestRow[]> {
+  console.log(`Building manifest for ${extractedDir}...`);
 
   if (!(await pathExists(extractedDir))) {
     console.error(`Error: Directory ${extractedDir} does not exist.`);

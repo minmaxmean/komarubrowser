@@ -7,9 +7,8 @@ import { atomicMove, getDBEnv } from "./shared.js";
 import { parseNamespace, type Ingredient, type Recipe } from "@komarubrowser/common/types";
 import type { IngredientRow, RecipeRow } from "@komarubrowser/common/tables";
 
-const { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT } = getDBEnv();
-
 export async function buildDb(): Promise<void> {
+  const { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = getDBEnv();
   console.log("Building SQLite database...");
 
   const tempDbPath = path.join(os.tmpdir(), `komaru-assets-${Math.random().toString(36).slice(2)}.db`);
@@ -17,7 +16,7 @@ export async function buildDb(): Promise<void> {
 
   try {
     // 1. Process Manifest
-    const manifestRows = await buildManifestItems();
+    const manifestRows = await buildManifestItems(EXTRACTED_PNG_DIR);
     console.log(`Inserting ${manifestRows.length} manifest entries...`);
     insertManifest(db, manifestRows);
 

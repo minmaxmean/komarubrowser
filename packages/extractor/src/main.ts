@@ -1,12 +1,15 @@
 import { extractAssets } from "./extract.js";
 import { minifyJson } from "./minify.js";
 import { buildDb } from "./build-db.js";
+import { getJarEnv } from "./shared.js";
 
 const args = process.argv.slice(2);
 
 async function main(): Promise<void> {
-  if (args.includes("--extract")) {
-    await extractAssets();
+  if (args.includes("--extract-pngs")) {
+    const args = getJarEnv();
+    console.log("Running --extract-pngs with ", args);
+    await extractAssets(args);
     return;
   } else if (args.includes("--build-db")) {
     await buildDb();

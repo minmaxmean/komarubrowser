@@ -3,9 +3,8 @@ import * as path from "path";
 import * as os from "os";
 import { pathExists, atomicMove, getMinifyEnv } from "./shared.js";
 
-const { MINIFY_INPUT_DIR, MINIFY_OUTPUT_DIR } = getMinifyEnv();
-
 export async function minifyJson(): Promise<void> {
+  const { MINIFY_INPUT_DIR, MINIFY_OUTPUT_DIR } = getMinifyEnv();
   console.log(`Looking for JSON files in: ${MINIFY_INPUT_DIR}`);
 
   if (!(await pathExists(MINIFY_INPUT_DIR))) {

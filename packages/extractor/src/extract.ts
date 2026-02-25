@@ -3,17 +3,17 @@ import * as path from "path";
 import * as os from "os";
 import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
-import { pathExists, copyDir, atomicMove, getJarEnv } from "./shared.js";
+import { pathExists, copyDir, atomicMove } from "./shared.js";
 import type { Ingredient } from "@komarubrowser/common/types";
 
-const { MODS_DIR, INGREDIENTS_FILE, JAR_OUTPUT_DIR } = getJarEnv();
+// const { MODS_DIR, INGREDIENTS_FILE, JAR_OUTPUT_DIR } = getJarEnv();
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
   "server-1.20.1-20230612.114412-srg.jar": "1.20.1.jar",
 };
 
-async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
+async function extractJar(jar: string, stagingBase: string, MODS_DIR: string): Promise<boolean> {
   const extractName = JAR_MAPPINGS[jar] || jar;
   const jarPath = path.join(MODS_DIR, extractName);
   const tempDir = await fs.mkdtemp(path.join(stagingBase, "non_flat"));
@@ -45,29 +45,7 @@ async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
 
     const assetsPath = path.join(tempDir, "assets");
     if (await pathExists(assetsPath)) {
-      // const namespaces = await fs.readdir(assetsPath);
-      //
-      // for (const namespace of namespaces) {
-      //   const nsPath = path.join(assetsPath, namespace);
-      //   const stat = await fs.stat(nsPath);
-      //   if (!stat.isDirectory()) continue;
-      //
-      //   for (const type of ["item", "block"]) {
-      //     const typePath = path.join(nsPath, "textures", type);
-      //     if (await pathExists(typePath)) {
-      //       const destDir = path.join(tempDir, namespace, type);
-      //       await fs.mkdir(destDir, { recursive: true });
-      //
-      //       const pngFiles = await getAllPngFiles(typePath);
-      //       await Promise.all(
-      //         pngFiles.map(async (pngFile) => {
-      //           const destPath = path.join(destDir, path.basename(pngFile));
-      //           await fs.copyFile(pngFile, destPath);
-      //         }),
-      //       );
-      //     }
-      //   }
-      // }
+      throw Error("not implemented");
     }
 
     await fs.mkdir(finalDirInStaging, { recursive: true });
@@ -87,26 +65,13 @@ async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
   }
 }
 
-async function getAllPngFiles(dir: string): Promise<string[]> {
-  const files: string[] = [];
+export type ExtractAssetsArgs = {
+  INGREDIENTS_FILE: string;
+  MODS_DIR: string;
+  JAR_OUTPUT_DIR: string;
+};
 
-  if (!(await pathExists(dir))) return files;
-
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await getAllPngFiles(fullPath)));
-    } else if (entry.isFile() && entry.name.endsWith(".png")) {
-      files.push(fullPath);
-    }
-  }
-
-  return files;
-}
-
-export async function extractAssets(): Promise<void> {
+export async function extractAssets({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR }: ExtractAssetsArgs): Promise<void> {
   if (!(await pathExists(INGREDIENTS_FILE))) {
     console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
     process.exit(1);
@@ -134,7 +99,7 @@ export async function extractAssets(): Promise<void> {
 
     await Promise.all(
       uniqueJars.map(async (jar) => {
-        await extractJar(jar!, stagingBase);
+        await extractJar(jar!, stagingBase, MODS_DIR);
         progressBar.increment({ jar });
       }),
     );

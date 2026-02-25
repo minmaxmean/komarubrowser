@@ -20,13 +20,14 @@ _.python.venv = ".venv"
 
 workdata     = "{{config_root}}/workdata"
 common_dir   = "{{config_root}}/packages/common"
+common_dist  = "{{env.common_dir}}/dist/**/*"
 frontend_dir = "{{config_root}}/packages/frontend"
 
-star_t_dir = "{{env.workdata}}/star_t_server"
-raw_assets_dir = "{{env.workdata}}/raw_assets"
-assets_dir = "{{env.frontend_dir}}/static/assets"
-
-common_dist = "{{env.common_dir}}/dist/**/*"
+star_t_dir         = "{{env.workdata}}/star_t_server"
+dumps_from_mod_dir = "{{env.workdata}}/00_dumps_from_mod"
+extracted_pngs_dir  = "{{env.workdata}}/01_extracted_pngs"
+db_dir             = "{{env.workdata}}/02_db"
+minifed_json_dir   = "{{env.workdata}}/03_minifed_json"
 
 
 [tasks."forgemod:build"]

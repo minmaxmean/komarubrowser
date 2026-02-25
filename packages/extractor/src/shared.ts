@@ -1,8 +1,9 @@
 import * as fs from "fs/promises";
 import * as path from "path";
+import { ExtractAssetsArgs } from "./extract";
 
-export function getJarEnv() {
-  const REQUIRED_ENV = ["star_t_dir", "raw_assets_dir", "assets_dir"] as const;
+export function getJarEnv(): ExtractAssetsArgs {
+  const REQUIRED_ENV = ["star_t_dir", "dumps_from_mod_dir", "extracted_pngs_dir"] as const;
   for (const key of REQUIRED_ENV) {
     if (!process.env[key]) {
       throw new Error(`Missing required environment variable: ${key}`);
@@ -10,8 +11,8 @@ export function getJarEnv() {
   }
   return {
     MODS_DIR: path.join(process.env.star_t_dir!, "mods"),
-    INGREDIENTS_FILE: path.join(process.env.raw_assets_dir!, "dump", "ingredients.json"),
-    JAR_OUTPUT_DIR: path.join(process.env.assets_dir!, "extracted"),
+    INGREDIENTS_FILE: path.join(process.env.dumps_from_mod_dir!, "ingredients.json"),
+    JAR_OUTPUT_DIR: path.join(process.env.extracted_pngs_dir!),
   };
 }
 
