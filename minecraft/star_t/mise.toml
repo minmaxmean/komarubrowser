@@ -5,7 +5,7 @@ java = "21"
 [tasks.clean_dist]
 description = "Clean build files"
 dir = "{{env.star_t_data_dir}}"
-run = "rm -rf {{env.star_t_data_dir}}/mods/komarubrowser-*.jar"
+run = "rm -rf {{env.star_t_data_dir}}/mods/komarubrowser-*.jar {{env.star_t_client_dir}}/mods/komarubrowser-*.jar"
 
 [tasks.copy]
 description = "Copy KomaruBrower mod to Star Technology server"
@@ -38,3 +38,18 @@ run = "./dump_jsons.sh"
 description = "Cleanup"
 dir = "{{env.star_t_data_dir}}"
 run = "rm -rf {{env.dumps_from_mod_dir}}"
+
+
+[tasks.client_copy]
+description = "Copy KomaruBrower mod to Star Technology server"
+depends = ["//minecraft/forgemod:build"]
+run = "cp {{env.forgemod}}/build/libs/komarubrowser-*.jar {{env.star_t_client_dir}}/mods/."
+sources = [ "{{env.forgemod}}/build/libs/komarubrowser-*.jar" ]
+outputs = [ "{{env.star_t_client_dir}}/mods/komarubrowser-*.jar" ]
+
+[tasks.client]
+description = "Run Star Technologu with mod"
+depends = [":copy"]
+dir = "{{env.star_t_data_dir}}"
+run = "prismlauncher --launch 'KomaruBrowser' -s 'DEV' 2>/dev/null"
+

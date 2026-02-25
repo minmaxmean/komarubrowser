@@ -29,6 +29,8 @@ extracted_pngs_dir = "{{env.workdata}}/01_extracted_pngs"
 db_dir             = "{{env.workdata}}/02_db"
 minified_json_dir  = "{{env.workdata}}/03_minified_json"
 
+star_t_client_dir = "/Users/m-nny/Library/Application Support/PrismLauncher/instances/KomaruBrowser/minecraft"
+
 [tasks.build]
 description = "Build everything"
 depends = [
