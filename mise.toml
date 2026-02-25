@@ -38,14 +38,28 @@ depends = [
 run = "# dummy"
 
 [tasks.clean]
-description = "Clean all artifacts"
+description = "Clean all build files & artifacts"
 depends = [
-    "assets:clean",
-    "//minecraft/...:clean",
-    "//packages/...:clean",
+  ":clean:dist",
+  ":clean:artifacts",
 ]
 run = "# dummy"
 
+[tasks."clean:dist"]
+description = "Clean all artifacts"
+depends = [
+    "//minecraft/...:clean_dist",
+    "//packages/...:clean_dist",
+]
+run = "# dummy"
+
+[tasks."clean:artifacts"]
+description = "Clean all artifacts"
+depends = [
+    "//minecraft/...:clean_artifacts",
+    "//packages/...:clean_artifacts",
+]
+run = "# dummy"
 
 [tasks.assets]
 description = "Prepare assets"
@@ -55,8 +69,4 @@ run = [{
     "//packages/extractor:db",
     "//packages/extractor:minify",
   ]}]
-
-[tasks."assets:clean"]
-description = "clean"
-run = "rm -rf {{env.extracted_pngs_dir}} {{env.db_dir}} {{env.minified_json_dir}}"
 

@@ -9,6 +9,10 @@ sources = [
 ]
 outputs = ["./build/**/*"]
 
+[tasks.clean_dist]
+description = "Remove build files"
+run = "rm -rf ./build"
+
 [tasks.dev_only]
 description = "Start only frontend dev"
 depends = ["//packages/common:build"]
@@ -23,10 +27,6 @@ run = [{
 [tasks.preview]
 description = "Prepare assets"
 run = "pnpm vite preview"
-
-[tasks.clean]
-description = "Remove build files"
-run = "rm -rf ./build"
 
 [tasks.check]
 description = "Typecheck"

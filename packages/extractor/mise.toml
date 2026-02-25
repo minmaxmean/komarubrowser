@@ -10,7 +10,7 @@ sources = [
 ]
 outputs = ["./dist/**/*.js", "./dist/**/*.d.ts"]
 
-[tasks.clean]
+[tasks.clean_dist]
 description = "Remove build files"
 run = "rm -rf ./dist"
 
@@ -51,3 +51,11 @@ outputs = [
   "{{env.minified_json_dir}}/*.json",
 ]
 run = "pnpm node dist/main.js --minify"
+
+[tasks.clean_artifacts]
+description = "Remove artifcats files"
+run = '''
+rm -rf {{env.extracted_pngs_dir}}
+rm -rf {{env.minified_json_dir}}
+rm -rf {{env.db_dir}}
+'''
