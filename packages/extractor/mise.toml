@@ -17,24 +17,36 @@ run = "rm -rf ./dist"
 [tasks.jar]
 description = "Extract assets from Jar mods"
 depends = [":build"]
-sources = ["{{env.raw_assets_dir}}/dump/ingredients.json", "./dist/**/*.js"]
-outputs = ["{{env.assets_dir}}/extracted/**/*.png"]
+sources = [
+  "./dist/**/*.js"
+  "{{env.raw_assets_dir}}/dump/ingredients.json",
+]
+outputs = [
+  "{{env.assets_dir}}/extracted/**/*.png"
+]
 run = "pnpm node dist/main.js --extract"
 
 [tasks.db]
 description = "Build SQLite database from ingredients and extracted assets"
 depends = [":jar"]
 sources = [
-  "{{env.raw_assets_dir}}/dump/ingredients.json",
-  "{{env.assets_dir}}/extracted/**/*",
   "./dist/**/*.js",
+  "{{env.raw_assets_dir}}/dump/ingredients.json",
+  "{{env.assets_dir}}/extracted/**/*.png",
 ]
-outputs = ["{{env.assets_dir}}/dump/assets.db"]
+outputs = [
+  "{{env.assets_dir}}/dump/assets.db"
+]
 run = "pnpm node dist/main.js --build-db"
 
 [tasks.minify]
 description = "Minify all JSON files"
 depends = [":build", ":db"]
-sources = ["{{env.raw_assets_dir}}/dump/*.json", "./dist/**/*.js"]
-outputs = ["{{env.assets_dir}}/dump/*.min.json"]
+sources = [
+  "./dist/**/*.js",
+  "{{env.raw_assets_dir}}/dump/*.json",
+]
+outputs = [
+  "{{env.assets_dir}}/minified/*.min.json",
+]
 run = "pnpm node dist/main.js --minify"

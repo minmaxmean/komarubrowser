@@ -1,9 +1,9 @@
 import Database from "better-sqlite3";
 import * as fs from "fs/promises";
-import { DB_OUTPUT, pathExists } from "./shared.js";
+import { pathExists } from "./shared.js";
 import type { IngredientRow, ManifestRow, RecipeRow } from "@komarubrowser/common/tables";
 
-export async function initDb(dbPath: string = DB_OUTPUT): Promise<Database.Database> {
+export async function initDb(dbPath: string): Promise<Database.Database> {
   if (await pathExists(dbPath)) {
     await fs.unlink(dbPath);
   }

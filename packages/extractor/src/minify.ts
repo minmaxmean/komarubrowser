@@ -1,30 +1,32 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
-import { INPUT_PATH, OUTPUT_PATH, pathExists, atomicMove } from "./shared.js";
+import { pathExists, atomicMove, getMinifyEnv } from "./shared.js";
+
+const { MINIFY_INPUT_DIR, MINIFY_OUTPUT_DIR } = getMinifyEnv();
 
 export async function minifyJson(): Promise<void> {
-  console.log(`Looking for JSON files in: ${INPUT_PATH}`);
+  console.log(`Looking for JSON files in: ${MINIFY_INPUT_DIR}`);
 
-  if (!(await pathExists(INPUT_PATH))) {
-    console.error(`Error: Directory ${INPUT_PATH} does not exist.`);
+  if (!(await pathExists(MINIFY_INPUT_DIR))) {
+    console.error(`Error: Directory ${MINIFY_INPUT_DIR} does not exist.`);
     process.exit(1);
   }
 
   const stagingBase = await fs.mkdtemp(path.join(os.tmpdir(), "komaru-minify-"));
 
   try {
-    const files = await fs.readdir(INPUT_PATH);
+    const files = await fs.readdir(MINIFY_INPUT_DIR);
     const jsonFiles = files.filter((f) => f.endsWith(".json"));
 
     if (jsonFiles.length === 0) {
-      console.log(`No JSON files found in ${INPUT_PATH}`);
+      console.log(`No JSON files found in ${MINIFY_INPUT_DIR}`);
       await fs.rm(stagingBase, { recursive: true });
       return;
     }
 
     for (const filename of jsonFiles) {
-      const inputFile = path.join(INPUT_PATH, filename);
+      const inputFile = path.join(MINIFY_INPUT_DIR, filename);
       const outputFile = path.join(stagingBase, filename.replace(/\.json$/, ".min.json"));
       console.log(`Minifying ${filename}...`);
       const content = await fs.readFile(inputFile, "utf-8");
@@ -34,15 +36,15 @@ export async function minifyJson(): Promise<void> {
       console.log(`  minified to staging area`);
     }
 
-    console.log(`Committing minified files to ${OUTPUT_PATH}...`);
-    if (await pathExists(OUTPUT_PATH)) {
-      await fs.rm(OUTPUT_PATH, { recursive: true });
+    console.log(`Committing minified files to ${MINIFY_OUTPUT_DIR}...`);
+    if (await pathExists(MINIFY_OUTPUT_DIR)) {
+      await fs.rm(MINIFY_OUTPUT_DIR, { recursive: true });
     }
-    await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
-    await atomicMove(stagingBase, OUTPUT_PATH);
+    await fs.mkdir(path.dirname(MINIFY_OUTPUT_DIR), { recursive: true });
+    await atomicMove(stagingBase, MINIFY_OUTPUT_DIR);
 
     console.log(`Successfully minified ${jsonFiles.length} files.`);
-    console.log(`  Output folder: ${OUTPUT_PATH}`);
+    console.log(`  Output folder: ${MINIFY_OUTPUT_DIR}`);
   } catch (err) {
     console.error("Minification failed, cleaning up staging area...");
     await fs.rm(stagingBase, { recursive: true, force: true });

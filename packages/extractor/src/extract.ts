@@ -3,32 +3,28 @@ import * as path from "path";
 import * as os from "os";
 import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
-import {
-  MODS_DIR,
-  INGREDIENTS_FILE,
-  OUTPUT_BASE,
-  JAR_MAPPINGS,
-  pathExists,
-  copyDir,
-  atomicMove,
-} from "./shared.js";
-import type { Ingredient } from '@komarubrowser/common/types';
+import { pathExists, copyDir, atomicMove, getJarEnv } from "./shared.js";
+import type { Ingredient } from "@komarubrowser/common/types";
+
+const { MODS_DIR, INGREDIENTS_FILE, JAR_OUTPUT_DIR } = getJarEnv();
+
+const JAR_MAPPINGS: Record<string, string> = {
+  "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
+  "server-1.20.1-20230612.114412-srg.jar": "1.20.1.jar",
+};
 
 async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
   const extractName = JAR_MAPPINGS[jar] || jar;
   const jarPath = path.join(MODS_DIR, extractName);
-  const tempDir = path.join(os.tmpdir(), `komaru_${jar}_${Math.random().toString(36).slice(2)}`);
+  const tempDir = await fs.mkdtemp(path.join(stagingBase, "non_flat"));
   const finalDirInStaging = path.join(stagingBase, jar);
 
   if (!(await pathExists(jarPath))) {
-    console.log(`Warning: JAR not found: ${jar}`);
+    console.warn(`\nWarning: JAR not found: ${jar}\n`);
     return false;
   }
 
   try {
-    if (await pathExists(tempDir)) {
-      await fs.rm(tempDir, { recursive: true });
-    }
     await fs.mkdir(tempDir, { recursive: true });
 
     const zip = new AdmZip(jarPath);
@@ -49,29 +45,29 @@ async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
 
     const assetsPath = path.join(tempDir, "assets");
     if (await pathExists(assetsPath)) {
-      const namespaces = await fs.readdir(assetsPath);
-
-      for (const namespace of namespaces) {
-        const nsPath = path.join(assetsPath, namespace);
-        const stat = await fs.stat(nsPath);
-        if (!stat.isDirectory()) continue;
-
-        for (const type of ["item", "block"]) {
-          const typePath = path.join(nsPath, "textures", type);
-          if (await pathExists(typePath)) {
-            const destDir = path.join(tempDir, namespace, type);
-            await fs.mkdir(destDir, { recursive: true });
-
-            const pngFiles = await getAllPngFiles(typePath);
-            await Promise.all(
-              pngFiles.map(async (pngFile) => {
-                const destPath = path.join(destDir, path.basename(pngFile));
-                await fs.copyFile(pngFile, destPath);
-              }),
-            );
-          }
-        }
-      }
+      // const namespaces = await fs.readdir(assetsPath);
+      //
+      // for (const namespace of namespaces) {
+      //   const nsPath = path.join(assetsPath, namespace);
+      //   const stat = await fs.stat(nsPath);
+      //   if (!stat.isDirectory()) continue;
+      //
+      //   for (const type of ["item", "block"]) {
+      //     const typePath = path.join(nsPath, "textures", type);
+      //     if (await pathExists(typePath)) {
+      //       const destDir = path.join(tempDir, namespace, type);
+      //       await fs.mkdir(destDir, { recursive: true });
+      //
+      //       const pngFiles = await getAllPngFiles(typePath);
+      //       await Promise.all(
+      //         pngFiles.map(async (pngFile) => {
+      //           const destPath = path.join(destDir, path.basename(pngFile));
+      //           await fs.copyFile(pngFile, destPath);
+      //         }),
+      //       );
+      //     }
+      //   }
+      // }
     }
 
     await fs.mkdir(finalDirInStaging, { recursive: true });
@@ -83,7 +79,7 @@ async function extractJar(jar: string, stagingBase: string): Promise<boolean> {
 
     return true;
   } catch (err) {
-    console.error(`  Error processing ${jar}: ${err}`);
+    console.error(`\nError processing ${jar}: ${err}\n`);
     if (await pathExists(tempDir)) {
       await fs.rm(tempDir, { recursive: true });
     }
@@ -122,7 +118,7 @@ export async function extractAssets(): Promise<void> {
 
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);
 
-  const stagingBase = await fs.mkdtemp(path.join(os.tmpdir(), "komaru-extract-"));
+  const stagingBase = await fs.mkdtemp(path.join(os.tmpdir(), "komaru", "extract"));
 
   try {
     console.log(`Processing ${uniqueJars.length} JARs into staging area...`);
@@ -134,29 +130,26 @@ export async function extractAssets(): Promise<void> {
       hideCursor: true,
     });
 
-    progressBar.start(uniqueJars.length, 0);
+    progressBar.start(uniqueJars.length, 0, { jar: "last_jar" });
 
-    let completed = 0;
     await Promise.all(
       uniqueJars.map(async (jar) => {
-        progressBar.update(completed, { jar });
         await extractJar(jar!, stagingBase);
-        completed++;
-        progressBar.update(completed);
+        progressBar.increment({ jar });
       }),
     );
 
     progressBar.stop();
 
-    console.log(`Committing assets to ${OUTPUT_BASE}...`);
-    if (await pathExists(OUTPUT_BASE)) {
-      await fs.rm(OUTPUT_BASE, { recursive: true });
+    console.log(`Committing assets to ${JAR_OUTPUT_DIR}...`);
+    if (await pathExists(JAR_OUTPUT_DIR)) {
+      await fs.rm(JAR_OUTPUT_DIR, { recursive: true });
     }
-    await fs.mkdir(path.dirname(OUTPUT_BASE), { recursive: true });
-    await atomicMove(stagingBase, OUTPUT_BASE);
+    await fs.mkdir(path.dirname(JAR_OUTPUT_DIR), { recursive: true });
+    await atomicMove(stagingBase, JAR_OUTPUT_DIR);
 
     console.log("====================");
-    console.log(`Extraction complete. Assets stored in ${OUTPUT_BASE}`);
+    console.log(`Extraction complete. Assets stored in ${JAR_OUTPUT_DIR}`);
   } catch (err) {
     console.error("Extraction failed, cleaning up staging area...");
     await fs.rm(stagingBase, { recursive: true, force: true });

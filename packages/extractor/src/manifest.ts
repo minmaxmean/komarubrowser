@@ -3,7 +3,7 @@ import * as path from "path";
 import sizeOf from "image-size";
 import cliProgress from "cli-progress";
 import type { ManifestRow } from "@komarubrowser/common/tables";
-import { OUTPUT_BASE, pathExists } from "./shared.js";
+import { JAR_OUTPUT_DIR, pathExists } from "./shared.js";
 
 async function getPngInfo(
   filePath: string,
@@ -29,36 +29,41 @@ async function getPngInfo(
 }
 
 export async function buildManifestItems(): Promise<ManifestRow[]> {
-  console.log(`Building manifest for ${OUTPUT_BASE}...`);
+  console.log(`Building manifest for ${JAR_OUTPUT_DIR}...`);
 
-  const extractedDir = OUTPUT_BASE;
+  const extractedDir = JAR_OUTPUT_DIR;
 
   if (!(await pathExists(extractedDir))) {
     console.error(`Error: Directory ${extractedDir} does not exist.`);
     process.exit(1);
   }
 
+  console.log(`## fs.readdir: ${extractedDir}`);
   const jarDirs = await fs.readdir(extractedDir, { withFileTypes: true });
   const tasks: { task: Promise<ManifestRow | null>; info: string }[] = [];
 
   for (const jar of jarDirs) {
     if (!jar.isDirectory()) continue;
     const jarPath = path.join(extractedDir, jar.name);
+    console.log(`  jarPath: ${jarPath}`);
 
     const modDirs = await fs.readdir(jarPath, { withFileTypes: true });
     for (const mod of modDirs) {
       if (!mod.isDirectory()) continue;
       const modPath = path.join(jarPath, mod.name);
+      console.log(`  modPath: ${modPath}`);
 
       const typeDirs = await fs.readdir(modPath, { withFileTypes: true });
       for (const itemType of typeDirs) {
         if (!itemType.isDirectory()) continue;
         const typePath = path.join(modPath, itemType.name);
+        console.log(`    typePath: ${typePath}`);
 
         const files = await fs.readdir(typePath);
         for (const file of files) {
           if (!file.endsWith(".png")) continue;
           const filePath = path.join(typePath, file);
+          console.log(`    filePath: ${filePath}`);
           tasks.push({
             task: getPngInfo(filePath, jar.name, mod.name, itemType.name, file),
             info: file,

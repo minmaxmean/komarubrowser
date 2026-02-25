@@ -1,27 +1,49 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 
-export const REQUIRED_ENV = ["star_t_dir", "raw_assets_dir", "assets_dir"] as const;
-
-for (const key of REQUIRED_ENV) {
-  if (!process.env[key]) {
-    throw new Error(`Missing required environment variable: ${key}`);
+export function getJarEnv() {
+  const REQUIRED_ENV = ["star_t_dir", "raw_assets_dir", "assets_dir"] as const;
+  for (const key of REQUIRED_ENV) {
+    if (!process.env[key]) {
+      throw new Error(`Missing required environment variable: ${key}`);
+    }
   }
+  return {
+    MODS_DIR: path.join(process.env.star_t_dir!, "mods"),
+    INGREDIENTS_FILE: path.join(process.env.raw_assets_dir!, "dump", "ingredients.json"),
+    JAR_OUTPUT_DIR: path.join(process.env.assets_dir!, "extracted"),
+  };
 }
 
-export const MODS_DIR = path.join(process.env.star_t_dir!, "mods");
-export const INGREDIENTS_FILE = path.join(process.env.raw_assets_dir!, "dump", "ingredients.json");
-export const RECIPES_FILE = path.join(process.env.raw_assets_dir!, "dump", "recipes.json");
-export const OUTPUT_BASE = path.join(process.env.assets_dir!, "extracted");
-export const MANIFEST_OUTPUT = path.join(process.env.raw_assets_dir!, "dump", "manifest.json");
-export const DB_OUTPUT = path.join(process.env.assets_dir!, "dump", "assets.db");
-export const INPUT_PATH = path.join(process.env.raw_assets_dir!, "dump");
-export const OUTPUT_PATH = path.join(process.env.assets_dir!, "dump");
+// :db
+export function getDBEnv() {
+  const REQUIRED_ENV = ["raw_assets_dir", "assets_dir"] as const;
+  for (const key of REQUIRED_ENV) {
+    if (!process.env[key]) {
+      throw new Error(`Missing required environment variable: ${key}`);
+    }
+  }
+  return {
+    INGREDIENTS_FILE: path.join(process.env.raw_assets_dir!, "dump", "ingredients.json"),
+    RECIPES_FILE: path.join(process.env.raw_assets_dir!, "dump", "recipes.json"),
+    EXTRACTED_PNG_DIR: path.join(process.env.assets_dir!, "extracted"),
+    DB_OUTPUT: path.join(process.env.assets_dir!, "dump", "assets.db"),
+  };
+}
 
-export const JAR_MAPPINGS: Record<string, string> = {
-  "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
-  "server-1.20.1-20230612.114412-srg.jar": "1.20.1.jar",
-};
+// :minify
+export function getMinifyEnv() {
+  const REQUIRED_ENV = ["raw_assets_dir", "assets_dir"] as const;
+  for (const key of REQUIRED_ENV) {
+    if (!process.env[key]) {
+      throw new Error(`Missing required environment variable: ${key}`);
+    }
+  }
+  return {
+    MINIFY_INPUT_DIR: path.join(process.env.raw_assets_dir!, "dump"),
+    MINIFY_OUTPUT_DIR: path.join(process.env.assets_dir!, "dump"),
+  };
+}
 
 export async function pathExists(filePath: string): Promise<boolean> {
   try {
