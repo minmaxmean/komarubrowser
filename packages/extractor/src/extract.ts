@@ -2,9 +2,8 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
-import { pathExists, copyDir, atomicMove } from "./shared.js";
 import type { Ingredient } from "@komarubrowser/common/types";
-import { makeTmpDir } from "./utils.js";
+import { atomicMove, copyDir, makeTmpDir, pathExists, recreateDir } from "./utils.js";
 
 // const { MODS_DIR, INGREDIENTS_FILE, JAR_OUTPUT_DIR } = getJarEnv();
 
@@ -16,7 +15,7 @@ const JAR_MAPPINGS: Record<string, string> = {
 async function extractJar(jar: string, stagingBase: string, MODS_DIR: string): Promise<boolean> {
   const extractName = JAR_MAPPINGS[jar] || jar;
   const jarPath = path.join(MODS_DIR, extractName);
-  const tempDir = await fs.mkdtemp(path.join(stagingBase, "non_flat"));
+  const nonFlatDir = await recreateDir(path.join(stagingBase, "non_flat"));
   const finalDirInStaging = path.join(stagingBase, jar);
 
   if (!(await pathExists(jarPath))) {
@@ -25,7 +24,7 @@ async function extractJar(jar: string, stagingBase: string, MODS_DIR: string): P
   }
 
   try {
-    await fs.mkdir(tempDir, { recursive: true });
+    await fs.mkdir(nonFlatDir, { recursive: true });
 
     const zip = new AdmZip(jarPath);
     const entries = zip.getEntries();
@@ -40,26 +39,26 @@ async function extractJar(jar: string, stagingBase: string, MODS_DIR: string): P
     });
 
     for (const entry of pngEntries) {
-      zip.extractEntryTo(entry, tempDir, true, true);
+      zip.extractEntryTo(entry, nonFlatDir, true, true);
     }
 
-    const assetsPath = path.join(tempDir, "assets");
+    const assetsPath = path.join(nonFlatDir, "assets");
     if (await pathExists(assetsPath)) {
       throw Error("not implemented");
     }
 
     await fs.mkdir(finalDirInStaging, { recursive: true });
-    await copyDir(path.join(tempDir, "assets"), path.join(finalDirInStaging, "assets"));
+    await copyDir(path.join(nonFlatDir, "assets"), path.join(finalDirInStaging, "assets"));
 
-    if (await pathExists(tempDir)) {
-      await fs.rm(tempDir, { recursive: true });
+    if (await pathExists(nonFlatDir)) {
+      await fs.rm(nonFlatDir, { recursive: true });
     }
 
     return true;
   } catch (err) {
     console.error(`\nError processing ${jar}: ${err}\n`);
-    if (await pathExists(tempDir)) {
-      await fs.rm(tempDir, { recursive: true });
+    if (await pathExists(nonFlatDir)) {
+      await fs.rm(nonFlatDir, { recursive: true });
     }
     return false;
   }

@@ -3,9 +3,10 @@ import * as os from "os";
 import * as path from "path";
 import { buildManifestItems } from "./manifest.js";
 import { initDb, insertIngredients, insertManifest, insertRecipes } from "./database.js";
-import { atomicMove, getDBEnv } from "./shared.js";
+import { getDBEnv } from "./shared.js";
 import { parseNamespace, type Ingredient, type Recipe } from "@komarubrowser/common/types";
 import type { IngredientRow, RecipeRow } from "@komarubrowser/common/tables";
+import { atomicMove, rmrf } from "./utils.js";
 
 export async function buildDb(): Promise<void> {
   const { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = getDBEnv();
@@ -87,7 +88,7 @@ export async function buildDb(): Promise<void> {
   } catch (err) {
     db.close();
     try {
-      await fs.unlink(tempDbPath);
+      await rmrf(tempDbPath);
     } catch {}
     throw err;
   }

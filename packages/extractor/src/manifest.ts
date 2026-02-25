@@ -3,7 +3,7 @@ import * as path from "path";
 import sizeOf from "image-size";
 import cliProgress from "cli-progress";
 import type { ManifestRow } from "@komarubrowser/common/tables";
-import { pathExists } from "./shared.js";
+import { pathExists } from "./utils.js";
 
 async function getPngInfo(
   filePath: string,
@@ -36,7 +36,6 @@ export async function buildManifestItems(extractedDir: string): Promise<Manifest
     process.exit(1);
   }
 
-  console.log(`## fs.readdir: ${extractedDir}`);
   const jarDirs = await fs.readdir(extractedDir, { withFileTypes: true });
   const tasks: { task: Promise<ManifestRow | null>; info: string }[] = [];
 

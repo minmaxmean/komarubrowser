@@ -1,7 +1,8 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
-import { pathExists, atomicMove, getMinifyEnv } from "./shared.js";
+import { getMinifyEnv } from "./shared.js";
+import { atomicMove, pathExists } from "./utils.js";
 
 export async function minifyJson(): Promise<void> {
   const { MINIFY_INPUT_DIR, MINIFY_OUTPUT_DIR } = getMinifyEnv();
