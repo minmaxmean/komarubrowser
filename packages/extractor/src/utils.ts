@@ -69,3 +69,14 @@ export const rmrf = async (dir: string): Promise<string> => {
   await fs.rm(dir, { recursive: true, force: true });
   return dir;
 };
+
+export const readJson = async <T>(filepath: string): Promise<T> => {
+  const json = await fs.readFile(filepath, "utf-8");
+  const data = JSON.parse(json);
+  return data;
+};
+
+export const safeCopy = async (src: string, dest: string): Promise<void> => {
+  await mkdirp(path.dirname(dest));
+  await fs.copyFile(src, dest);
+};

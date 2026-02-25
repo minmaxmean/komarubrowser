@@ -40,7 +40,7 @@ sources = [
   "{{env.extracted_pngs_dir}}/**/*.png",
 ]
 outputs = [
-  "{{env.db_dir}}/assets.db"
+  "{{env.db_dir}}/komarku.db"
 ]
 run = "pnpm node dist/main.js --build-db"
 

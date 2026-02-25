@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+    "lib": ["esnext"],
     "composite": true
   },
   "include": ["src/**/*"],

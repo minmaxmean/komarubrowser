@@ -2,21 +2,35 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
-import type { Ingredient } from "@komarubrowser/common/types";
 import * as utils from "./utils.js";
+import { ExtractPngArgs } from "./args.js";
+import { IngredientJson } from "@komarubrowser/common/tables";
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
-  "server-1.20.1-20230612.114412-srg.jar": "1.20.1.jar",
 };
 
-async function extractJar(jar: string, outputDir: string, MODS_DIR: string): Promise<boolean> {
+const SKIPPED_JARS = new Set(["client-1.20.1-20230612.114412-srg.jar"]);
+
+const ADDITIONAL_JARS: Record<string, string[]> = {
+  "XyCraft World-0.6.22.jar": ["XyCraft Core-0.6.22.jar"],
+  "thermal_core-1.20.1-11.0.6.24.jar": [
+    "thermal_cultivation-1.20.1-11.0.1.24.jar",
+    "thermal_expansion-1.20.1-11.0.1.29.jar",
+    "thermal_foundation-1.20.1-11.0.6.70.jar",
+  ],
+};
+
+async function extractJar(jar: string, outputDir: string, MODS_DIR: string): Promise<void> {
+  if (ADDITIONAL_JARS[jar]) {
+    console.log(`processing additional jar: ${ADDITIONAL_JARS[jar]}`);
+    await Promise.all(ADDITIONAL_JARS[jar].map((subJar) => extractJar(subJar, outputDir, MODS_DIR)));
+  }
   const extractName = JAR_MAPPINGS[jar] || jar;
   const jarPath = path.join(MODS_DIR, extractName);
 
   if (!(await utils.pathExists(jarPath))) {
-    console.warn(`\nWarning: JAR not found: ${jar}\n`);
-    return false;
+    throw Error(`JAR not found: ${jar}`);
   }
 
   const jarTmpDir = await utils.makeTmpDir(`extract_tree/${jar}`);
@@ -28,6 +42,7 @@ async function extractJar(jar: string, outputDir: string, MODS_DIR: string): Pro
 
     if (pngEntries.length === 0) {
       console.warn(`  jar ${jar} doesn't have any assets`);
+      return;
     }
 
     for (const entry of pngEntries) {
@@ -35,37 +50,49 @@ async function extractJar(jar: string, outputDir: string, MODS_DIR: string): Pro
     }
 
     await utils.copyDir(path.join(jarTmpDir, "assets"), path.join(outputDir, "assets"));
-    return true;
   } catch (err) {
     console.error(`\nError processing ${jar}: ${err}\n`);
-    return false;
+    throw err;
   } finally {
     await utils.rmrf(jarTmpDir);
   }
 }
 
-export type ExtractAssetsArgs = {
-  INGREDIENTS_FILE: string;
-  MODS_DIR: string;
-  JAR_OUTPUT_DIR: string;
-};
+async function copyKubeJSAssets(kubeAssetsDir: string, outptuDir: string): Promise<boolean> {
+  if (!(await utils.pathExists(kubeAssetsDir))) {
+    throw Error(`KubeJS assets not found: ${kubeAssetsDir}`);
+  }
+  const pngGlob = "**/*.png";
+  const pngFiles = fs.glob(pngGlob, { cwd: kubeAssetsDir });
+  for await (const png of pngFiles) {
+    const srcPath = path.join(kubeAssetsDir, png);
+    const destPath = path.join(outptuDir, "assets", png);
+    await utils.safeCopy(srcPath, destPath);
+  }
+  return true;
+}
 
-export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR }: ExtractAssetsArgs): Promise<void> {
+export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, SERVER_DIR }: ExtractPngArgs): Promise<void> {
   if (!(await utils.pathExists(INGREDIENTS_FILE))) {
     console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
     process.exit(1);
   }
 
   const ingredientsRaw = await fs.readFile(INGREDIENTS_FILE, "utf-8");
-  const ingredients: Ingredient[] = JSON.parse(ingredientsRaw);
-  const uniqueJars = [...new Set(ingredients.map((i) => i.sourceJar).filter(Boolean))] as string[];
+  const ingredients: IngredientJson[] = JSON.parse(ingredientsRaw);
+  const uniqueJars = new Set(
+    ingredients
+      .map((i) => i.sourceJar)
+      .filter(Boolean)
+      .filter((jar) => !SKIPPED_JARS.has(jar)),
+  );
 
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);
 
   const stagingBase = await utils.makeTmpDir("extract-pngs");
 
   try {
-    console.log(`Processing ${uniqueJars.length} JARs into staging area...`);
+    console.log(`Processing ${uniqueJars.size} JARs into staging area...`);
 
     const progressBar = new cliProgress.SingleBar({
       format: "  {bar} {percentage}% | {value}/{total} | {jar}",
@@ -74,22 +101,22 @@ export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR }
       hideCursor: true,
     });
 
-    progressBar.start(uniqueJars.length, 0, { jar: "last_jar" });
+    progressBar.start(uniqueJars.size, 0, { jar: "" });
 
     await Promise.all(
-      uniqueJars.map(async (jar) => {
-        await extractJar(jar!, stagingBase, MODS_DIR);
+      [...uniqueJars].map(async (jar) => {
+        await extractJar(jar!, stagingBase, path.join(SERVER_DIR, "mods"));
         progressBar.increment({ jar });
       }),
     );
-
     progressBar.stop();
 
+    const KUBEJS_ASSETS_DIR = path.join(SERVER_DIR, "kubejs", "assets");
+    await copyKubeJSAssets(KUBEJS_ASSETS_DIR, JAR_OUTPUT_DIR);
+
     console.log(`Committing assets to ${JAR_OUTPUT_DIR}...`);
-    if (await utils.pathExists(JAR_OUTPUT_DIR)) {
-      await utils.rmrf(JAR_OUTPUT_DIR);
-    }
-    await utils.mkdirp(path.dirname(JAR_OUTPUT_DIR));
+    await utils.rmrf(JAR_OUTPUT_DIR);
+    await utils.mkdirp(JAR_OUTPUT_DIR);
     await utils.atomicMove(stagingBase, JAR_OUTPUT_DIR);
 
     console.log("====================");
