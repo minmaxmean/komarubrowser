@@ -48,6 +48,6 @@ sources = [
   "{{env.dumps_from_mod_dir}}/*.json",
 ]
 outputs = [
-  "{{env.minifed_json_dir}}/*.json",
+  "{{env.minified_json_dir}}/*.json",
 ]
 run = "pnpm node dist/main.js --minify"

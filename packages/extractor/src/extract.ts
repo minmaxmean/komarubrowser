@@ -5,6 +5,7 @@ import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
 import { pathExists, copyDir, atomicMove } from "./shared.js";
 import type { Ingredient } from "@komarubrowser/common/types";
+import { makeTmpDir } from "./utils.js";
 
 // const { MODS_DIR, INGREDIENTS_FILE, JAR_OUTPUT_DIR } = getJarEnv();
 
@@ -71,7 +72,7 @@ export type ExtractAssetsArgs = {
   JAR_OUTPUT_DIR: string;
 };
 
-export async function extractAssets({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR }: ExtractAssetsArgs): Promise<void> {
+export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR }: ExtractAssetsArgs): Promise<void> {
   if (!(await pathExists(INGREDIENTS_FILE))) {
     console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
     process.exit(1);
@@ -83,7 +84,7 @@ export async function extractAssets({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, MODS_DIR
 
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);
 
-  const stagingBase = await fs.mkdtemp(path.join(os.tmpdir(), "komaru", "extract"));
+  const stagingBase = await makeTmpDir("extract-pngs");
 
   try {
     console.log(`Processing ${uniqueJars.length} JARs into staging area...`);
