@@ -12,6 +12,9 @@ import * as utils from "./utils.js";
 import { BuildDBArgs } from "./args.js";
 import path from "path";
 
+const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
+const ignoreMissingTexture = (id: string) => IGNORED_TEXTURE_MODS.has(id.split(":")[0]);
+
 export async function buildDb({
   INGREDIENTS_FILE,
   RECIPES_FILE,
@@ -44,10 +47,22 @@ export async function buildDb({
         deduplicated.set(i.id, i);
       }
     }
+    const getTextureLocation = (i: IngredientJson): string | null => {
+      if (!i.textureLocation) return null;
+      const textureLocation = "assets/" + i.textureLocation.replace(":", "/");
+      if (!manifestSet.has(textureLocation)) {
+        if (!ignoreMissingTexture(i.id) && !textureLocation.startsWith("assets/minecraft")) {
+          throw Error(`texture for item not found in manifest: id: ${i.id} textureLocation: ${textureLocation}`);
+        }
+        return null;
+      }
+      return textureLocation;
+    };
 
-    const ingredientRows: IngredientRow[] = Array.from(deduplicated.values()).map((ing) =>
-      toIngredientRow(ing, manifestSet),
-    );
+    const ingredientRows: IngredientRow[] = Array.from(deduplicated.values()).map((ing) => {
+      const actualTextureLocation = getTextureLocation(ing);
+      return toIngredientRow(ing, actualTextureLocation);
+    });
     console.log(`Inserting ${ingredientRows.length} ingredients (deduplicated from ${ingredients.length})...`);
     insertIngredients(db, ingredientRows);
 

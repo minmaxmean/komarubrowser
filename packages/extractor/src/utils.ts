@@ -77,6 +77,7 @@ export const readJson = async <T>(filepath: string): Promise<T> => {
 };
 
 export const safeCopy = async (src: string, dest: string): Promise<void> => {
+  dest = dest.toLowerCase();
   await mkdirp(path.dirname(dest));
   await fs.copyFile(src, dest);
 };

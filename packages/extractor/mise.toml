@@ -19,6 +19,7 @@ description = "Extract pngassets from Jar mods"
 depends = [":build", "//minecraft/star_t:dump_json"]
 sources = [
   "./dist/**/*.js",
+  "../common/dist/**/*",
   "{{env.dumps_from_mod_dir}}/ingredients.json",
 ]
 outputs = [
@@ -35,6 +36,7 @@ depends = [
 ]
 sources = [
   "./dist/**/*.js",
+  "../common/dist/**/*",
   "{{env.dumps_from_mod_dir}}/ingredients.json",
   "{{env.dumps_from_mod_dir}}/recipes.json",
   "{{env.extracted_pngs_dir}}/**/*.png",
@@ -53,6 +55,7 @@ depends = [
 ]
 sources = [
   "./dist/**/*.js",
+  "../common/dist/**/*",
   "{{env.dumps_from_mod_dir}}/*.json",
 ]
 outputs = [

@@ -63,12 +63,15 @@ async function copyKubeJSAssets(kubeAssetsDir: string, outptuDir: string): Promi
     throw Error(`KubeJS assets not found: ${kubeAssetsDir}`);
   }
   const pngGlob = "**/*.png";
-  const pngFiles = fs.glob(pngGlob, { cwd: kubeAssetsDir });
-  for await (const png of pngFiles) {
-    const srcPath = path.join(kubeAssetsDir, png);
-    const destPath = path.join(outptuDir, "assets", png);
-    await utils.safeCopy(srcPath, destPath);
-  }
+  const pngFiles = await Array.fromAsync(fs.glob(pngGlob, { cwd: kubeAssetsDir }));
+  console.log(`Found ${pngFiles.length} KubeJS pngs in ${pngGlob} at ${kubeAssetsDir}`);
+  await Promise.all(
+    pngFiles.map(async (png) => {
+      const srcPath = path.join(kubeAssetsDir, png);
+      const destPath = path.join(outptuDir, "assets", png);
+      await utils.safeCopy(srcPath, destPath);
+    }),
+  );
   return true;
 }
 
@@ -112,7 +115,7 @@ export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, SERVER_DIR
     progressBar.stop();
 
     const KUBEJS_ASSETS_DIR = path.join(SERVER_DIR, "kubejs", "assets");
-    await copyKubeJSAssets(KUBEJS_ASSETS_DIR, JAR_OUTPUT_DIR);
+    await copyKubeJSAssets(KUBEJS_ASSETS_DIR, stagingBase);
 
     console.log(`Committing assets to ${JAR_OUTPUT_DIR}...`);
     await utils.rmrf(JAR_OUTPUT_DIR);
