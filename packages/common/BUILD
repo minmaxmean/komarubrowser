@@ -1,7 +1,9 @@
 load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 
-# npm_link_all_packages(name = "node_modules")
+package(default_visibility = ["//packages/extractor:__pkg__"])
+
+npm_link_all_packages(name = "node_modules")
 
 ts_project(
   name = "common",

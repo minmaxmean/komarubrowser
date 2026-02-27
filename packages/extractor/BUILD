@@ -4,13 +4,15 @@ load("@npm//:defs.bzl", "npm_link_all_packages")
 npm_link_all_packages(name = "node_modules")
 
 ts_project(
-    name = "ts",
+    name = "extractor",
     srcs = glob(["src/**/*.ts"]),
+    composite = True,
     declaration = True,
-    transpiler = "tsc", # Or "swc" for massive speed gains
-    tsconfig = "//:tsconfig.base.json", # Point to your base config
+    declaration_map = True,
+    out_dir = "dist",
+    transpiler = "tsc",
+    ts_build_info_file = "dist/tsconfig.tsbuildinfo",
     deps = [
-        ":node_modules/lodash", # Third-party dep
-        "//packages/core:node_modules/@myrepo/core", # Internal workspace dep
+        "//packages/common",
     ],
 )
