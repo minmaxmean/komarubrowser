@@ -1,4 +1,4 @@
-import { EnergyTierID } from "../types/energyTier.js";
+import { EnergyTierID } from "../types/energyTier/energyTier";
 import { Recipe } from "../types/recipe.js";
 
 export interface RecipeRow {

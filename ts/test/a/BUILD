@@ -4,7 +4,7 @@ ts_project(
     name = "a",
     srcs = ["a.ts"],
     declaration = True,
-    tsconfig = ":tsconfig",
+    tsconfig = "//ts/test:tsconfig",
     visibility = ["//visibility:public"],
 )
 
