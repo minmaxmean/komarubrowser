@@ -1,0 +1,18 @@
+{
+  "name": "@komarubrowser/extractor",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "better-sqlite3": "^12.6.2",
+    "cli-progress": "^3.12.0",
+    "image-size": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^22.13.1"
+  }
+}

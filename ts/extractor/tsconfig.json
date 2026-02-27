@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+
+    "strict": true,
+
+    /* Output Settings */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+  }
+}
+
