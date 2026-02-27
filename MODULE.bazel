@@ -1,0 +1,35 @@
+module(name = "komarubrowser", version = "0.0.1")
+
+# 1. Fetch the JavaScript/TypeScript rules
+bazel_dep(name = "aspect_rules_js", version = "2.9.2")
+bazel_dep(name = "aspect_rules_ts", version = "3.8.5")
+bazel_dep(name = "rules_nodejs", version = "6.7.3")
+
+# # 2. Configure the Node.js toolchain
+# node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+# node.toolchain(node_version = "20.10.0") # Use your project's version
+# use_repo(node, "nodejs_toolchains")
+
+#########################
+# JavaScript and pnpm package manager
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version_from_nvmrc = "//:.nvmrc")
+use_repo(node, "nodejs_toolchains")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+pnpm.pnpm(pnpm_version_from = "//:package.json")
+use_repo(pnpm, "pnpm")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    npmrc = "//:.npmrc",
+    pnpm_lock = "//:pnpm-lock.yaml",
+)
+use_repo(npm, "npm")
+
+rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
+rules_ts_ext.deps()
+use_repo(rules_ts_ext, "npm_typescript")
+
+# register_toolchains("//tools/toolchains:all")
