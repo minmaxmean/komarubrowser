@@ -14,8 +14,6 @@ pnpm = "latest"
 
 [env]
 MISE_EXPERIMENTAL="1"
-# This tells mise to automatically activate the .venv in this directory
-_.python.venv = ".venv"
 
 workdata     = "{{config_root}}/workdata"
 common_dir   = "{{config_root}}/packages/common"

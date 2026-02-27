@@ -5,15 +5,13 @@ ts_project(
     srcs = [
         "common.ts",
         "energyTier.ts",
-        "index.ts",
         "ingredient.ts",
         "recipe.ts",
     ],
-    composite = True,
     declaration = True,
     declaration_map = True,
     out_dir = "dist",
-    root_dir = "src",
-    ts_build_info_file = "./dist/tsconfig.tsbuildinfo",
-    tsconfig = "//packages/common:tsconfig",
+    source_map = True,
+    tsconfig = "//ts/common:tsconfig",
+    visibility = ["//visibility:public"],
 )

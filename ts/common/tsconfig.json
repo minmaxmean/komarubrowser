@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    /* Target modern environments */
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext"],
+
+    /* Strictness & Reliability */
+    "strict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+
+    /* Output Settings */
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  }
+}

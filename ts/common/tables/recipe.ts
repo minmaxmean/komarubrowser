@@ -1,4 +1,5 @@
-import { EnergyTierID, Recipe } from "../types";
+import { EnergyTierID } from "../types/energyTier.js";
+import { Recipe } from "../types/recipe.js";
 
 export interface RecipeRow {
   id: string;
