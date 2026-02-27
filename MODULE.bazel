@@ -4,6 +4,7 @@ module(name = "komarubrowser", version = "0.0.1")
 bazel_dep(name = "aspect_rules_js", version = "2.9.2")
 bazel_dep(name = "aspect_rules_ts", version = "3.8.5")
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
+bazel_dep(name = "rules_multitool", version = "1.11.1")
 
 # # 2. Configure the Node.js toolchain
 # node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
@@ -32,6 +33,9 @@ rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
 rules_ts_ext.deps()
 use_repo(rules_ts_ext, "npm_typescript")
 
+multitool = use_extension("@rules_multitool//multitool:extension.bzl", "multitool")
+multitool.hub(lockfile = "//:tools.lock.json")
+use_repo(multitool, "multitool")
 
 # gazelle
 bazel_dep(name = "gazelle", version = "0.47.0")
