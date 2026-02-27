@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
 
     "strict": true,
 
@@ -8,6 +10,9 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+
+
+    "allowSyntheticDefaultImports": true,
   }
 }
 
