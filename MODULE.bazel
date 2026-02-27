@@ -32,4 +32,6 @@ rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
 rules_ts_ext.deps()
 use_repo(rules_ts_ext, "npm_typescript")
 
-# register_toolchains("//tools/toolchains:all")
+
+# gazelle
+bazel_dep(name = "gazelle", version = "0.47.0")
