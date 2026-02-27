@@ -1,25 +1,5 @@
 import * as path from "path";
 
-export type ExtractPngArgs = {
-  INGREDIENTS_FILE: string;
-  SERVER_DIR: string;
-  JAR_OUTPUT_DIR: string;
-};
-
-export function getExtractPngsArgs(): ExtractPngArgs {
-  const REQUIRED_ENV = ["star_t_data_dir", "dumps_from_mod_dir", "extracted_pngs_dir"] as const;
-  for (const key of REQUIRED_ENV) {
-    if (!process.env[key]) {
-      throw new Error(`Missing required environment variable: ${key}`);
-    }
-  }
-  return {
-    SERVER_DIR: path.join(process.env.star_t_data_dir!),
-    INGREDIENTS_FILE: path.join(process.env.dumps_from_mod_dir!, "ingredients.json"),
-    JAR_OUTPUT_DIR: path.join(process.env.extracted_pngs_dir!),
-  };
-}
-
 export type BuildDBArgs = {
   INGREDIENTS_FILE: string;
   RECIPES_FILE: string;

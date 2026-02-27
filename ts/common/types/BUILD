@@ -5,6 +5,7 @@ ts_project(
     srcs = [
         "common.ts",
         "energyTier.ts",
+        "index.ts",
         "ingredient.ts",
         "recipe.ts",
     ],

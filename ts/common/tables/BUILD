@@ -3,6 +3,7 @@ load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 ts_project(
     name = "tables",
     srcs = [
+        "index.ts",
         "ingredient.ts",
         "manifest.ts",
         "recipe.ts",
