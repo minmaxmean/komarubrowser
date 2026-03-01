@@ -17,7 +17,10 @@ filegroup(
 
 genrule(
     name = "mod_jar",
-    srcs = [":src", "gradlew"],
+    srcs = [
+        ":src",
+        "gradlew",
+    ],
     outs = ["komarubrowser-1.20.1-0.1.0.jar"],
     cmd = """
         # export GRADLE_USER_HOME=$$(pwd)/.gradle_home
@@ -26,6 +29,6 @@ genrule(
         ./gradlew jar
         cp dist/libs/komarubrowser-1.20.1-0.1.0.jar $$OUT_FILE
     """,
-  tags = ["local"],
+    tags = ["local"],
     visibility = ["//visibility:public"],
 )
