@@ -1,8 +1,19 @@
+load("@bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
-filegroup(
-    name = "server_data",
-    srcs = glob(["server_data/**/*"]),
+copy_to_bin(
+    name = "server_mods",
+    srcs = glob(
+        ["server_data/mods/*.jar"],
+        exclude = ["server_data/mods/komarubrowser-*.jar"],
+    ),
+    visibility = ["//visibility:public"],
+)
+
+copy_to_bin(
+    name = "server_kubejs_pngs",
+    srcs = glob(["server_data/kubejs/**/*.png"]),
+    visibility = ["//visibility:public"],
 )
 
 sh_binary(
@@ -34,4 +45,5 @@ genrule(
     ],
     cmd = "$(location dump_jsons.sh) $(@D)",
     tags = ["local"],
+    visibility = ["//visibility:public"],
 )

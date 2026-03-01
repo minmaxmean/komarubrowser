@@ -76,6 +76,11 @@ export const readJson = async <T>(filepath: string): Promise<T> => {
   return data;
 };
 
+export const writeJson = async <T>(filepath: string, data: T): Promise<void> => {
+  const json = JSON.stringify(data, null, 2);
+  await fs.writeFile(filepath, json, "utf-8");
+};
+
 export const safeCopy = async (src: string, dest: string): Promise<void> => {
   dest = dest.toLowerCase();
   await mkdirp(path.dirname(dest));

@@ -29,7 +29,7 @@ async function extractJar(jar: string, outputDir: string, MODS_DIR: string): Pro
   const jarPath = path.join(MODS_DIR, extractName);
 
   if (!(await utils.pathExists(jarPath))) {
-    throw Error(`JAR not found: ${jar}`);
+    throw Error(`JAR not found: ${jar} at ${jarPath}`);
   }
 
   const jarTmpDir = await utils.makeTmpDir(`extract_tree/${jar}`);
@@ -74,9 +74,11 @@ async function copyKubeJSAssets(kubeAssetsDir: string, outptuDir: string): Promi
   return true;
 }
 
-export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, SERVER_DIR }: ExtractPngArgs): Promise<void> {
+export async function extractPngs(args: ExtractPngArgs): Promise<void> {
+  console.log({ args, cwd: process.cwd() });
+  const { INGREDIENTS_FILE, OUTPUT_DIR, SERVER_DIR, OUTPUT_SNAPSHOT_FILE } = args;
   if (!(await utils.pathExists(INGREDIENTS_FILE))) {
-    console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE}`);
+    console.error(`Error: Ingredients file not found: ${INGREDIENTS_FILE} cwd: ${process.cwd()}`);
     process.exit(1);
   }
 
@@ -116,13 +118,15 @@ export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, SERVER_DIR
     const KUBEJS_ASSETS_DIR = path.join(SERVER_DIR, "kubejs", "assets");
     await copyKubeJSAssets(KUBEJS_ASSETS_DIR, stagingBase);
 
-    console.log(`Committing assets to ${JAR_OUTPUT_DIR}...`);
-    await utils.rmrf(JAR_OUTPUT_DIR);
-    await utils.mkdirp(JAR_OUTPUT_DIR);
-    await utils.atomicMove(stagingBase, JAR_OUTPUT_DIR);
+    console.log(`Committing assets to ${OUTPUT_DIR}...`);
+    await utils.rmrf(OUTPUT_DIR);
+    await utils.mkdirp(OUTPUT_DIR);
+    await utils.atomicMove(stagingBase, OUTPUT_DIR);
 
     console.log("====================");
-    console.log(`Extraction complete. Assets stored in ${JAR_OUTPUT_DIR}`);
+    console.log(`Extraction complete. Assets stored in ${OUTPUT_DIR}`);
+
+    await utils.writeJson(OUTPUT_SNAPSHOT_FILE, { sucess: true, finishedAt: new Date() });
   } catch (err) {
     console.error("Extraction failed, cleaning up staging area...");
     await utils.rmrf(stagingBase);
@@ -133,21 +137,46 @@ export async function extractPngs({ INGREDIENTS_FILE, JAR_OUTPUT_DIR, SERVER_DIR
 type ExtractPngArgs = {
   INGREDIENTS_FILE: string;
   SERVER_DIR: string;
-  JAR_OUTPUT_DIR: string;
+  OUTPUT_DIR: string;
+  OUTPUT_SNAPSHOT_FILE: string;
 };
 
-function getExtractPngsArgs(): ExtractPngArgs {
-  const REQUIRED_ENV = ["star_t_data_dir", "dumps_from_mod_dir", "extracted_pngs_dir"] as const;
-  for (const key of REQUIRED_ENV) {
-    if (!process.env[key]) {
-      throw new Error(`Missing required environment variable: ${key}`);
+const REQUIRED_ARGS = ["output", "output_snapshot", "ingredients", "server_data"] as const;
+type RequiredArg = (typeof REQUIRED_ARGS)[number];
+
+function parseArgs(): ExtractPngArgs {
+  const args = process.argv.slice(2);
+  const parsed: Partial<Record<RequiredArg, string>> = {};
+  console.log("args:", args);
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith("--")) {
+      const nextArg = args[i + 1];
+      if (!nextArg || nextArg.startsWith("--")) {
+        throw new Error(`Missing value for argument: ${arg}`);
+      }
+      const key = arg.slice(2) as RequiredArg;
+      if (!REQUIRED_ARGS.includes(key as any)) {
+        throw new Error(`Unknonw arguments: ${key}`);
+      }
+      parsed[key] = nextArg;
+      i++;
     }
   }
+
+  for (const key of REQUIRED_ARGS) {
+    if (!parsed[key]) {
+      throw new Error(`Missing required argument: --${key}`);
+    }
+  }
+
   return {
-    SERVER_DIR: path.join(process.env.star_t_data_dir!),
-    INGREDIENTS_FILE: path.join(process.env.dumps_from_mod_dir!, "ingredients.json"),
-    JAR_OUTPUT_DIR: path.join(process.env.extracted_pngs_dir!),
+    SERVER_DIR: parsed["server_data"]!,
+    INGREDIENTS_FILE: parsed["ingredients"]!,
+    OUTPUT_DIR: parsed["output"]!,
+    OUTPUT_SNAPSHOT_FILE: parsed["output_snapshot"]!,
   };
 }
 
-await extractPngs(getExtractPngsArgs());
+await extractPngs(parseArgs());
