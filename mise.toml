@@ -7,6 +7,7 @@ config_roots = [
 ]
 
 [tools]
+java = "21"
 node = "latest"
 "npm:@bazel/buildozer" = "latest"
 "npm:npm-groovy-lint" = "latest"

@@ -12,3 +12,4 @@
 common --@aspect_rules_ts//ts:default_to_tsc_transpiler
 
 
+build --action_env=JAVA_HOME
