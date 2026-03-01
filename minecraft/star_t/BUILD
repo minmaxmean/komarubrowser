@@ -1,5 +1,10 @@
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
+filegroup(
+    name = "server_data",
+    srcs = glob(["server_data/**/*"]),
+)
+
 sh_binary(
     name = "launch_client",
     srcs = ["launch_client.sh"],
@@ -10,4 +15,12 @@ sh_binary(
     },
     tags = ["local"],
     visibility = ["//visibility:public"],
+)
+
+sh_binary(
+    name = "launch_server",
+    srcs = ["launch_server.sh"],
+    args = ["$(location //minecraft/forgemod:mod_jar)"],
+    data = ["//minecraft/forgemod:mod_jar"],
+    tags = ["local"],
 )
