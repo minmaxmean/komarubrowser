@@ -1,9 +1,0 @@
-node_modules
-
-/build
-/dist
-
-# OS
-.DS_Store
-Thumbs.db
-

@@ -36,7 +36,6 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
-		"@komarubrowser/common": "workspace:*",
 		"mode-watcher": "^1.1.0"
 	}
 }
