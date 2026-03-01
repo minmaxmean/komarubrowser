@@ -5,8 +5,8 @@ npm_link_all_packages(name = "node_modules")
 
 # gazelle:build_file_name BUILD
 # gazelle:js_package_rule_kind js_library
+# gazelle:exclude packages/*
 # gazelle:js_visibility //visibility:public
-# aspect:js_validate_import_statements off
 
 gazelle(
     name = "gazelle",
