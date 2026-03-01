@@ -3,6 +3,7 @@ import * as path from "path";
 import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
 import * as utils from "../utils/utils.js";
+import * as argUtils from "../utils/argutils.js";
 import { IngredientJson } from "../../common/tables/ingredient.js";
 
 const JAR_MAPPINGS: Record<string, string> = {
@@ -142,41 +143,11 @@ type ExtractPngArgs = {
 };
 
 const REQUIRED_ARGS = ["output", "output_snapshot", "ingredients", "server_data"] as const;
-type RequiredArg = (typeof REQUIRED_ARGS)[number];
 
-function parseArgs(): ExtractPngArgs {
-  const args = process.argv.slice(2);
-  const parsed: Partial<Record<RequiredArg, string>> = {};
-  console.log("args:", args);
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith("--")) {
-      const nextArg = args[i + 1];
-      if (!nextArg || nextArg.startsWith("--")) {
-        throw new Error(`Missing value for argument: ${arg}`);
-      }
-      const key = arg.slice(2) as RequiredArg;
-      if (!REQUIRED_ARGS.includes(key as any)) {
-        throw new Error(`Unknonw arguments: ${key}`);
-      }
-      parsed[key] = nextArg;
-      i++;
-    }
-  }
-
-  for (const key of REQUIRED_ARGS) {
-    if (!parsed[key]) {
-      throw new Error(`Missing required argument: --${key}`);
-    }
-  }
-
-  return {
-    SERVER_DIR: parsed["server_data"]!,
-    INGREDIENTS_FILE: parsed["ingredients"]!,
-    OUTPUT_DIR: parsed["output"]!,
-    OUTPUT_SNAPSHOT_FILE: parsed["output_snapshot"]!,
-  };
-}
-
-await extractPngs(parseArgs());
+const parsed = argUtils.parseArgs(REQUIRED_ARGS);
+await extractPngs({
+  SERVER_DIR: parsed["server_data"]!,
+  INGREDIENTS_FILE: parsed["ingredients"]!,
+  OUTPUT_DIR: parsed["output"]!,
+  OUTPUT_SNAPSHOT_FILE: parsed["output_snapshot"]!,
+});

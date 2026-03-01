@@ -14,6 +14,7 @@ ts_project(
     declaration_map = True,
     source_map = True,
     tsconfig = "//ts/extractor:tsconfig",
+    visibility = ["//visibility:public"],
     deps = [
         "//ts/common/tables",
         "//ts/extractor:node_modules/@types/adm-zip",
@@ -42,4 +43,5 @@ js_run_binary(
     out_dirs = ["extracted_pngs"],
     silent_on_success = False,
     tool = ":main",
+    visibility = ["//visibility:public"],
 )

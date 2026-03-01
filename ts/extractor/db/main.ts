@@ -9,17 +9,15 @@ import {
   type RecipeRow,
 } from "../../common/tables/index.js";
 import * as utils from "../utils/utils.js";
+import * as argUtils from "../utils/argutils.js";
 import path from "path";
 
 const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
 const ignoreMissingTexture = (id: string) => IGNORED_TEXTURE_MODS.has(id.split(":")[0]);
 
-export async function buildDb({
-  INGREDIENTS_FILE,
-  RECIPES_FILE,
-  DB_OUTPUT,
-  EXTRACTED_PNG_DIR,
-}: BuildDBArgs): Promise<void> {
+export async function buildDb(args: BuildDBArgs): Promise<void> {
+  const { INGREDIENTS_FILE, RECIPES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = args;
+  console.log({ args, cwd: process.cwd() });
   console.log("Building SQLite database...");
 
   const tempDbDir = await utils.makeTmpDir(`db`);
@@ -95,19 +93,12 @@ type BuildDBArgs = {
   DB_OUTPUT: string;
 };
 
-function getBuildDBArgs(): BuildDBArgs {
-  const REQUIRED_ENV = ["dumps_from_mod_dir", "extracted_pngs_dir", "db_dir"] as const;
-  for (const key of REQUIRED_ENV) {
-    if (!process.env[key]) {
-      throw new Error(`Missing required environment variable: ${key}`);
-    }
-  }
-  return {
-    INGREDIENTS_FILE: path.join(process.env.dumps_from_mod_dir!, "ingredients.json"),
-    RECIPES_FILE: path.join(process.env.dumps_from_mod_dir!, "recipes.json"),
-    EXTRACTED_PNG_DIR: path.join(process.env.extracted_pngs_dir!),
-    DB_OUTPUT: path.join(process.env.db_dir!, "komarku.db"),
-  };
-}
+const REQUIRED_ARGS = ["output", "ingredients", "recipes", "extracted_pngs"] as const;
 
-await buildDb(getBuildDBArgs());
+const parsed = argUtils.parseArgs(REQUIRED_ARGS);
+await buildDb({
+  INGREDIENTS_FILE: parsed["ingredients"]!,
+  RECIPES_FILE: parsed["recipes"],
+  DB_OUTPUT: parsed["output"],
+  EXTRACTED_PNG_DIR: parsed["extracted_pngs"],
+});
