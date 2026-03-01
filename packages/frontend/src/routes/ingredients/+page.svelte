@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
 	import type { ColumnDef } from '@tanstack/table-core';
-	import type { Ingredient } from '@komarubrowser/common/types';
+	import type { Ingredient } from '../../../../../ts/common/types/index.ts';
 	import { ingredientStore } from '$lib/store/ingStore.svelte';
 
 	const columns: ColumnDef<Ingredient>[] = [

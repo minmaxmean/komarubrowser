@@ -4,9 +4,8 @@
 	import { scoreIngredient } from '$lib/components/widgets/SeachWidget/scorers';
 	import SearchWidget from '$lib/components/widgets/SeachWidget/SearchWidget.svelte';
 	import { ingredientStore } from '$lib/store/ingStore.svelte';
-  import {ingredientIdFn} from '@komarubrowser/common/types'
+	import { ingredientIdFn } from '../../../../ts/common/types/index.ts';
 </script>
-
 
 <div class="flex w-full max-w-md flex-col gap-6">
 	<Item.Root variant="outline">

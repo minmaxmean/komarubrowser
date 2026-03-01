@@ -1,6 +1,5 @@
 packages:
   - ts/extractor
-  - packages/common
   - packages/frontend
 
 onlyBuiltDependencies:

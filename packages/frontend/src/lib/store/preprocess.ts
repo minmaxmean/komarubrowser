@@ -1,4 +1,4 @@
-import { parseNamespace, type Ingredient } from '@komarubrowser/common/types';
+import { parseNamespace, type Ingredient } from '../../../../../ts/common/types/index.ts';
 
 const disabledNamespaces = [
 	'chipped',
