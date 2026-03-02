@@ -1,5 +1,12 @@
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_run_binary")
-load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["//ts/extractor:tsconfig"],
+)
 
 js_binary(
     name = "main",
@@ -10,23 +17,23 @@ js_binary(
 ts_project(
     name = "db",
     srcs = [
-        "database.ts",
         "main.ts",
         "manifest.ts",
     ],
     declaration = True,
     declaration_map = True,
     source_map = True,
-    tsconfig = "//ts/extractor:tsconfig",
+    tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/extractor:node_modules/@komarubrowser/common",
-        "//ts/extractor:node_modules/@types/better-sqlite3",
-        "//ts/extractor:node_modules/@types/cli-progress",
-        "//ts/extractor:node_modules/@types/node",
-        "//ts/extractor:node_modules/better-sqlite3",
-        "//ts/extractor:node_modules/cli-progress",
-        "//ts/extractor:node_modules/image-size",
+        ":node_modules/@komarubrowser/common",
+        ":node_modules/@types/better-sqlite3",
+        ":node_modules/@types/cli-progress",
+        ":node_modules/@types/node",
+        ":node_modules/better-sqlite3",
+        ":node_modules/cli-progress",
+        ":node_modules/image-size",
+        ":node_modules/kysely",
         "//ts/extractor/utils",
     ],
 )
@@ -49,3 +56,5 @@ js_run_binary(
     tool = ":main",
     visibility = ["//visibility:public"],
 )
+
+npm_link_all_packages(name = "node_modules")

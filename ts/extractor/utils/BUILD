@@ -1,4 +1,11 @@
-load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    deps = ["//ts/extractor:tsconfig"],
+)
 
 ts_project(
     name = "utils",
@@ -9,7 +16,9 @@ ts_project(
     declaration = True,
     declaration_map = True,
     source_map = True,
-    tsconfig = "//ts/extractor:tsconfig",
+    tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
-    deps = ["//ts/extractor:node_modules/@types/node"],
+    deps = [":node_modules/@types/node"],
 )
+
+npm_link_all_packages(name = "node_modules")

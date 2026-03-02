@@ -1,5 +1,5 @@
 packages:
-  - ts/extractor
+  - ts/extractor/*
   - ts/web
   - ts/common
 

@@ -30,14 +30,11 @@ importers:
         specifier: ^0.28.11
         version: 0.28.11
 
-  ts/extractor:
+  ts/extractor/db:
     dependencies:
       '@komarubrowser/common':
         specifier: workspace:*
-        version: link:../common
-      adm-zip:
-        specifier: ^0.5.16
-        version: 0.5.16
+        version: link:../../common
       better-sqlite3:
         specifier: ^12.6.2
         version: 12.6.2
@@ -47,16 +44,44 @@ importers:
       image-size:
         specifier: ^2.0.2
         version: 2.0.2
+      kysely:
+        specifier: ^0.28.11
+        version: 0.28.11
     devDependencies:
-      '@types/adm-zip':
-        specifier: ^0.5.7
-        version: 0.5.7
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
       '@types/cli-progress':
         specifier: ^3.11.6
         version: 3.11.6
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.19.13
+
+  ts/extractor/pngs:
+    dependencies:
+      '@komarubrowser/common':
+        specifier: workspace:*
+        version: link:../../common
+      adm-zip:
+        specifier: ^0.5.16
+        version: 0.5.16
+      cli-progress:
+        specifier: ^3.12.0
+        version: 3.12.0
+    devDependencies:
+      '@types/adm-zip':
+        specifier: ^0.5.7
+        version: 0.5.7
+      '@types/cli-progress':
+        specifier: ^3.11.6
+        version: 3.11.6
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.19.13
+
+  ts/extractor/utils:
+    devDependencies:
       '@types/node':
         specifier: ^22.13.1
         version: 22.19.13

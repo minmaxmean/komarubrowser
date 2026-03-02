@@ -21,6 +21,7 @@ ts_project(
     deps = [
         ":node_modules",
     ],
+    visibility = ["//visibility:public"],
 )
 
 npm_package(

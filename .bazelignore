@@ -1,5 +1,7 @@
 node_modules
 ts/common/node_modules
 ts/extractor/node_modules
+ts/extractor/pngs/node_modules
+ts/extractor/db/node_modules
+ts/extractor/utils/node_modules
 ts/web/node_modules
-

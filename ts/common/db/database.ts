@@ -20,6 +20,7 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
   await db.schema
     .createTable("ingredient")
     .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("display_name", "text", (col) => col.notNull())
     .addColumn("is_fluid", "integer", (col) => col.notNull())
     .addColumn("tags", "text", (col) => col.notNull())
     .addColumn("source_jar", "text", (col) => col.notNull())

@@ -1,5 +1,5 @@
 import { EnergyTierID } from "../types/energyTier.js";
-import { Recipe } from "../types/recipe.js";
+import { RecipeJson } from "../types/recipe.js";
 
 export interface RecipeRow {
   id: string;
@@ -12,7 +12,7 @@ export interface RecipeRow {
   eut_produced: number;
 }
 
-export const toRecipeRow = (r: Recipe): RecipeRow => ({
+export const toRecipeRow = (r: RecipeJson): RecipeRow => ({
   id: r.id,
   machine: r.machine,
   inputs: JSON.stringify(r.inputs),
@@ -23,7 +23,7 @@ export const toRecipeRow = (r: Recipe): RecipeRow => ({
   eut_produced: r.eutProduced,
 });
 
-export const fromRecipeRow = (r: RecipeRow): Recipe => ({
+export const fromRecipeRow = (r: RecipeRow): RecipeJson => ({
   id: r.id,
   machine: r.machine,
   inputs: JSON.parse(r.inputs),

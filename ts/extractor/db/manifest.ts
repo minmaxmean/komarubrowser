@@ -1,11 +1,11 @@
 import * as fs from "fs/promises";
 import sizeOf from "image-size";
 import cliProgress from "cli-progress";
-import type { ManifestRow } from "@komarubrowser/common/tables/manifest.js";
+import type { Manifest } from "@komarubrowser/common/db/manifest.js";
 import { pathExists } from "../utils/utils.js";
 import path from "path";
 
-async function getPngInfo(extractedDir: string, filepath: string): Promise<ManifestRow | null> {
+async function getPngInfo(extractedDir: string, filepath: string): Promise<Manifest | null> {
   try {
     const fileBuffer = await fs.readFile(path.join(extractedDir, filepath));
     const dimensions = sizeOf(fileBuffer);
@@ -19,7 +19,7 @@ async function getPngInfo(extractedDir: string, filepath: string): Promise<Manif
   }
 }
 
-export async function buildManifestItems(extractedDir: string): Promise<ManifestRow[]> {
+export async function buildManifestItems(extractedDir: string): Promise<Manifest[]> {
   console.log(`Building manifest for ${extractedDir}...`);
 
   if (!(await pathExists(extractedDir))) {

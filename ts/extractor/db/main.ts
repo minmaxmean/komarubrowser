@@ -1,11 +1,29 @@
+import path from "path";
+import Database from "better-sqlite3";
+import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/init.js";
+import { SqliteDialect, Kysely } from "kysely";
 import { buildManifestItems } from "./manifest.js";
-import { initDb, insertIngredients, insertManifest, insertRecipes } from "./database.js";
-import { type Recipe } from "@komarubrowser/common/types/recipe.js";
-import { IngredientJson, toIngredientRow, type IngredientRow } from "@komarubrowser/common/tables/ingredient.js";
-import { type RecipeRow, toRecipeRow } from "@komarubrowser/common/tables/recipe.js";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
-import path from "path";
+import { migrate } from "@komarubrowser/common/db/database.js";
+
+export async function initDb(dbPath: string): Promise<SuperRepo> {
+  const db = new Database(dbPath);
+  const dialect = new SqliteDialect({ database: db });
+  const k = new Kysely<any>({ dialect });
+  await migrate(k);
+  return getSuperRepo(dialect);
+}
+
+type IngredientJson = {
+  id: string;
+  displayName: string;
+  hexColor: string;
+  isFluid: boolean;
+  sourceJar: string;
+  tags: string[];
+  textureLocation?: string;
+};
 
 const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
 const ignoreMissingTexture = (id: string) => IGNORED_TEXTURE_MODS.has(id.split(":")[0]);
@@ -17,13 +35,14 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
   const tempDbDir = await utils.makeTmpDir(`db`);
   const tempDbPath = path.join(tempDbDir, "komaru.db");
-  const db = await initDb(tempDbPath);
+  const superRepo = await initDb(tempDbPath);
 
   try {
     // 1. Process Manifest
     const manifestRows = await buildManifestItems(EXTRACTED_PNG_DIR);
     console.log(`Inserting ${manifestRows.length} manifest entries...`);
-    insertManifest(db, manifestRows);
+
+    await superRepo.manifest.insertMany(manifestRows);
 
     // // Create a set for fast lookup: "jar/mod/type/filename"
     const manifestSet = new Set(manifestRows.map((m) => m.filepath));
@@ -51,29 +70,38 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       return textureLocation;
     };
 
-    const ingredientRows: IngredientRow[] = Array.from(deduplicated.values()).map((ing) => {
+    const ingredientRows = Array.from(deduplicated.values()).map((ing) => {
       const actualTextureLocation = getTextureLocation(ing);
-      return toIngredientRow(ing, actualTextureLocation);
+      return {
+        id: ing.id,
+        display_name: ing.displayName,
+        is_fluid: ing.isFluid ? 1 : 0,
+        tags: JSON.stringify(ing.tags),
+        source_jar: ing.sourceJar,
+        original_texture_location: ing.textureLocation || "",
+        texture_location: actualTextureLocation,
+        hex_color: ing.hexColor,
+      };
     });
     console.log(`Inserting ${ingredientRows.length} ingredients (deduplicated from ${ingredients.length})...`);
-    insertIngredients(db, ingredientRows);
+    await superRepo.ingredients.insertMany(ingredientRows);
 
-    // 3. Process Recipes
-    console.log(`Reading recipes from ${RECIPES_FILE}...`);
-    const recipes: Recipe[] = await utils.readJson(RECIPES_FILE);
-    const recipeRows: RecipeRow[] = recipes.map(toRecipeRow);
+    // // 3. Process Recipes
+    // console.log(`Reading recipes from ${RECIPES_FILE}...`);
+    // const recipes: Recipe[] = await utils.readJson(RECIPES_FILE);
+    // const recipeRows: RecipeRow[] = recipes.map(toRecipeRow);
+    //
+    // console.log(`Inserting ${recipeRows.length} recipes...`);
+    // insertRecipes(db, recipeRows);
 
-    console.log(`Inserting ${recipeRows.length} recipes...`);
-    insertRecipes(db, recipeRows);
-
-    db.close();
+    await superRepo.close();
 
     console.log(`Committing database to ${DB_OUTPUT}...`);
     await utils.atomicMove(tempDbPath, DB_OUTPUT);
 
     console.log(`Database successfully built at ${DB_OUTPUT}`);
   } catch (err) {
-    db.close();
+    await superRepo.close();
     try {
       await utils.rmrf(tempDbPath);
     } catch {}
