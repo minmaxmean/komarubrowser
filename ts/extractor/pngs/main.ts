@@ -4,7 +4,7 @@ import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
-import { IngredientJson } from "../../common/tables/ingredient.js";
+import { IngredientJson } from "@komarubrowser/common/tables/ingredient.js";
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
@@ -144,10 +144,12 @@ type ExtractPngArgs = {
 
 const REQUIRED_ARGS = ["output", "output_snapshot", "ingredients", "server_data"] as const;
 
-const parsed = argUtils.parseArgs(REQUIRED_ARGS);
-await extractPngs({
-  SERVER_DIR: parsed["server_data"]!,
-  INGREDIENTS_FILE: parsed["ingredients"]!,
-  OUTPUT_DIR: parsed["output"]!,
-  OUTPUT_SNAPSHOT_FILE: parsed["output_snapshot"]!,
-});
+(async () => {
+  const parsed = argUtils.parseArgs(REQUIRED_ARGS);
+  await extractPngs({
+    SERVER_DIR: parsed["server_data"]!,
+    INGREDIENTS_FILE: parsed["ingredients"]!,
+    OUTPUT_DIR: parsed["output"]!,
+    OUTPUT_SNAPSHOT_FILE: parsed["output_snapshot"]!,
+  });
+})();

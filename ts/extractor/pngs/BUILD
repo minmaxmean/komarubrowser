@@ -16,7 +16,7 @@ ts_project(
     tsconfig = "//ts/extractor:tsconfig",
     visibility = ["//visibility:public"],
     deps = [
-        "//ts/common/tables",
+        "//ts/extractor:node_modules/@komarubrowser/common",
         "//ts/extractor:node_modules/@types/adm-zip",
         "//ts/extractor:node_modules/@types/cli-progress",
         "//ts/extractor:node_modules/@types/node",

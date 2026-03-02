@@ -37,6 +37,8 @@
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
+		"@komarubrowser/common": "workspace:*",
+		"kysely-wasm": "^1.2.1",
 		"mode-watcher": "^1.1.0",
 		"sql.js": "^1.14.0"
 	}

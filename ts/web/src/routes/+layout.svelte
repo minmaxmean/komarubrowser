@@ -1,22 +1,24 @@
 <script lang="ts">
-	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
-	import { ModeWatcher } from 'mode-watcher';
-	import { onMount } from 'svelte';
-	import { recipeStore } from '$lib/store/recipeStore.svelte';
-	import { ingredientStore } from '$lib/store/ingStore.svelte';
-	import { dbStore } from '$lib/db/dbStore.svelte';
+  import './layout.css';
+  import favicon from '$lib/assets/favicon.svg';
+  import { ModeWatcher } from 'mode-watcher';
+  import { onMount } from 'svelte';
+  import { recipeStore } from '$lib/store/recipeStore.svelte';
+  import { ingredientStore } from '$lib/store/ingStore.svelte';
+  import { dbStore } from '$lib/db/dbStore.svelte';
 
-	onMount(() => {
-		ingredientStore.fetch();
-		recipeStore.fetch();
-    dbStore.fetch().then(db => console.log("DB loaded: ", db));
-	});
-	let { children } = $props();
+  onMount(() => {
+    ingredientStore.fetch();
+    recipeStore.fetch();
+    dbStore
+      .fetch()
+      .then(async (db) => console.log('Ingredients: ', await db?.ingredients.allWithIcons()));
+  });
+  let { children } = $props();
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <ModeWatcher defaultMode="dark" />
 <div class="m-4">
-	{@render children()}
+  {@render children()}
 </div>

@@ -1,7 +1,7 @@
 import * as fs from "fs/promises";
 import sizeOf from "image-size";
 import cliProgress from "cli-progress";
-import type { ManifestRow } from "../../common/tables/index.js";
+import type { ManifestRow } from "@komarubrowser/common/tables/manifest.js";
 import { pathExists } from "../utils/utils.js";
 import path from "path";
 

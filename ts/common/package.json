@@ -2,11 +2,23 @@
   "name": "@komarubrowser/common",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
   "license": "MIT",
   "packageManager": "pnpm@10.20.0",
   "dependencies": {
-    "kysely": "^0.28.11",
-    "kysely-wasm": "^1.2.1"
+    "kysely": "^0.28.11"
+  },
+  "exports": {
+    "./db/*.js": {
+      "types": "./dist/db/*.d.ts",
+      "default": "./dist/db/*.js"
+    },
+    "./tables/*.js": {
+      "types": "./dist/tables/*.d.ts",
+      "default": "./dist/tables/*.js"
+    },
+    "./types/*.js": {
+      "types": "./dist/types/*.d.ts",
+      "default": "./dist/types/*.js"
+    }
   }
 }

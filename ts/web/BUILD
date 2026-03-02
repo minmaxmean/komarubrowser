@@ -2,6 +2,7 @@ load("@aspect_bazel_lib//lib:copy_file.bzl", "copy_file")
 load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_rules_js//js:defs.bzl", "js_run_devserver", "js_test")
+load("@aspect_rules_js//npm:defs.bzl", "npm_package")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//ts/web:vite/package_json.bzl", vite_bin = "bin")
 
@@ -70,7 +71,6 @@ vite_bin.vite(
         ":node_modules",
         ":static_files",
         ":vite_srcs",
-        "//ts/common/types",
     ],
     args = ["build"],
     chdir = package_name(),
@@ -89,7 +89,6 @@ vite_bin.vite_binary(
         ":node_modules",
         ":static_files",
         ":vite_srcs",
-        "//ts/common/types",
     ],
     # env = {
     #     "ALLOW_SERVE": "$(execroot :node_modules)",
@@ -98,3 +97,8 @@ vite_bin.vite_binary(
 )
 
 # gazelle:exclude *
+
+npm_package(
+    name = "web",
+    visibility = ["//:__pkg__"],
+)

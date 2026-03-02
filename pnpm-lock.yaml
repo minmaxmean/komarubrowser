@@ -29,12 +29,12 @@ importers:
       kysely:
         specifier: ^0.28.11
         version: 0.28.11
-      kysely-wasm:
-        specifier: ^1.2.1
-        version: 1.2.1(kysely@0.28.11)
 
   ts/extractor:
     dependencies:
+      '@komarubrowser/common':
+        specifier: workspace:*
+        version: link:../common
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.16
@@ -63,6 +63,12 @@ importers:
 
   ts/web:
     dependencies:
+      '@komarubrowser/common':
+        specifier: workspace:*
+        version: link:../common
+      kysely-wasm:
+        specifier: ^1.2.1
+        version: 1.2.1(kysely@0.28.11)
       mode-watcher:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.53.6)

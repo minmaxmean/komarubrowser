@@ -1,13 +1,8 @@
 import { buildManifestItems } from "./manifest.js";
 import { initDb, insertIngredients, insertManifest, insertRecipes } from "./database.js";
-import { type Recipe } from "../../common/types/index.js";
-import {
-  IngredientJson,
-  toIngredientRow,
-  toRecipeRow,
-  type IngredientRow,
-  type RecipeRow,
-} from "../../common/tables/index.js";
+import { type Recipe } from "@komarubrowser/common/types/recipe.js";
+import { IngredientJson, toIngredientRow, type IngredientRow } from "@komarubrowser/common/tables/ingredient.js";
+import { type RecipeRow, toRecipeRow } from "@komarubrowser/common/tables/recipe.js";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
 import path from "path";
@@ -95,10 +90,12 @@ type BuildDBArgs = {
 
 const REQUIRED_ARGS = ["output", "ingredients", "recipes", "extracted_pngs"] as const;
 
-const parsed = argUtils.parseArgs(REQUIRED_ARGS);
-await buildDb({
-  INGREDIENTS_FILE: parsed["ingredients"]!,
-  RECIPES_FILE: parsed["recipes"],
-  DB_OUTPUT: parsed["output"],
-  EXTRACTED_PNG_DIR: parsed["extracted_pngs"],
-});
+(async () => {
+  const parsed = argUtils.parseArgs(REQUIRED_ARGS);
+  await buildDb({
+    INGREDIENTS_FILE: parsed["ingredients"]!,
+    RECIPES_FILE: parsed["recipes"],
+    DB_OUTPUT: parsed["output"],
+    EXTRACTED_PNG_DIR: parsed["extracted_pngs"],
+  });
+})();

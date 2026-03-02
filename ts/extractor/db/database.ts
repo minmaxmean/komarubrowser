@@ -1,5 +1,7 @@
 import Database from "better-sqlite3";
-import type { IngredientRow, ManifestRow, RecipeRow } from "../../common/tables/index.js";
+import type { IngredientRow } from "@komarubrowser/common/tables/ingredient.js";
+import type { ManifestRow } from "@komarubrowser/common/tables/manifest.js";
+import type { RecipeRow } from "@komarubrowser/common/tables/recipe.js";
 
 export async function initDb(dbPath: string): Promise<Database.Database> {
   const db = new Database(dbPath);
