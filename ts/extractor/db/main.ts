@@ -4,7 +4,7 @@ import { SqliteDialect, Kysely } from "kysely";
 import { buildManifestItems } from "./manifest.js";
 import type { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
 import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/init.js";
-import type { Recipe, NewRecipe } from "@komarubrowser/common/db/recipe.js";
+import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
 import { migrate } from "@komarubrowser/common/db/database.js";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
