@@ -91,6 +91,9 @@ importers:
       '@komarubrowser/common':
         specifier: workspace:*
         version: link:../common
+      kysely:
+        specifier: ^0.28.11
+        version: 0.28.11
       kysely-wasm:
         specifier: ^1.2.1
         version: 1.2.1(kysely@0.28.11)
@@ -170,6 +173,9 @@ importers:
       vite:
         specifier: ^6.0.0
         version: 6.4.1(@types/node@22.19.13)(jiti@2.6.1)(lightningcss@1.31.1)
+      vite-plugin-watch-node-modules:
+        specifier: ^0.5.0
+        version: 0.5.0(vite@6.4.1(@types/node@22.19.13)(jiti@2.6.1)(lightningcss@1.31.1))
 
 packages:
 
@@ -1595,6 +1601,10 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
+  tinyglobby@0.2.14:
+    resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
+    engines: {node: '>=12.0.0'}
+
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
     engines: {node: '>=12.0.0'}
@@ -1642,6 +1652,11 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  vite-plugin-watch-node-modules@0.5.0:
+    resolution: {integrity: sha512-B9u8wFNxrcXBhYTqKdgXTCoaUQvTtDXT5fv5b1PQpRCzGcOBf16fM7A/h3js5s+/jQ4DCSq7nBl2BwTXdr4TnQ==}
+    peerDependencies:
+      vite: ^7.1.0
 
   vite@6.4.1:
     resolution: {integrity: sha512-+Oxm7q9hDoLMyJOYfUYBuHQo+dkAloi33apOPP56pzj+vsdJDzr+j1NISE5pyaAuKL4A3UD34qd0lx5+kfKp2g==}
@@ -2968,6 +2983,11 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
+  tinyglobby@0.2.14:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+
   tinyglobby@0.2.15:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3011,6 +3031,12 @@ snapshots:
       punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
+
+  vite-plugin-watch-node-modules@0.5.0(vite@6.4.1(@types/node@22.19.13)(jiti@2.6.1)(lightningcss@1.31.1)):
+    dependencies:
+      chokidar: 4.0.3
+      tinyglobby: 0.2.14
+      vite: 6.4.1(@types/node@22.19.13)(jiti@2.6.1)(lightningcss@1.31.1)
 
   vite@6.4.1(@types/node@22.19.13)(jiti@2.6.1)(lightningcss@1.31.1):
     dependencies:

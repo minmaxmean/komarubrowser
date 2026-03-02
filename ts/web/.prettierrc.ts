@@ -4,7 +4,7 @@ const config: Config = {
   useTabs: false,
   tabWidth: 2,
   singleQuote: true,
-  trailingComma: 'none',
+  trailingComma: 'all',
   printWidth: 100,
   plugins: ['prettier-plugin-svelte', 'prettier-plugin-tailwindcss'],
   overrides: [
@@ -12,11 +12,11 @@ const config: Config = {
       files: '*.svelte',
       options: {
         parser: 'svelte',
-        trailingComma: 'all'
-      }
-    }
+        trailingComma: 'all',
+      },
+    },
   ],
-  tailwindStylesheet: './src/routes/layout.css'
+  tailwindStylesheet: './src/routes/layout.css',
 };
 
 export default config;

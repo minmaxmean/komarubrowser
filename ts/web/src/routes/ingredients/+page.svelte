@@ -2,6 +2,7 @@
   import DataTable from '$lib/components/ui/data-table/data-table.svelte';
   import type { ColumnDef } from '@tanstack/table-core';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
+  import { dbStore, globalFilter } from '$lib/db/dbStore.svelte';
 
   const columns: ColumnDef<Ingredient>[] = [
     {
@@ -9,11 +10,11 @@
       header: 'ID',
     },
     {
-      accessorKey: 'displayName',
+      accessorKey: 'display_name',
       header: 'Name',
     },
     {
-      accessorKey: 'isFluid',
+      accessorKey: 'is_fluid',
       header: 'Fluid',
     },
     {
@@ -21,20 +22,16 @@
       header: 'tags',
     },
   ];
-  const ingredientStore = {
-    status: 'idle',
-    data: [],
-  };
+  const ingrediets = $derived(await dbStore.data?.ingredients.all());
+  $inspect({ globalFilter, ingrediets });
 </script>
 
-{#if ingredientStore.status === 'loading'}
+{#if dbStore.status === 'loading'}
   <p>Downloadng ingredients.json...</p>
-{:else if ingredientStore.status === 'error'}
+{:else if dbStore.status === 'error'}
   <p>Error fetching ingredients.json</p>
-{:else if ingredientStore.status === 'successful'}
-  <p>Loaded {ingredientStore.data.length} items.</p>
 {/if}
 
 <div class="m-4">
-  <DataTable data={ingredientStore.data} {columns} />
+  <DataTable data={ingrediets ?? []} {columns} />
 </div>

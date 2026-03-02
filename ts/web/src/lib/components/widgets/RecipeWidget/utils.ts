@@ -19,12 +19,12 @@ export const fakeDisplayName = (id: string): string => {
   return id;
 };
 
-export const ingredientUnit = (item: RecipeIngredient): string => {
-  // TODO: Use Ingredient.isFluid
-  if (item.amount > 64) {
-    return 'mb';
+export const ingredientUnit = (ing: RecipeIngredient, map?: Map<string, Ingredient>): string => {
+  const item = map?.get(ing.accepted_ids[0]);
+  if (item) {
+    return item.is_fluid ? 'mb' : '';
   }
-  return '';
+  return ing.amount > 64 ? 'mb' : '';
 };
 
 export const getItemIds = (r: Recipe): string[] => {

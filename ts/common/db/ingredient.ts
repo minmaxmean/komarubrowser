@@ -1,4 +1,4 @@
-import type { Insertable, JSONColumnType, Selectable } from "kysely";
+import type { GeneratedAlways, Insertable, JSONColumnType, Selectable } from "kysely";
 import type { Manifest } from "./manifest.js";
 
 export type IngredientTable = {
@@ -10,6 +10,8 @@ export type IngredientTable = {
   original_texture_location: string;
   texture_location: string | null;
   hex_color?: string;
+
+  namespace: GeneratedAlways<string>;
 };
 
 export type Ingredient = Selectable<IngredientTable>;
