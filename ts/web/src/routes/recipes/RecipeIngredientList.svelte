@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
+  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe.js';
 
   type RecipeIngredienListProps = {
     items: RecipeIngredient[];

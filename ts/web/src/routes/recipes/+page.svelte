@@ -4,7 +4,7 @@
   import { renderComponent } from '$lib/components/ui/data-table';
   import RecipeIngredientList from './RecipeIngredientList.svelte';
   import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
-  import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 
   const columnHelper = createColumnHelper<Recipe>();
 
