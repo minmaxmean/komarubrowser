@@ -1,11 +1,3 @@
-experimental_monorepo_root = true
-[monorepo]
-config_roots = [
-  "packages/*",
-  "minecraft/forgemod",
-  "minecraft/star_t",
-]
-
 [tools]
 "go:github.com/bazelbuild/buildtools/buildifier" = "latest"
 java = "21"
@@ -14,63 +6,4 @@ node = "latest"
 "npm:@bazel/ibazel" = "latest"
 "npm:npm-groovy-lint" = "latest"
 pnpm = "latest"
-
-[env]
-MISE_EXPERIMENTAL="1"
-
-workdata     = "{{config_root}}/workdata"
-common_dir   = "{{config_root}}/packages/common"
-common_dist  = "{{env.common_dir}}/dist/**/*"
-frontend_dir = "{{config_root}}/packages/frontend"
-forgemod     = "{{config_root}}/minecraft/forgemod"
-star_t       = "{{config_root}}/minecraft/star_t"
-
-star_t_data_dir    = "{{env.star_t}}/minecraft-data"
-dumps_from_mod_dir = "{{env.workdata}}/00_dumps_from_mod"
-extracted_pngs_dir = "{{env.workdata}}/01_extracted_pngs"
-db_dir             = "{{env.workdata}}/02_db"
-minified_json_dir  = "{{env.workdata}}/03_minified_json"
-
-star_t_client_dir = "/Users/m-nny/Library/Application Support/PrismLauncher/instances/KomaruBrowser/minecraft"
-
-[tasks.build]
-description = "Build everything"
-depends = [
-  "//minecraft/...:build",
-  "//packages/...:build",
-]
-run = "# dummy"
-
-[tasks.clean]
-description = "Clean all build files & artifacts"
-depends = [
-  ":clean:dist",
-  ":clean:artifacts",
-]
-run = "# dummy"
-
-[tasks."clean:dist"]
-description = "Clean all artifacts"
-depends = [
-    "//minecraft/...:clean_dist",
-    "//packages/...:clean_dist",
-]
-run = "# dummy"
-
-[tasks."clean:artifacts"]
-description = "Clean all artifacts"
-depends = [
-    "//minecraft/...:clean_artifacts",
-    "//packages/...:clean_artifacts",
-]
-run = "# dummy"
-
-[tasks.assets]
-description = "Prepare assets"
-run = [{
-  tasks=[
-    "//packages/extractor:jar",
-    "//packages/extractor:db",
-    "//packages/extractor:minify",
-  ]}]
 
