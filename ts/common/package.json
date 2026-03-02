@@ -1,8 +1,8 @@
 {
   "name": "@komarubrowser/common",
   "version": "0.0.1",
-  "description": "",
   "license": "MIT",
+  "type": "module",
   "packageManager": "pnpm@10.20.0",
   "dependencies": {
     "kysely": "^0.28.11"
@@ -10,6 +10,7 @@
   "exports": {
     "./db/*.js": {
       "types": "./dist/db/*.d.ts",
+      "import": "./dist/db/*.js",
       "default": "./dist/db/*.js"
     }
   }

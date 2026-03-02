@@ -23,6 +23,7 @@ ts_project(
     srcs = [
         "main.ts",
         "manifest.ts",
+        "package.json",
     ],
     declaration = True,
     declaration_map = True,

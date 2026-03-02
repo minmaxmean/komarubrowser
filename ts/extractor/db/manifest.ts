@@ -1,5 +1,5 @@
 import * as fs from "fs/promises";
-import sizeOf from "image-size";
+import { imageSize } from "image-size";
 import cliProgress from "cli-progress";
 import type { Manifest } from "@komarubrowser/common/db/manifest.js";
 import { pathExists } from "../utils/utils.js";
@@ -8,7 +8,7 @@ import path from "path";
 async function getPngInfo(extractedDir: string, filepath: string): Promise<Manifest | null> {
   try {
     const fileBuffer = await fs.readFile(path.join(extractedDir, filepath));
-    const dimensions = sizeOf(fileBuffer);
+    const dimensions = imageSize(fileBuffer);
     return {
       filepath,
       width: dimensions.width || 0,

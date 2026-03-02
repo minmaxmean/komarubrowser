@@ -1,8 +1,8 @@
 import { Kysely, type Dialect } from "kysely";
 import { Database } from "./database.js";
 import { IngredientRepo } from "./ingredientRepo.js";
-import { ManifestRepo } from "./manifestRepo.js";
 import { RecipeRepo } from "./recipeRepo.js";
+import { ManifestRepo } from "./manifestRepo.js";
 
 export type SuperRepo = {
   ingredients: IngredientRepo;

@@ -12,8 +12,7 @@ import * as argUtils from "../utils/argutils.js";
 export async function initDb(dbPath: string): Promise<SuperRepo> {
   const db = new Database(dbPath);
   const dialect = new SqliteDialect({ database: db });
-  const k = new Kysely<any>({ dialect });
-  await migrate(k);
+  await migrate(new Kysely<any>({ dialect }));
   return getSuperRepo(dialect);
 }
 

@@ -12,16 +12,14 @@ ts_config(
 
 ts_project(
     name = "ts_lib",
-    srcs = glob(["**/*.ts"]),
+    srcs = glob(["**/*.ts"]) + ["package.json"],
     declaration = True,
     declaration_map = True,
     out_dir = "dist",
     source_map = True,
     tsconfig = ":tsconfig",
-    deps = [
-        ":node_modules",
-    ],
     visibility = ["//visibility:public"],
+    deps = [":node_modules/kysely"],
 )
 
 npm_package(

@@ -13,9 +13,5 @@
     "esModuleInterop": true,
 
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "paths": {
-      "@komarubrowser/common/*": ["../common/*"]
-    }
   }
 }
