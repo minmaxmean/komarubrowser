@@ -48,4 +48,5 @@ js_run_binary(
     ],
     silent_on_success = False,
     tool = ":main",
+    visibility = ["//visibility:public"],
 )

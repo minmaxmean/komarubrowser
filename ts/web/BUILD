@@ -32,28 +32,44 @@ copy_to_bin(
     visibility = ["//visibility:public"],
 )
 
+copy_file(
+    name = "sql_wasm",
+    src = ":node_modules/sql.js/dist/sql-wasm.wasm",
+    out = "static/wasm/sql-wasm.wasm",
+)
+
 copy_to_directory(
     name = "minecraft_assets",
     srcs = [
         "//minecraft/star_t:ingredients.json",
         "//minecraft/star_t:recipes.json",
+        "//ts/extractor/db:build_db",
         "//ts/extractor/pngs:extract_pngs",
     ],
     out = "static/assets/",
     replace_prefixes = {
         "minecraft/star_t": "dump",
+        "ts/extractor/db": "",
         "ts/extractor/pngs/extracted_pngs/assets": "",
     },
+)
+
+filegroup(
+    name = "static_files",
+    srcs = [
+        ":minecraft_assets",
+        ":sql_wasm",
+        ":vite_static",
+    ],
 )
 
 vite_bin.vite(
     name = "build",
     srcs = [
         ":config",
-        ":minecraft_assets",
         ":node_modules",
+        ":static_files",
         ":vite_srcs",
-        ":vite_static",
         "//ts/common/types",
     ],
     args = ["build"],
@@ -70,10 +86,9 @@ vite_bin.vite_binary(
     chdir = package_name(),
     data = [
         ":config",
-        ":minecraft_assets",
         ":node_modules",
+        ":static_files",
         ":vite_srcs",
-        ":vite_static",
         "//ts/common/types",
     ],
     # env = {
