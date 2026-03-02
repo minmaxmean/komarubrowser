@@ -5,7 +5,7 @@
 	import RecipeIngredientList from './RecipeIngredientList.svelte';
 	import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
 	import { recipeStore } from '$lib/store/recipeStore.svelte';
-	import type { Recipe } from '../../../../../ts/common/types';
+	import type { Recipe } from '../../../../common/types';
 
 	const columnHelper = createColumnHelper<Recipe>();
 

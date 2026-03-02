@@ -4,7 +4,7 @@
 	import { scoreIngredient } from '$lib/components/widgets/SeachWidget/scorers';
 	import SearchWidget from '$lib/components/widgets/SeachWidget/SearchWidget.svelte';
 	import { ingredientStore } from '$lib/store/ingStore.svelte';
-	import { ingredientIdFn } from '../../../../ts/common/types/index.ts';
+	import { ingredientIdFn } from '../../../common/types/index.js';
 </script>
 
 <div class="flex w-full max-w-md flex-col gap-6">

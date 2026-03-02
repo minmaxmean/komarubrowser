@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { RecipeIngredient } from '../../../../../ts/common/types/index.ts';
+	import type { RecipeIngredient } from '../../../../common/types/index.js';
 
 	type RecipeIngredienListProps = {
 		items: RecipeIngredient[];

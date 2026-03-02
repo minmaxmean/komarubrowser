@@ -1,4 +1,4 @@
-import type { FetchStatus, Ingredient } from '../../../../../ts/common/types';
+import type { FetchStatus, Ingredient } from '../../../../common/types';
 import { preprocessIngredients } from './preprocess';
 
 const INGREDIENTS_URL = '/assets/dump/ingredients.min.json';

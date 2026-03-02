@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Badge from '$lib/components/ui/badge/badge.svelte';
-	import { type EnergyTierID, energyTierFromID } from '../../../../../../../ts/common/types';
+	import { type EnergyTierID, energyTierFromID } from '../../../../../../common/types';
 	import { energyTierVarient } from './variants';
 
 	type Props = { tier: EnergyTierID };
