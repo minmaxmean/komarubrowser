@@ -5,7 +5,7 @@ npm_link_all_packages(name = "node_modules")
 
 # gazelle:build_file_name BUILD
 # gazelle:js_package_rule_kind js_library
-# gazelle:exclude packages/*
+# gazelle:exclude ts/web
 # gazelle:js_visibility //visibility:public
 
 gazelle(
