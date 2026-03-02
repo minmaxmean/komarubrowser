@@ -1,6 +1,7 @@
 packages:
   - ts/extractor
   - ts/web
+  - ts/common
 
 onlyBuiltDependencies:
   - better-sqlite3

@@ -1,4 +1,5 @@
-import { parseNamespace, type Ingredient } from '../../../../common/types/index.js';
+import { parseNamespace } from '../../../../common/types/common.js';
+import type { Ingredient } from '../../../../common/types/ingredient.js';
 
 const disabledNamespaces = [
 	'chipped',
