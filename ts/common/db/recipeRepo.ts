@@ -3,7 +3,7 @@ import { Recipe, NewRecipe } from "./recipe.js";
 
 export class RecipeRepo {
   constructor(private db: KyselyDB) {}
-  async allWithIcons(): Promise<Recipe[]> {
+  async all(): Promise<Recipe[]> {
     let query = this.db.selectFrom("recipe");
     return await query.selectAll().execute();
   }

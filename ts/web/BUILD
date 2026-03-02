@@ -66,6 +66,7 @@ filegroup(
 )
 
 DEPS = [
+    ":node_modules/@komarubrowser/common",
     ":node_modules/@internationalized/date",
     ":node_modules/@lucide/svelte",
     ":node_modules/@sveltejs/adapter-static",
@@ -89,7 +90,6 @@ DEPS = [
     ":node_modules/tw-animate-css",
     ":node_modules/typescript",
     ":node_modules/vite",
-    ":node_modules/@komarubrowser/common",
     ":node_modules/kysely-wasm",
     ":node_modules/mode-watcher",
     ":node_modules/sql.js",
@@ -117,7 +117,7 @@ vite_bin.vite_binary(
     name = "dev",
     chdir = package_name(),
     data = DEPS + SRCS,
-    tags = ["ibazel_notify_changes"],
+    # tags = ["ibazel_notify_changes"],
 )
 
 npm_package(

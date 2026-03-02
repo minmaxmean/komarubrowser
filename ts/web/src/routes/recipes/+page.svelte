@@ -5,6 +5,7 @@
   import RecipeIngredientList from './RecipeIngredientList.svelte';
   import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+  import { dbStore } from '$lib/db/dbStore.svelte';
 
   const columnHelper = createColumnHelper<Recipe>();
 
@@ -28,17 +29,10 @@
       cell: (info) => renderComponent(EnergyTierWidget, { tier: info.getValue() }),
     }),
   ];
-  const recipeStore = { status: 'idle', data: [] };
+  const recipiesPromide = $derived(dbStore.data?.recipe.all());
+  const recipes = $derived(await recipiesPromide);
 </script>
 
-{#if recipeStore.status === 'loading'}
-  <p>Downloadng recipes.json...</p>
-{:else if recipeStore.status === 'error'}
-  <p>Error fetching recipes.json</p>
-{:else if recipeStore.status === 'successful'}
-  <p>Loaded {recipeStore.data.length} items.</p>
-{/if}
-
 <div class="m-4">
-  <DataTable data={recipeStore.data} {columns} />
+  <DataTable data={recipes ?? []} {columns} />
 </div>

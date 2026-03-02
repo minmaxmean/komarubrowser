@@ -3,8 +3,9 @@
   import IngredientItem from '$lib/components/widgets/IngredientItem/IngredientItem.svelte';
   import { scoreIngredient } from '$lib/components/widgets/SeachWidget/scorers.js';
   import SearchWidget from '$lib/components/widgets/SeachWidget/SearchWidget.svelte';
+  import { dbStore } from '$lib/db/dbStore.svelte';
   import { ingredientIdFn } from '@komarubrowser/common/db/ingredient.js';
-  const ingredientStore = { data: [] };
+  const ingredients = $derived(await dbStore.data?.ingredients.allWithIcons());
 </script>
 
 <div class="flex w-full max-w-md flex-col gap-6">
@@ -12,7 +13,7 @@
     <Item.Content>
       <Item.Title>Welcome to KomaruBrowser</Item.Title>
       <Item.Description>
-        <SearchWidget items={ingredientStore.data} scorerFn={scoreIngredient} idFn={ingredientIdFn}>
+        <SearchWidget items={ingredients ?? []} scorerFn={scoreIngredient} idFn={ingredientIdFn}>
           {#snippet children(item)}
             <IngredientItem size="sm" {item} />
           {/snippet}

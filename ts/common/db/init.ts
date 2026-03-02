@@ -1,4 +1,4 @@
-import { Kysely, type Dialect } from "kysely";
+import { Kysely, ParseJSONResultsPlugin, type Dialect } from "kysely";
 import { Database } from "./database.js";
 import { IngredientRepo } from "./ingredientRepo.js";
 import { RecipeRepo } from "./recipeRepo.js";
@@ -11,7 +11,10 @@ export type SuperRepo = {
   close: () => Promise<void>;
 };
 export const getSuperRepo = (dialect: Dialect): SuperRepo => {
-  const db = new Kysely<Database>({ dialect });
+  const db = new Kysely<Database>({
+    dialect,
+    plugins: [new ParseJSONResultsPlugin()],
+  });
   return {
     ingredients: new IngredientRepo(db),
     manifest: new ManifestRepo(db),

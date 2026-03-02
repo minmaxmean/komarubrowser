@@ -8,6 +8,11 @@ const config = {
       pages: 'dist',
       assets: 'dist'
     })
+  },
+  compilerOptions: {
+    experimental: {
+      async: true
+    }
   }
 };
 

@@ -2,13 +2,11 @@
   import './layout.css';
   import favicon from '$lib/assets/favicon.svg';
   import { ModeWatcher } from 'mode-watcher';
-  import { onMount } from 'svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
+  import { onMount } from 'svelte';
 
   onMount(() => {
-    dbStore
-      .fetch()
-      .then(async (db) => console.log('Ingredients: ', await db?.ingredients.allWithIcons()));
+    dbStore.fetch();
   });
   let { children } = $props();
 </script>
