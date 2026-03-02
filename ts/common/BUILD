@@ -6,8 +6,9 @@ npm_link_all_packages(name = "node_modules")
 
 ts_config(
     name = "tsconfig",
-    src = "tsconfig.json",
+    src = "tsconfig.bazel.json",
     visibility = [":__subpackages__"],
+    deps = ["tsconfig.json"],
 )
 
 ts_project(

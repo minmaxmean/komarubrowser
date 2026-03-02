@@ -4,12 +4,9 @@ load("@npm//:defs.bzl", "npm_link_all_packages")
 
 ts_config(
     name = "tsconfig",
-    src = "tsconfig.json",
+    src = "tsconfig.bazel.json",
     visibility = [":__subpackages__"],
-    deps = [
-        ":node_modules/@types/node",
-        "//ts/extractor:tsconfig",
-    ],
+    deps = ["tsconfig.json"],
 )
 
 js_binary(
