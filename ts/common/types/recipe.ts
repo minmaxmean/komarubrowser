@@ -4,7 +4,7 @@ import type { IngredientID } from "./ingredient.js";
 export type RecipeID = string;
 export type MachineID = string;
 
-export type RecipeIngredientJson = {
+export type RecipeIngredient = {
   acceptedIds: IngredientID[];
   amount: number;
   chance: number; // 100_00 represents 100%
@@ -14,8 +14,8 @@ export type RecipeIngredientJson = {
 export type RecipeJson = {
   id: RecipeID;
   machine: MachineID;
-  inputs: RecipeIngredientJson[];
-  outputs: RecipeIngredientJson[];
+  inputs: RecipeIngredient[];
+  outputs: RecipeIngredient[];
   duration: number;
 
   minTier: EnergyTierID;

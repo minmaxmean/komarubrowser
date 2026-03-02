@@ -1,11 +1,13 @@
 import path from "path";
 import Database from "better-sqlite3";
-import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/init.js";
 import { SqliteDialect, Kysely } from "kysely";
 import { buildManifestItems } from "./manifest.js";
+import type { EnergyTierID } from "@komarubrowser/common/types/energyTier.js";
+import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/init.js";
+import type { Recipe, NewRecipe } from "@komarubrowser/common/db/recipe.js";
+import { migrate } from "@komarubrowser/common/db/database.js";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
-import { migrate } from "@komarubrowser/common/db/database.js";
 
 export async function initDb(dbPath: string): Promise<SuperRepo> {
   const db = new Database(dbPath);
@@ -23,6 +25,25 @@ type IngredientJson = {
   sourceJar: string;
   tags: string[];
   textureLocation?: string;
+};
+
+export type RecipeIngredientJson = {
+  acceptedIds: string[];
+  amount: number;
+  chance: number; // 100_00 represents 100%
+  perTick: boolean;
+};
+
+export type RecipeJson = {
+  id: string;
+  machine: string;
+  inputs: RecipeIngredientJson[];
+  outputs: RecipeIngredientJson[];
+  duration: number;
+
+  minTier: EnergyTierID;
+  eutConsumed: number;
+  eutProduced: number;
 };
 
 const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
@@ -86,13 +107,36 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
     console.log(`Inserting ${ingredientRows.length} ingredients (deduplicated from ${ingredients.length})...`);
     await superRepo.ingredients.insertMany(ingredientRows);
 
-    // // 3. Process Recipes
-    // console.log(`Reading recipes from ${RECIPES_FILE}...`);
-    // const recipes: Recipe[] = await utils.readJson(RECIPES_FILE);
-    // const recipeRows: RecipeRow[] = recipes.map(toRecipeRow);
-    //
-    // console.log(`Inserting ${recipeRows.length} recipes...`);
-    // insertRecipes(db, recipeRows);
+    // 3. Process Recipes
+    console.log(`Reading recipes from ${RECIPES_FILE}...`);
+    const recipes: RecipeJson[] = await utils.readJson(RECIPES_FILE);
+    const recipeRows: NewRecipe[] = recipes.map((r) => ({
+      id: r.id,
+      machine: r.machine,
+      inputs: JSON.stringify(
+        r.inputs.map((i) => ({
+          accepted_ids: i.acceptedIds,
+          amount: i.amount,
+          chance: i.chance,
+          perTick: i.perTick,
+        })),
+      ),
+      outputs: JSON.stringify(
+        r.outputs.map((i) => ({
+          accepted_ids: i.acceptedIds,
+          amount: i.amount,
+          chance: i.chance,
+          perTick: i.perTick,
+        })),
+      ),
+      duration: r.duration,
+      min_tier: r.minTier,
+      eut_consumed: r.eutConsumed,
+      eut_produced: r.eutProduced,
+    }));
+
+    console.log(`Inserting ${recipeRows.length} recipes...`);
+    await superRepo.recipe.insertMany(recipeRows);
 
     await superRepo.close();
 

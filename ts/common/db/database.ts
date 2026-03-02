@@ -1,10 +1,12 @@
 import { Kysely } from "kysely";
 import type { IngredientTable } from "./ingredient.js";
 import type { ManifestTable } from "./manifest.js";
+import { RecipeTable } from "./recipe.js";
 
 export type Database = {
   ingredient: IngredientTable;
   manifest: ManifestTable;
+  recipe: RecipeTable;
 };
 
 export type KyselyDB = Kysely<Database>;
@@ -27,5 +29,17 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .addColumn("original_texture_location", "text", (col) => col.notNull())
     .addColumn("texture_location", "text", (col) => col.references("manifest.filepath"))
     .addColumn("hex_color", "text", (col) => col)
+    .execute();
+
+  await db.schema
+    .createTable("recipe")
+    .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("machine", "text", (col) => col.notNull())
+    .addColumn("inputs", "text", (col) => col.notNull())
+    .addColumn("outputs", "text", (col) => col.notNull())
+    .addColumn("duration", "integer", (col) => col.notNull())
+    .addColumn("min_tier", "integer", (col) => col.notNull())
+    .addColumn("eut_consumed", "integer", (col) => col.notNull())
+    .addColumn("eut_produced", "integer", (col) => col.notNull())
     .execute();
 };
