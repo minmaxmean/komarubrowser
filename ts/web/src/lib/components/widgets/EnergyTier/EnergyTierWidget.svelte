@@ -1,14 +1,14 @@
 <script lang="ts">
-	import Badge from '$lib/components/ui/badge/badge.svelte';
-	import { type EnergyTierID, energyTierFromID } from '../../../../../../common/types';
-	import { energyTierVarient } from './variants';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+  import { energyTierFromID, type EnergyTierID } from '@komarubrowser/common/db/energyTier';
+  import { energyTierVarient } from './variants';
 
-	type Props = { tier: EnergyTierID };
-	const { tier: energyTierID }: Props = $props();
+  type Props = { tier: EnergyTierID };
+  const { tier: energyTierID }: Props = $props();
 
-	const energyTier = $derived(energyTierFromID(energyTierID));
+  const energyTier = $derived(energyTierFromID(energyTierID));
 </script>
 
 <Badge class={energyTierVarient({ tier: energyTier.name })}>
-	{energyTier.name}
+  {energyTier.name}
 </Badge>

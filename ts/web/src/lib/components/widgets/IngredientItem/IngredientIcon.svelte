@@ -1,12 +1,10 @@
 <script lang="ts">
-	import { ingredientUrl, type Ingredient } from '../../../../../../common/types';
-	import { iconVariants, type IconVariants } from './iconVariants';
+  import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
+  import { iconVariants, type IconVariants } from './iconVariants';
 
-	type Props = { item: Ingredient } & IconVariants;
+  type Props = { item: Ingredient } & IconVariants;
 
-	const { item, size }: Props = $props();
-
-	const iconURL = $derived(ingredientUrl(item));
+  const { item, size }: Props = $props();
 </script>
 
-<img src={iconURL} class={iconVariants({ size })} alt={item.displayName} />
+<img src={item.texture_location} class={iconVariants({ size })} alt={item.display_name} />

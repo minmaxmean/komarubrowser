@@ -3,13 +3,9 @@
   import favicon from '$lib/assets/favicon.svg';
   import { ModeWatcher } from 'mode-watcher';
   import { onMount } from 'svelte';
-  import { recipeStore } from '$lib/store/recipeStore.svelte';
-  import { ingredientStore } from '$lib/store/ingStore.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
 
   onMount(() => {
-    ingredientStore.fetch();
-    recipeStore.fetch();
     dbStore
       .fetch()
       .then(async (db) => console.log('Ingredients: ', await db?.ingredients.allWithIcons()));

@@ -1,6 +1,6 @@
 import { assets } from '$lib/assets';
 import initSqlJs from 'sql.js';
-import { getSuperRepo, type SuperRepo } from '@komarubrowser/common';
+import { getSuperRepo, type SuperRepo } from '@komarubrowser/common/db/init';
 import { SqlJsDialect } from 'kysely-wasm';
 
 export const loadDB = async (): Promise<SuperRepo> => {

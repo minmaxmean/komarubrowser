@@ -11,14 +11,6 @@
     "./db/*.js": {
       "types": "./dist/db/*.d.ts",
       "default": "./dist/db/*.js"
-    },
-    "./tables/*.js": {
-      "types": "./dist/tables/*.d.ts",
-      "default": "./dist/tables/*.js"
-    },
-    "./types/*.js": {
-      "types": "./dist/types/*.d.ts",
-      "default": "./dist/types/*.js"
     }
   }
 }

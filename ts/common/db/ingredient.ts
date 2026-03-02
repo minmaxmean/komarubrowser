@@ -18,3 +18,5 @@ export type NewIngredient = Insertable<IngredientTable>;
 export type IngredientWithIcon = Ingredient & {
   icon?: Manifest;
 };
+
+export const ingredientIdFn = (item: Ingredient): string => item.id;

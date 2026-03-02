@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { RecipeIngredient } from '../../../../common/types/index.js';
+  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
 
-	type RecipeIngredienListProps = {
-		items: RecipeIngredient[];
-	};
-	const { items }: RecipeIngredienListProps = $props();
+  type RecipeIngredienListProps = {
+    items: RecipeIngredient[];
+  };
+  const { items }: RecipeIngredienListProps = $props();
 </script>
 
 <ul>
-	{#each items as item}
-		<li>{item.acceptedIds[0]} x {item.amount}</li>
-	{/each}
+  {#each items as item}
+    <li>{item.accepted_ids[0]} x {item.amount}</li>
+  {/each}
 </ul>

@@ -1,17 +1,17 @@
-import type { Ingredient } from '../../../../../../common/types';
+import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
 
 export type ScorerFn<I> = (item: I, lowercaseQuery: string) => number;
 
 export const scoreString: ScorerFn<string> = (item: string, query: string): number => {
-	if (query === '') {
-		return 1;
-	}
-	if (item.toLowerCase().includes(query)) {
-		return query.length / item.length;
-	}
-	return 0;
+  if (query === '') {
+    return 1;
+  }
+  if (item.toLowerCase().includes(query)) {
+    return query.length / item.length;
+  }
+  return 0;
 };
 
 export const scoreIngredient: ScorerFn<Ingredient> = (item: Ingredient, query: string): number => {
-	return Math.max(scoreString(item.displayName, query), scoreString(item.id, query));
+  return Math.max(scoreString(item.display_name, query), scoreString(item.id, query));
 };

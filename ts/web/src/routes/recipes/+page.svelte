@@ -1,44 +1,44 @@
 <script lang="ts">
-	import DataTable from '$lib/components/ui/data-table/data-table.svelte';
-	import { createColumnHelper, type ColumnDef } from '@tanstack/table-core';
-	import { renderComponent } from '$lib/components/ui/data-table';
-	import RecipeIngredientList from './RecipeIngredientList.svelte';
-	import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
-	import { recipeStore } from '$lib/store/recipeStore.svelte';
-	import type { Recipe } from '../../../../common/types';
+  import DataTable from '$lib/components/ui/data-table/data-table.svelte';
+  import { createColumnHelper, type ColumnDef } from '@tanstack/table-core';
+  import { renderComponent } from '$lib/components/ui/data-table';
+  import RecipeIngredientList from './RecipeIngredientList.svelte';
+  import EnergyTierWidget from '$lib/components/widgets/EnergyTier/EnergyTierWidget.svelte';
+  import type { Recipe } from '@komarubrowser/common/db/recipe';
 
-	const columnHelper = createColumnHelper<Recipe>();
+  const columnHelper = createColumnHelper<Recipe>();
 
-	const columns: ColumnDef<Recipe, any>[] = [
-		columnHelper.accessor('id', { header: 'Recipe ID' }),
-		columnHelper.accessor('machine', { header: 'Machine' }),
-		columnHelper.accessor('inputs', {
-			header: 'Inputs',
-			cell: (info) => renderComponent(RecipeIngredientList, { items: info.getValue() }),
-		}),
-		columnHelper.accessor('outputs', {
-			header: 'Outputs',
-			cell: (info) => renderComponent(RecipeIngredientList, { items: info.getValue() }),
-		}),
-		columnHelper.accessor('duration', {
-			header: 'Duration',
-			cell: (info) => `${info.getValue() / 20}s`,
-		}),
-		columnHelper.accessor('minTier', {
-			header: 'Tier',
-			cell: (info) => renderComponent(EnergyTierWidget, { tier: info.getValue() }),
-		}),
-	];
+  const columns: ColumnDef<Recipe, any>[] = [
+    columnHelper.accessor('id', { header: 'Recipe ID' }),
+    columnHelper.accessor('machine', { header: 'Machine' }),
+    columnHelper.accessor('inputs', {
+      header: 'Inputs',
+      cell: (info) => renderComponent(RecipeIngredientList, { items: info.getValue() }),
+    }),
+    columnHelper.accessor('outputs', {
+      header: 'Outputs',
+      cell: (info) => renderComponent(RecipeIngredientList, { items: info.getValue() }),
+    }),
+    columnHelper.accessor('duration', {
+      header: 'Duration',
+      cell: (info) => `${info.getValue() / 20}s`,
+    }),
+    columnHelper.accessor('min_tier', {
+      header: 'Tier',
+      cell: (info) => renderComponent(EnergyTierWidget, { tier: info.getValue() }),
+    }),
+  ];
+  const recipeStore = { status: 'idle', data: [] };
 </script>
 
 {#if recipeStore.status === 'loading'}
-	<p>Downloadng recipes.json...</p>
+  <p>Downloadng recipes.json...</p>
 {:else if recipeStore.status === 'error'}
-	<p>Error fetching recipes.json</p>
+  <p>Error fetching recipes.json</p>
 {:else if recipeStore.status === 'successful'}
-	<p>Loaded {recipeStore.data.length} items.</p>
+  <p>Loaded {recipeStore.data.length} items.</p>
 {/if}
 
 <div class="m-4">
-	<DataTable data={recipeStore.data} {columns} />
+  <DataTable data={recipeStore.data} {columns} />
 </div>
