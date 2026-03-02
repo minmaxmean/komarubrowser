@@ -1,27 +1,9 @@
 <script>
-  import * as Item from '$lib/components/ui/item';
-  import IngredientItem from '$lib/components/widgets/IngredientItem/IngredientItem.svelte';
-  import { scoreIngredient } from '$lib/components/widgets/SeachWidget/scorers.js';
-  import SearchWidget from '$lib/components/widgets/SeachWidget/SearchWidget.svelte';
-  import { dbStore } from '$lib/db/dbStore.svelte';
-  import { ingredientIdFn } from '@komarubrowser/common/db/ingredient.js';
-  const ingredients = $derived(await dbStore.data?.ingredients.allWithIcons());
+  import RecipeWidget from '$lib/components/widgets/RecipeWidget/RecipeWidget.svelte';
+  import { mockRecipies } from './data';
+  const item = mockRecipies[0];
 </script>
 
 <div class="flex w-full max-w-md flex-col gap-6">
-  <Item.Root variant="outline">
-    <Item.Content>
-      <Item.Title>Welcome to KomaruBrowser</Item.Title>
-      <Item.Description>
-        <SearchWidget items={ingredients ?? []} scorerFn={scoreIngredient} idFn={ingredientIdFn}>
-          {#snippet children(item)}
-            <IngredientItem size="sm" {item} />
-          {/snippet}
-          {#snippet row(item)}
-            <IngredientItem {item} />
-          {/snippet}
-        </SearchWidget>
-      </Item.Description>
-    </Item.Content>
-  </Item.Root>
+  <RecipeWidget recipe={item} />
 </div>

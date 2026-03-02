@@ -58,7 +58,7 @@
       globalFilter = newValue;
     },
   });
-  $inspect({ shownItems: table.getRowModel().rows });
+  $inspect({ shownItems: table.getRowModel().rows.map((r) => r.original) });
 </script>
 
 <div>

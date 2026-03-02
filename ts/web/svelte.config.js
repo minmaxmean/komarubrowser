@@ -16,4 +16,13 @@ const config = {
   }
 };
 
+const SHOULD_ALIAS = !!process.env['SHOULD_ALIAS'];
+console.log({ SHOULD_ALIAS });
+
+if (SHOULD_ALIAS) {
+  config.kit.alias = {
+    '@komarubrowser/common': '../common'
+  };
+}
+
 export default config;
