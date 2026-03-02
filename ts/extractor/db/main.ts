@@ -2,7 +2,7 @@ import path from "path";
 import Database from "better-sqlite3";
 import { SqliteDialect, Kysely } from "kysely";
 import { buildManifestItems } from "./manifest.js";
-import type { EnergyTierID } from "@komarubrowser/common/types/energyTier.js";
+import type { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
 import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/init.js";
 import type { Recipe, NewRecipe } from "@komarubrowser/common/db/recipe.js";
 import { migrate } from "@komarubrowser/common/db/database.js";

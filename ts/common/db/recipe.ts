@@ -1,5 +1,5 @@
 import type { Insertable, JSONColumnType, Selectable } from "kysely";
-import { EnergyTierID } from "../types/energyTier";
+import { EnergyTierID } from "./energyTier";
 
 export type RecipeIngredient = {
   accepted_ids: string[];

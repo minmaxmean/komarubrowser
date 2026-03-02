@@ -4,7 +4,16 @@ import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
-import { IngredientJson } from "@komarubrowser/common/tables/ingredient.js";
+
+type IngredientJson = {
+  id: string;
+  displayName: string;
+  hexColor: string;
+  isFluid: boolean;
+  sourceJar: string;
+  tags: string[];
+  textureLocation?: string;
+};
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
