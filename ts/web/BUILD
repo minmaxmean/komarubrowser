@@ -1,5 +1,6 @@
 load("@aspect_bazel_lib//lib:copy_file.bzl", "copy_file")
 load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_rules_js//js:defs.bzl", "js_run_devserver", "js_test")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//ts/web:vite/package_json.bzl", vite_bin = "bin")
@@ -31,10 +32,18 @@ copy_to_bin(
     visibility = ["//visibility:public"],
 )
 
-copy_file(
+copy_to_directory(
     name = "minecraft_assets",
-    src = "//minecraft/star_t:ingredients.json",
-    out = "static/assets/dump/ingredients.min.json",
+    srcs = [
+        "//minecraft/star_t:ingredients.json",
+        "//minecraft/star_t:recipes.json",
+        "//ts/extractor/pngs:extract_pngs",
+    ],
+    out = "static/assets/",
+    replace_prefixes = {
+        "minecraft/star_t": "dump",
+        "ts/extractor/pngs/extracted_pngs/assets": "",
+    },
 )
 
 vite_bin.vite(

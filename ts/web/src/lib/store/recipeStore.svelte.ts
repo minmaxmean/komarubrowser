@@ -1,6 +1,6 @@
 import type { Recipe, FetchStatus } from '../../../../common/types';
 
-const RECIPE_URL = '/assets/dump/recipes.min.json';
+const RECIPE_URL = '/assets/dump/recipes.json';
 
 class RecipeStore {
 	public data = $state<Recipe[]>([]);

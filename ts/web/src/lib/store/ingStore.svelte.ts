@@ -1,7 +1,7 @@
 import type { FetchStatus, Ingredient } from '../../../../common/types';
 import { preprocessIngredients } from './preprocess';
 
-const INGREDIENTS_URL = '/assets/dump/ingredients.min.json';
+const INGREDIENTS_URL = '/assets/dump/ingredients.json';
 
 class IngredientStore {
 	public data = $state<Ingredient[]>([]);
