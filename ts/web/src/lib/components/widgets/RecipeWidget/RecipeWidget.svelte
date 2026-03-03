@@ -4,16 +4,20 @@
   import { getDisplayName, getItemIds, ingredientUnit } from './utils';
   import EnergyTierWidget from '../EnergyTier/EnergyTierWidget.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
+  import type { ClassValue } from 'svelte/elements';
+  import { cn } from '$lib/utils';
 
-  type RecipeWidgetProps = { recipe: Recipe };
-  const { recipe }: RecipeWidgetProps = $props();
+  type RecipeWidgetProps = {
+    recipe: Recipe;
+    class?: ClassValue | undefined | null;
+  };
+  const { recipe, class: className }: RecipeWidgetProps = $props();
 
   const itemIds = $derived(getItemIds(recipe));
   const items = $derived(await dbStore.data?.ingredients.getByIds(itemIds));
-  $inspect({ itemIds, items });
 </script>
 
-<Card.Root class="w-full max-w-sm text-center">
+<Card.Root class={cn('w-sm text-center', className)}>
   <Card.Header class="px-0">
     <Card.Title>{getDisplayName(recipe.id)}</Card.Title>
     <Card.Description>{getDisplayName(recipe.machine, items)}</Card.Description>

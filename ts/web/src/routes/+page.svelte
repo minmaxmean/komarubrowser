@@ -1,9 +1,7 @@
-<script>
-  import RecipeWidget from '$lib/components/widgets/RecipeWidget/RecipeWidget.svelte';
+<script lang="ts">
+  import RecipeListWidget from '$lib/components/widgets/RecipeWidget/RecipeListWidget.svelte';
   import { mockRecipies } from './data';
-  const item = mockRecipies[0];
+  const recipes = mockRecipies.concat(mockRecipies).map((r, idx) => ({ ...r, id: r.id + idx }));
 </script>
 
-<div class="flex w-full max-w-md flex-col gap-6">
-  <RecipeWidget recipe={item} />
-</div>
+<RecipeListWidget {recipes} />
