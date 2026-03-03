@@ -1,7 +1,7 @@
 import { GenericStore } from '$lib/store/genericStore.svelte';
 import { assets } from '$lib/assets';
 import initSqlJs from 'sql.js';
-import { getSuperRepo, type SuperRepo } from '@komarubrowser/common/db/init.js';
+import { getSuperRepo, type SuperRepo } from '@komarubrowser/common/db/repo.js';
 import { type GlobalFilter } from '@komarubrowser/common/db/globalFilter.js';
 import { SqlJsDialect } from 'kysely-wasm';
 

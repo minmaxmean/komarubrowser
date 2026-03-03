@@ -1,10 +1,19 @@
 <script lang="ts">
+  import Input from '$lib/components/ui/input/input.svelte';
   import RecipeListWidget from '$lib/components/widgets/RecipeWidget/RecipeListWidget.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
-  const recipiesPromise = $derived(dbStore.data?.recipe.all());
-  const offset = 200;
-  const pageSize = 10;
-  const recipes = $derived((await recipiesPromise)?.slice(offset, offset + pageSize));
+  const offset = 0;
+  const pageSize = 4;
+  let inputFilter = $state('');
+
+  const recipes = $derived(
+    dbStore.data?.recipe.search(
+      { inputIngredientIncludes: inputFilter },
+      { offset, limit: pageSize },
+    ),
+  );
 </script>
 
-<RecipeListWidget recipes={recipes ?? []} />
+<Input bind:value={inputFilter} />
+
+<RecipeListWidget recipes={(await recipes) ?? []} />

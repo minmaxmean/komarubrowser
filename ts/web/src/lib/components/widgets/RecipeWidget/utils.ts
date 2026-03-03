@@ -1,12 +1,11 @@
 import type { Ingredient } from '@komarubrowser/common/db/ingredient';
-import type { Recipe, RecipeIngredient } from '@komarubrowser/common/db/recipe';
+import type { Recipe } from '@komarubrowser/common/db/recipe';
 
 export const getDisplayName = (id: string, map?: Map<string, Ingredient>) => {
   let item = map?.get(id);
   if (item?.display_name) {
     return item.display_name;
   }
-  console.log(`Item ${id} not found, falling back`);
   return fakeDisplayName(id);
 };
 

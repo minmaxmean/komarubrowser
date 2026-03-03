@@ -4,12 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check .",
-		"format": "prettier --write ."
+    "sync": "SHOULD_ALIAS=TRUE svelte-kit sync"
 	},
 	"devDependencies": {
 		"@internationalized/date": "^3.11.0",

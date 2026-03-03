@@ -1,4 +1,4 @@
-import { OperandValueExpressionOrList, SelectQueryBuilder } from "kysely";
+import { SelectQueryBuilder } from "kysely";
 import { Database, KyselyDB } from "./database.js";
 import { Recipe, NewRecipe } from "./recipe.js";
 
@@ -30,16 +30,23 @@ export class RecipeRepo {
   }
   async search(filter: RecipeFilter, pagination: Pagination): Promise<Recipe[]> {
     let query = this.db.selectFrom("recipe");
+    query = this.applyFilter(query, filter);
+    query = this.applyPagination(query, pagination);
     return await query.selectAll().execute();
   }
-  applyFilter(query: RecipeSelectQuery, filter: RecipeFilter): RecipeSelectQuery {
+  private applyFilter(query: RecipeSelectQuery, filter: RecipeFilter): RecipeSelectQuery {
     if (filter.machine) {
       query = query.where("machine", "=", filter.machine);
     }
     if (filter.inputIngredientIncludes) {
-      // TODO: Add proper filter
-      query = query.where("recipe.inputs", "like", `%${filter.inputIngredientIncludes}%` as any);
+      query = query.where("recipe.input_ids", "like", `%${filter.inputIngredientIncludes}%` as any);
+    }
+    if (filter.outputIngredientIncludes) {
+      query = query.where("recipe.output_ids", "like", `%${filter.outputIngredientIncludes}%` as any);
     }
     return query;
+  }
+  private applyPagination(query: RecipeSelectQuery, pagination: Pagination): RecipeSelectQuery {
+    return query.offset(pagination.offset).limit(pagination.limit).orderBy("id");
   }
 }
