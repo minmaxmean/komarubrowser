@@ -1,6 +1,6 @@
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_run_binary")
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
-load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//:defs.bzl", "npm_link_all_packages", "npm_link_targets")
 
 ts_config(
     name = "tsconfig",
@@ -23,13 +23,7 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
-    deps = [
-        ":node_modules/@komarubrowser/common",
-        ":node_modules/@types/adm-zip",
-        ":node_modules/@types/cli-progress",
-        ":node_modules/@types/node",
-        ":node_modules/adm-zip",
-        ":node_modules/cli-progress",
+    deps = npm_link_targets() + [
         "//ts/extractor/utils",
     ],
 )

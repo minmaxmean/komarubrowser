@@ -1,24 +1,28 @@
 <script lang="ts">
-  import Input from '$lib/components/ui/input/input.svelte';
   import IngredientInput from '$lib/components/widgets/IngredientInput/IngredientInput.svelte';
   import RecipeListWidget from '$lib/components/widgets/RecipeWidget/RecipeListWidget.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
+  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   const offset = 0;
   const pageSize = 4;
-  let inputFilter = $state('');
+  let inputFilter = $state<Ingredient | undefined>();
+  let outputFilter = $state<Ingredient | undefined>();
 
   const recipes = $derived(
     dbStore.data?.recipe.search(
-      { inputIngredientIncludes: inputFilter },
+      {
+        mode: 'and',
+        inputIngredientIncludes: inputFilter?.id,
+        outputIngredientIncludes: outputFilter?.id,
+      },
       { offset, limit: pageSize },
     ),
   );
 </script>
 
 <div class="flex flex-col gap-2">
-  <IngredientInput />
-
-  <Input bind:value={inputFilter} />
+  <IngredientInput bind:selectedItem={inputFilter} />
+  <IngredientInput bind:selectedItem={outputFilter} />
 
   <RecipeListWidget recipes={(await recipes) ?? []} />
 </div>

@@ -15,8 +15,6 @@
     "allowSyntheticDefaultImports": true,
     "types": ["node"],
     "baseUrl": ".",
-    "paths": {
-      "@komarubrowser/common/*": ["../../common/*"]
-    }
+    "paths": { }
   }
 }

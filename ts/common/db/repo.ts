@@ -1,4 +1,4 @@
-import { Kysely, ParseJSONResultsPlugin, sql, type Dialect } from "kysely";
+import { Kysely, ParseJSONResultsPlugin, type Dialect } from "kysely";
 import { Database } from "./database.js";
 import { IngredientRepo } from "./ingredientRepo.js";
 import { RecipeRepo } from "./recipeRepo.js";

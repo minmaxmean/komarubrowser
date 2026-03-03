@@ -1,17 +1,26 @@
-import { Expression, SelectQueryBuilder } from "kysely";
-import { Database, KyselyDB } from "./database.js";
-import { GlobalFilterGetter } from "./globalFilter.js";
-import { Ingredient, NewIngredient } from "./ingredient.js";
-import { SqlBool } from "kysely";
+import type { Expression, SelectQueryBuilder, SqlBool } from "kysely";
+import type { Database, KyselyDB } from "./database.js";
+import type { GlobalFilterGetter } from "./globalFilter.js";
+import type { Ingredient, NewIngredient } from "./ingredient.js";
+import { type Pagination, applyPagination } from "./common.js";
+import { ExpressionBuilder } from "kysely";
 
 type IngredientSelectQuery = SelectQueryBuilder<Database, "ingredient", {}>;
+type IngredientExpressionBuilder = ExpressionBuilder<Database, "ingredient">;
+
+export type IngredientFilter = {
+  mode: "or" | "and";
+  id?: string;
+  idLike?: string;
+  displayNameLike?: string;
+};
 
 export class IngredientRepo {
   constructor(
     private db: KyselyDB,
     private globalFilterGetter?: GlobalFilterGetter,
   ) {}
-  private withFilter(query: IngredientSelectQuery): IngredientSelectQuery {
+  private withGlobalFilter(query: IngredientSelectQuery): IngredientSelectQuery {
     if (!this.globalFilterGetter) {
       console.log("[IngredientRepo] globalFilterGetter is not set");
       return query;
@@ -19,23 +28,22 @@ export class IngredientRepo {
     const { ingredient: filter } = this.globalFilterGetter();
     console.log("[IngredientRepo] using global filter", { filter });
     return query.where((eb) => {
-      const ands: Expression<SqlBool>[] = [];
+      const ops: Expression<SqlBool>[] = [];
       filter.displayNameLike.forEach((displayNameLike) => {
-        ands.push(eb("display_name", "not like", displayNameLike));
+        ops.push(eb("display_name", "not like", displayNameLike));
       });
       filter.idLike.forEach((idLike) => {
-        ands.push(eb("id", "not like", idLike));
+        ops.push(eb("id", "not like", idLike));
       });
       if (filter.namespace.length > 0) {
-        ands.push(eb("namespace", "not in", filter.namespace));
+        ops.push(eb("namespace", "not in", filter.namespace));
       }
-
-      return eb.and(ands);
+      return eb.and(ops);
     });
   }
   public async all(): Promise<Ingredient[]> {
     let query = this.db.selectFrom("ingredient");
-    query = this.withFilter(query);
+    query = this.withGlobalFilter(query);
     return await query.selectAll().execute();
   }
   public async insertMany(items: NewIngredient[]): Promise<void> {
@@ -47,7 +55,6 @@ export class IngredientRepo {
   }
   public async getByIds(ids: string[]): Promise<Map<string, Ingredient>> {
     let query = this.db.selectFrom("ingredient").where("id", "in", ids);
-    // query = this.withFilter(query);
     const ingredients: Ingredient[] = await query.selectAll().execute();
     const m = new Map<string, Ingredient>();
     ingredients.forEach((item) => m.set(item.id, item));
@@ -58,5 +65,30 @@ export class IngredientRepo {
       );
     }
     return m;
+  }
+  async search(filter: IngredientFilter, pagination: Pagination): Promise<Ingredient[]> {
+    let query = this.db.selectFrom("ingredient");
+    query = query.where(this.hasFilter(filter));
+    query = applyPagination(query, pagination);
+    return await query.selectAll().execute();
+  }
+  private hasFilter(filter: IngredientFilter) {
+    return (eb: IngredientExpressionBuilder): Expression<SqlBool> => {
+      const ops: Expression<SqlBool>[] = [];
+      if (filter.id) {
+        ops.push(eb("id", "=", filter.id));
+      }
+      if (filter.idLike) {
+        ops.push(eb("id", "like", `%${filter.idLike}%`));
+      }
+      if (filter.displayNameLike) {
+        ops.push(eb("display_name", "like", `%${filter.displayNameLike}%`));
+      }
+      if (filter.mode === "or") {
+        return eb.or(ops);
+      } else {
+        return eb.and(ops);
+      }
+    };
   }
 }

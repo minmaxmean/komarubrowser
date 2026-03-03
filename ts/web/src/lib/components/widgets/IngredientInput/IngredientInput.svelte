@@ -2,25 +2,31 @@
   import CheckIcon from '@lucide/svelte/icons/check';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import { Button } from '$lib/components/ui/button/index.js';
-  import { ingredientIdFn } from '@komarubrowser/common/db/ingredient.js';
+  import { type Ingredient } from '@komarubrowser/common/db/ingredient.js';
   import { dbStore } from '$lib/db/dbStore.svelte';
   import { tick } from 'svelte';
   import { cn } from 'tailwind-variants';
-  import { QueryEngine } from '../SeachWidget/search';
   import IngredientItem from '../IngredientItem/IngredientItem.svelte';
-  import { scoreIngredient } from '../SeachWidget/scorers';
   import * as Command from '$lib/components/ui/command/index.js';
   import * as Popover from '$lib/components/ui/popover/index.js';
+  import { type IngredientFilter } from '@komarubrowser/common/db/ingredientRepo.js';
 
-  const items = $derived((await dbStore.data?.ingredients.all()) ?? []);
+  type Props = {
+    selectedItem: Ingredient | undefined;
+  };
 
-  const searchEngine = $derived(new QueryEngine(items, scoreIngredient));
+  let { selectedItem = $bindable() }: Props = $props();
 
   let query = $state('');
-  const filteredItems = $derived(searchEngine.query(query).map((val) => val.item));
+  const filter: IngredientFilter = $derived({
+    mode: 'or',
+    idLike: query.toLowerCase(),
+    displayNameLike: query,
+  });
 
-  let selectedItemId = $state<string>('');
-  const selectedItem = $derived(filteredItems.find((f) => ingredientIdFn(f) === selectedItemId));
+  const items = $derived(
+    (await dbStore.data?.ingredients.search(filter, { limit: 10, offset: 0 })) ?? [],
+  );
 
   let open = $state(false);
   let triggerRef = $state<HTMLButtonElement>(null!);
@@ -57,18 +63,16 @@
       <Command.List>
         <Command.Empty>No item found.</Command.Empty>
         <Command.Group value="item">
-          {#each filteredItems as item (ingredientIdFn(item))}
+          {#each items as item (item.id)}
             <Command.Item
-              value={ingredientIdFn(item)}
+              value={item.id}
               onSelect={() => {
-                selectedItemId = ingredientIdFn(item);
+                selectedItem = item;
                 closeAndFocusTrigger();
               }}
             >
               <IngredientItem {item} />
-              <CheckIcon
-                class={cn(selectedItemId !== ingredientIdFn(item) && 'text-transparent')}
-              />
+              <CheckIcon class={cn(selectedItem?.id !== item.id && 'text-transparent')} />
             </Command.Item>
           {/each}
         </Command.Group>
