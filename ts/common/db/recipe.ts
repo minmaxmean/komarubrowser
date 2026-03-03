@@ -1,4 +1,4 @@
-import type { Insertable, JSONColumnType, Selectable } from "kysely";
+import type { GeneratedAlways, Insertable, JSONColumnType, Selectable } from "kysely";
 import { EnergyTierID } from "./energyTier.js";
 
 export type RecipeIngredient = {
@@ -17,6 +17,9 @@ export type RecipeTable = {
   min_tier: EnergyTierID;
   eut_consumed: number;
   eut_produced: number;
+
+  input_ids: GeneratedAlways<string>;
+  output_ids: GeneratedAlways<string>;
 };
 
 export type Recipe = Selectable<RecipeTable>;

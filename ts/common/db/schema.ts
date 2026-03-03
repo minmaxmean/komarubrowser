@@ -1,9 +1,23 @@
-import { Kysely, ParseJSONResultsPlugin, sql, type Dialect } from "kysely";
-import { Database } from "./database.js";
-import { IngredientRepo } from "./ingredientRepo.js";
-import { RecipeRepo } from "./recipeRepo.js";
-import { ManifestRepo } from "./manifestRepo.js";
-import { GlobalFilterGetter } from "./globalFilter.js";
+import { Kysely, sql } from "kysely";
+
+export const createIdsTriggerSql = async (db: Kysely<any>, column: string) => {
+  const query = sql<never>`
+CREATE TRIGGER trg_recipe_insert_${sql.raw(column)}_ids
+AFTER INSERT ON recipe
+BEGIN
+    UPDATE recipe 
+    SET ${sql.raw(column)}_ids = (
+      SELECT group_concat(json_extract(value, '$.accepted_ids[0]'), '|')
+      FROM json_each(NEW.${sql.raw(column)}s)
+    )
+    WHERE rowid = NEW.rowid;
+END;
+`;
+  const compiled = query.compile(db);
+  console.log("Compiled SQL string:\n", compiled.sql);
+  console.log("Parameters attached (should be empty for this DDL):", compiled.parameters);
+  await query.execute(db);
+};
 
 export const migrate = async (db: Kysely<any>): Promise<void> => {
   await db.schema
@@ -26,8 +40,19 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .addColumn("namespace", "text", (col) => col.generatedAlwaysAs(sql`SUBSTR(id, 1, INSTR(id, ':') - 1)`).notNull())
     .execute();
 
-  await db.schema.createIndex("ingredient_namespace_index").on("ingredient").column("namespace").execute();
-  await db.schema.createIndex("ingredient_namespace_id_index").on("ingredient").columns(["namespace", "id"]).execute();
+  // prettier-ignore
+  await db.schema
+    .createIndex("ingredient_namespace_index")
+    .on("ingredient")
+    .column("namespace")
+    .execute();
+
+  // prettier-ignore
+  await db.schema
+    .createIndex("ingredient_namespace_id_index")
+    .on("ingredient")
+    .columns(["namespace", "id"])
+    .execute();
 
   await db.schema
     .createTable("recipe")
@@ -39,26 +64,17 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .addColumn("min_tier", "integer", (col) => col.notNull())
     .addColumn("eut_consumed", "integer", (col) => col.notNull())
     .addColumn("eut_produced", "integer", (col) => col.notNull())
+    .addColumn("input_ids", "text", (col) => col.defaultTo(""))
+    .addColumn("output_ids", "text", (col) => col.defaultTo(""))
     .execute();
-};
 
-export type SuperRepo = {
-  ingredients: IngredientRepo;
-  manifest: ManifestRepo;
-  recipe: RecipeRepo;
-  close: () => Promise<void>;
-};
+  // prettier-ignore
+  await db.schema
+    .createIndex("recipe_machine_index")
+    .on("recipe")
+    .columns(["machine"])
+    .execute();
 
-export const getSuperRepo = (dialect: Dialect, globalFilterGetter?: GlobalFilterGetter): SuperRepo => {
-  const db = new Kysely<Database>({
-    dialect,
-    plugins: [new ParseJSONResultsPlugin()],
-    log: ["query", "error"],
-  });
-  return {
-    ingredients: new IngredientRepo(db, globalFilterGetter),
-    manifest: new ManifestRepo(db),
-    recipe: new RecipeRepo(db),
-    close: () => db.destroy(),
-  };
+  await createIdsTriggerSql(db, "input");
+  await createIdsTriggerSql(db, "output");
 };

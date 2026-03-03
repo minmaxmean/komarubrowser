@@ -1,12 +1,13 @@
 import path from "path";
 import Database from "better-sqlite3";
 import { SqliteDialect, Kysely } from "kysely";
-import { buildManifestItems } from "./manifest.js";
 import type { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
-import { getSuperRepo, migrate, type SuperRepo } from "@komarubrowser/common/db/init.js";
+import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/repo.js";
+import { migrate } from "@komarubrowser/common/db/schema.js";
 import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
+import { buildManifestItems } from "./manifest.js";
 
 export async function initDb(dbPath: string): Promise<SuperRepo> {
   const db = new Database(dbPath);

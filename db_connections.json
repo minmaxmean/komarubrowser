@@ -1,7 +1,7 @@
 [
   {
     "id": "file_source_/PYP7TKxyB1",
-    "url": "{{ env `db_dir` }}/dump/komarku.db",
+    "url": "bazel-bin/ts/extractor/db/assets.db",
     "name": "komarku.db",
     "type": "sqlite"
   }
