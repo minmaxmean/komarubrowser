@@ -25,3 +25,22 @@ export const getItemIds = (r: Recipe): string[] => {
     r.outputs.map((i) => i.accepted_ids[0]),
   );
 };
+
+type AmountUnit = {
+  amount: number;
+  unit: string;
+};
+
+export const calcUnit = (
+  isFluid: boolean,
+  amount: number,
+  useBuckets: boolean = false,
+): AmountUnit => {
+  if (!isFluid) {
+    return { amount, unit: '' };
+  }
+  if (useBuckets) {
+    return { amount: amount / 1000, unit: 'b' };
+  }
+  return { amount: amount, unit: 'mb' };
+};

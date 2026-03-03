@@ -7,6 +7,7 @@
   import type { ClassValue } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
+  import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
 
   type RecipeWidgetProps = {
     recipe: Recipe;
@@ -21,7 +22,12 @@
 <Card.Root class={cn('w-sm text-center', className)}>
   <Card.Header class="px-0">
     <Card.Title>{getDisplayName(recipe.id)}</Card.Title>
-    <Card.Description>{getDisplayName(recipe.machine, items)}</Card.Description>
+    <Card.Description class="flex flex-row items-center justify-center gap-2">
+      <!-- <p> -->
+      {getDisplayName(recipe.machine, items)}
+      <!-- </p> -->
+      <IngredientIcon item={items?.get(recipe.machine)} />
+    </Card.Description>
   </Card.Header>
   <Card.Content class="px-0">
     <div class="flex flex-col gap-2">
@@ -38,25 +44,25 @@
         <RecipeIngredientWidget {ingredient} {item} />
       {/each}
       <div class="grid gap-2 bg-yellow-800">Recipe</div>
-      <div class="flex flex-row gap-2">
+      <div class="flex flex-row items-center gap-2">
         <p class="flex-2 text-right">Base Duration</p>
         <p class="flex-1 text-right">{recipe.duration / 20}</p>
         <p class="flex-1 text-left">sec</p>
       </div>
-      <div class="flex flex-row gap-2">
+      <div class="flex flex-row items-center gap-2">
         <p class="flex-2 text-right">Base Voltage Tier</p>
         <p class="flex-1 text-right"><EnergyTierWidget tier={recipe.min_tier} /></p>
         <p class="flex-1 text-left"></p>
       </div>
       {#if recipe.eut_consumed > 0}
-        <div class="flex flex-row gap-2">
+        <div class="flex flex-row items-center gap-2">
           <p class="flex-2 text-right">Base Power Usage</p>
           <p class="flex-1 text-right">{recipe.eut_consumed}</p>
           <p class="flex-1 text-left">EU/t</p>
         </div>
       {/if}
       {#if recipe.eut_produced > 0}
-        <div class="flex flex-row gap-2">
+        <div class="flex flex-row items-center gap-2">
           <p class="flex-2 text-right">Base Power Production</p>
           <p class="flex-1 text-right">{recipe.eut_consumed}</p>
           <p class="flex-1 text-left">EU/t</p>

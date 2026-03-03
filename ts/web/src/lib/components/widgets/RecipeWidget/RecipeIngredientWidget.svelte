@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
-  import { fakeDisplayName } from './utils';
+  import { calcUnit, fakeDisplayName } from './utils';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
 
@@ -10,13 +10,11 @@
   };
   const { ingredient: ingredient, item }: RecipeIngredientWidgetProps = $props();
   const displayName = $derived(item?.display_name ?? fakeDisplayName(ingredient.accepted_ids[0]));
-  const amount = $derived(item?.is_fluid ? ingredient.amount / 1000 : ingredient.amount);
-
-  const unit = $derived(item?.is_fluid ? 'b' : '');
+  const { amount, unit } = $derived(calcUnit(!!item?.is_fluid, ingredient.amount));
 </script>
 
-<div class="flex flex-row gap-2">
-  <div class="flex flex-2 flex-row justify-end gap-2 text-right">
+<div class="flex flex-row items-center gap-2">
+  <div class="flex flex-2 flex-row items-center justify-end gap-2 text-right">
     <p>{displayName}</p>
     <IngredientIcon {item} />
   </div>

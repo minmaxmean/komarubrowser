@@ -4,10 +4,8 @@
   import { cn } from '$lib/utils';
 
   type Props = { item?: Ingredient } & IconVariants;
-
   const { item, size }: Props = $props();
-  const default_texture_location = '/fallback-texture.png'; // Update with real fallback
-
+  const default_texture_location = '/komaru_16.png';
   const texture = $derived(item?.texture_location ?? default_texture_location);
   const color = $derived(item?.hex_color);
 </script>
