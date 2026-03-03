@@ -19,17 +19,9 @@ export const fakeDisplayName = (id: string): string => {
   return id;
 };
 
-export const ingredientUnit = (ing: RecipeIngredient, map?: Map<string, Ingredient>): string => {
-  const item = map?.get(ing.accepted_ids[0]);
-  if (item) {
-    return item.is_fluid ? 'mb' : '';
-  }
-  return ing.amount > 64 ? 'mb' : '';
-};
-
 export const getItemIds = (r: Recipe): string[] => {
   return [r.machine].concat(
     r.inputs.map((i) => i.accepted_ids[0]),
-    r.outputs.map((i) => i.accepted_ids[0])
+    r.outputs.map((i) => i.accepted_ids[0]),
   );
 };

@@ -1,11 +1,12 @@
 <script lang="ts">
   import * as Card from '$lib/components/ui/card/index.js';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
-  import { getDisplayName, getItemIds, ingredientUnit } from './utils';
+  import { getDisplayName, getItemIds } from './utils';
   import EnergyTierWidget from '../EnergyTier/EnergyTierWidget.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
   import type { ClassValue } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
 
   type RecipeWidgetProps = {
     recipe: Recipe;
@@ -26,21 +27,15 @@
     <div class="flex flex-col gap-2">
       {#if recipe.inputs.length > 0}
         <div class="grid gap-2 bg-red-800">Input</div>
-        {#each recipe.inputs as input}
-          <div class="flex flex-row gap-2">
-            <p class="flex-2 text-right">{getDisplayName(input.accepted_ids[0], items)}</p>
-            <p class="flex-1 text-right">{input.amount}</p>
-            <p class="flex-1 text-left">{ingredientUnit(input)}</p>
-          </div>
+        {#each recipe.inputs as ingredient}
+          {@const item = items?.get(ingredient.accepted_ids[0])}
+          <RecipeIngredientWidget {ingredient} {item} />
         {/each}
       {/if}
       <div class="grid gap-2 bg-green-800">Ouptut</div>
-      {#each recipe.outputs as output}
-        <div class="flex flex-row gap-2">
-          <p class="flex-2 text-right">{getDisplayName(output.accepted_ids[0], items)}</p>
-          <p class="flex-1 text-right">{output.amount}</p>
-          <p class="flex-1 text-left">{ingredientUnit(output)}</p>
-        </div>
+      {#each recipe.outputs as ingredient}
+        {@const item = items?.get(ingredient.accepted_ids[0])}
+        <RecipeIngredientWidget {ingredient} {item} />
       {/each}
       <div class="grid gap-2 bg-yellow-800">Recipe</div>
       <div class="flex flex-row gap-2">
