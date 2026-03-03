@@ -52,7 +52,10 @@ export class IngredientRepo {
     const m = new Map<string, Ingredient>();
     ingredients.forEach((item) => m.set(item.id, item));
     if (m.size != ids.length) {
-      console.warn("could not find some ingredients");
+      console.warn(
+        "could not find some ingredients",
+        ids.filter((id) => !m.has(id)),
+      );
     }
     return m;
   }

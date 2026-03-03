@@ -23,50 +23,50 @@
   <Card.Header class="px-0">
     <Card.Title>{getDisplayName(recipe.id)}</Card.Title>
     <Card.Description class="flex flex-row items-center justify-center gap-2">
-      <!-- <p> -->
       {getDisplayName(recipe.machine, items)}
-      <!-- </p> -->
       <IngredientIcon item={items?.get(recipe.machine)} />
     </Card.Description>
   </Card.Header>
   <Card.Content class="px-0">
-    <div class="flex flex-col gap-2">
+    <div class="grid grid-cols-[3fr_auto_1fr_1fr] items-center gap-x-4 gap-y-2">
       {#if recipe.inputs.length > 0}
-        <div class="grid gap-2 bg-red-800">Input</div>
+        <div class="col-span-4 bg-red-800 py-1">Input</div>
         {#each recipe.inputs as ingredient}
           {@const item = items?.get(ingredient.accepted_ids[0])}
           <RecipeIngredientWidget {ingredient} {item} />
         {/each}
       {/if}
-      <div class="grid gap-2 bg-green-800">Ouptut</div>
+
+      <div class="col-span-4 bg-green-800 py-1">Output</div>
       {#each recipe.outputs as ingredient}
         {@const item = items?.get(ingredient.accepted_ids[0])}
         <RecipeIngredientWidget {ingredient} {item} />
       {/each}
-      <div class="grid gap-2 bg-yellow-800">Recipe</div>
-      <div class="flex flex-row items-center gap-2">
-        <p class="flex-2 text-right">Base Duration</p>
-        <p class="flex-1 text-right">{recipe.duration / 20}</p>
-        <p class="flex-1 text-left">sec</p>
-      </div>
-      <div class="flex flex-row items-center gap-2">
-        <p class="flex-2 text-right">Base Voltage Tier</p>
-        <p class="flex-1 text-right"><EnergyTierWidget tier={recipe.min_tier} /></p>
-        <p class="flex-1 text-left"></p>
-      </div>
+
+      <div class="col-span-4 bg-yellow-800 py-1">Recipe</div>
+
+      <p class="text-right">Base Duration</p>
+      <div></div>
+      <p class="text-right">{recipe.duration / 20}</p>
+      <p class="text-left">sec</p>
+
+      <p class="text-right">Base Voltage Tier</p>
+      <div></div>
+      <div class="flex justify-end"><EnergyTierWidget tier={recipe.min_tier} /></div>
+      <p class="text-left"></p>
+
       {#if recipe.eut_consumed > 0}
-        <div class="flex flex-row items-center gap-2">
-          <p class="flex-2 text-right">Base Power Usage</p>
-          <p class="flex-1 text-right">{recipe.eut_consumed}</p>
-          <p class="flex-1 text-left">EU/t</p>
-        </div>
+        <p class="text-right">Base Power Usage</p>
+        <div></div>
+        <p class="text-right">{recipe.eut_consumed}</p>
+        <p class="text-left">EU/t</p>
       {/if}
+
       {#if recipe.eut_produced > 0}
-        <div class="flex flex-row items-center gap-2">
-          <p class="flex-2 text-right">Base Power Production</p>
-          <p class="flex-1 text-right">{recipe.eut_consumed}</p>
-          <p class="flex-1 text-left">EU/t</p>
-        </div>
+        <p class="text-right">Base Power Production</p>
+        <div></div>
+        <p class="text-right">{recipe.eut_produced}</p>
+        <p class="text-left">EU/t</p>
       {/if}
     </div>
   </Card.Content>

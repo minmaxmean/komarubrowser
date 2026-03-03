@@ -29,8 +29,8 @@
       cell: (info) => renderComponent(EnergyTierWidget, { tier: info.getValue() }),
     }),
   ];
-  const recipiesPromide = $derived(dbStore.data?.recipe.all());
-  const recipes = $derived(await recipiesPromide);
+  const recipiesPromise = $derived(dbStore.data?.recipe.all());
+  const recipes = $derived(await recipiesPromise);
 </script>
 
 <div class="m-4">
