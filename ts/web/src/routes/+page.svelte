@@ -1,5 +1,6 @@
 <script lang="ts">
   import Input from '$lib/components/ui/input/input.svelte';
+  import IngredientInput from '$lib/components/widgets/IngredientInput/IngredientInput.svelte';
   import RecipeListWidget from '$lib/components/widgets/RecipeWidget/RecipeListWidget.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
   const offset = 0;
@@ -14,6 +15,10 @@
   );
 </script>
 
-<Input bind:value={inputFilter} />
+<div class="flex flex-col gap-2">
+  <IngredientInput />
 
-<RecipeListWidget recipes={(await recipes) ?? []} />
+  <Input bind:value={inputFilter} />
+
+  <RecipeListWidget recipes={(await recipes) ?? []} />
+</div>
