@@ -5,10 +5,11 @@
   import { type Ingredient } from '@komarubrowser/common/db/ingredient.js';
   import { tick } from 'svelte';
   import { cn } from 'tailwind-variants';
-  import IngredientItem from '../IngredientItem/IngredientItem.svelte';
   import * as Command from '$lib/components/ui/command/index.js';
   import * as Popover from '$lib/components/ui/popover/index.js';
+  import X from '@lucide/svelte/icons/x';
   import type { Searcher } from './search';
+  import IngredientItem from '../IngredientItem/IngredientItem.svelte';
 
   type Props = {
     selectedItem: Ingredient | undefined;
@@ -36,9 +37,7 @@
   let triggerRef = $state<HTMLButtonElement>(null!);
   function closeAndFocusTrigger() {
     open = false;
-    tick().then(() => {
-      triggerRef.focus();
-    });
+    tick().then(() => triggerRef.focus());
   }
 </script>
 
@@ -55,9 +54,24 @@
         {#if selectedItem}
           <IngredientItem size="sm" item={selectedItem} />
         {:else}
-          Select a item...
+          <p>Select a item...</p>
         {/if}
-        <ChevronsUpDownIcon class="opacity-50" />
+        <div class="flex flex-row gap-2">
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            class="size-4"
+            onclick={(e) => {
+              e.stopPropagation();
+              selectedItem = undefined;
+            }}
+          >
+            <X class="opacity-50" />
+          </Button>
+          <Button size="icon-sm" variant="ghost" class="size-4">
+            <ChevronsUpDownIcon class="opacity-50" />
+          </Button>
+        </div>
       </Button>
     {/snippet}
   </Popover.Trigger>

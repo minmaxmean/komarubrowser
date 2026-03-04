@@ -3,13 +3,19 @@
   import type { ItemSize } from '$lib/components/ui/item/item.svelte';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
   import IngredientIcon from './IngredientIcon.svelte';
+  import { cn } from '$lib/utils';
+  import type { ClassValue } from 'svelte/elements';
 
-  type Props = { item: Ingredient; size?: ItemSize };
+  type Props = {
+    item: Ingredient;
+    size?: ItemSize;
+    class?: ClassValue;
+  };
 
-  const { item: item, size }: Props = $props();
+  const { item: item, size, class: className }: Props = $props();
 </script>
 
-<Item.Root {size} class="w-full p-2">
+<Item.Root {size} class={cn('w-full p-2', className)}>
   <Item.Media>
     <IngredientIcon {size} {item} />
   </Item.Media>
