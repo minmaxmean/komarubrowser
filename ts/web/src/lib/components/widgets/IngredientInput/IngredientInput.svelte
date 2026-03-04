@@ -3,30 +3,23 @@
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import { Button } from '$lib/components/ui/button/index.js';
   import { type Ingredient } from '@komarubrowser/common/db/ingredient.js';
-  import { dbStore } from '$lib/db/dbStore.svelte';
   import { tick } from 'svelte';
   import { cn } from 'tailwind-variants';
   import IngredientItem from '../IngredientItem/IngredientItem.svelte';
   import * as Command from '$lib/components/ui/command/index.js';
   import * as Popover from '$lib/components/ui/popover/index.js';
-  import { type IngredientFilter } from '@komarubrowser/common/db/ingredientRepo.js';
+  import type { Pagination } from '@komarubrowser/common/db/common';
 
   type Props = {
     selectedItem: Ingredient | undefined;
+    search: (query: string, pagination: Pagination) => Promise<Ingredient[]>;
   };
 
-  let { selectedItem = $bindable() }: Props = $props();
+  let { selectedItem = $bindable(), search }: Props = $props();
 
   let query = $state('');
-  const filter: IngredientFilter = $derived({
-    mode: 'or',
-    idLike: query.toLowerCase(),
-    displayNameLike: query,
-  });
 
-  const items = $derived(
-    (await dbStore.data?.ingredients.search(filter, { limit: 10, offset: 0 })) ?? [],
-  );
+  const items = $derived(search(query, { limit: 10, offset: 0 }));
 
   let open = $state(false);
   let triggerRef = $state<HTMLButtonElement>(null!);
@@ -63,7 +56,7 @@
       <Command.List>
         <Command.Empty>No item found.</Command.Empty>
         <Command.Group value="item">
-          {#each items as item (item.id)}
+          {#each await items as item (item.id)}
             <Command.Item
               value={item.id}
               onSelect={() => {
