@@ -1,6 +1,5 @@
 import path from "path";
 import { SqliteDialect, Kysely, type Insertable } from "kysely";
-import type { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
 import { getDb } from "@komarubrowser/common/db/database.js";
 import { migrate } from "@komarubrowser/common/db/schema.js";
 import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
@@ -9,6 +8,8 @@ import * as argUtils from "../utils/argutils.js";
 import { buildManifestItems } from "./manifest.js";
 import { Database as KBDatabase, KyselyDB } from "@komarubrowser/common/db/database.js";
 import Database from "better-sqlite3";
+import { IngredientZ, readJsonZ, RecipeJson, type IngredientJson, RecipeZ } from "jsonSchema.js";
+import { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
 
 export async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
@@ -16,35 +17,6 @@ export async function initDb(dbPath: string): Promise<KyselyDB> {
   await migrate(new Kysely<any>({ dialect, log: ["error", "query"] }));
   return getDb(dialect);
 }
-
-type IngredientJson = {
-  id: string;
-  displayName: string;
-  hexColor: string;
-  isFluid: boolean;
-  sourceJar: string;
-  tags: string[];
-  textureLocation?: string;
-};
-
-export type RecipeIngredientJson = {
-  acceptedIds: string[];
-  amount: number;
-  chance: number; // 100_00 represents 100%
-  perTick: boolean;
-};
-
-export type RecipeJson = {
-  id: string;
-  machine: string;
-  inputs: RecipeIngredientJson[];
-  outputs: RecipeIngredientJson[];
-  duration: number;
-
-  minTier: EnergyTierID;
-  eutConsumed: number;
-  eutProduced: number;
-};
 
 const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
 const ignoreMissingTexture = (id: string) => IGNORED_TEXTURE_MODS.has(id.split(":")[0]);
@@ -81,7 +53,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 2. Process Ingredients
     console.log(`Reading ingredients from ${INGREDIENTS_FILE}...`);
-    const ingredients: IngredientJson[] = await utils.readJson(INGREDIENTS_FILE);
+    const ingredients: IngredientJson[] = await readJsonZ(INGREDIENTS_FILE, IngredientZ);
 
     const deduplicated = new Map<string, IngredientJson>();
     for (const i of ingredients) {
@@ -120,10 +92,14 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
-    const recipes: RecipeJson[] = await utils.readJson(RECIPES_FILE);
+    const recipes: RecipeJson[] = await readJsonZ(RECIPES_FILE, RecipeZ);
     const recipeRows: NewRecipe[] = recipes.map((r) => ({
       id: r.id,
-      machine: r.machine,
+      recipe_type: r.recipeType,
+      duration: r.duration,
+      eut_consumed: r.eutConsumed,
+      eut_produced: r.eutProduced,
+      min_tier: r.minTier as EnergyTierID,
       inputs: JSON.stringify(
         r.inputs.map((i) => ({
           accepted_ids: i.acceptedIds,
@@ -140,10 +116,6 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
           perTick: i.perTick,
         })),
       ),
-      duration: r.duration,
-      min_tier: r.minTier,
-      eut_consumed: r.eutConsumed,
-      eut_produced: r.eutProduced,
     }));
 
     console.log(`Inserting ${recipeRows.length} recipes...`);

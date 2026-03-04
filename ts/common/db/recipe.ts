@@ -10,7 +10,7 @@ export type RecipeIngredient = {
 
 export type RecipeTable = {
   id: string;
-  machine: string;
+  recipe_type: string;
   inputs: JSONColumnType<RecipeIngredient[]>;
   outputs: JSONColumnType<RecipeIngredient[]>;
   duration: number;

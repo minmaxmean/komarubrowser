@@ -70,12 +70,6 @@ export const rmrf = async (dir: string): Promise<string> => {
   return dir;
 };
 
-export const readJson = async <T>(filepath: string): Promise<T> => {
-  const json = await fs.readFile(filepath, "utf-8");
-  const data = JSON.parse(json);
-  return data;
-};
-
 export const writeJson = async <T>(filepath: string, data: T): Promise<void> => {
   const json = JSON.stringify(data, null, 2);
   await fs.writeFile(filepath, json, "utf-8");

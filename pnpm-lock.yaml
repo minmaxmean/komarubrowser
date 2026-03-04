@@ -47,6 +47,9 @@ importers:
       kysely:
         specifier: ^0.28.11
         version: 0.28.11
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -60,9 +63,6 @@ importers:
 
   ts/extractor/pngs:
     dependencies:
-      '@komarubrowser/common':
-        specifier: workspace:*
-        version: link:../../common
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.16
@@ -1725,6 +1725,9 @@ packages:
   zimmerframe@1.1.4:
     resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
 
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+
 snapshots:
 
   '@esbuild/aix-ppc64@0.25.12':
@@ -3067,3 +3070,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zimmerframe@1.1.4: {}
+
+  zod@4.3.6: {}

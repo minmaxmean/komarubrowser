@@ -55,9 +55,16 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .execute();
 
   await db.schema
+    .createTable("recipe_type")
+    .addColumn("recipe_type", "text", (col) => col.primaryKey())
+    .addColumn("display_machine", "text", (col) => col.notNull().references("ingredient.id"))
+    .addColumn("all_machines", "jsonb", (col) => col.notNull())
+    .execute();
+
+  await db.schema
     .createTable("recipe")
     .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("machine", "text", (col) => col.notNull())
+    .addColumn("recipe_type", "text", (col) => col.notNull().references("recipe_type.recipe_type"))
     .addColumn("inputs", "text", (col) => col.notNull())
     .addColumn("outputs", "text", (col) => col.notNull())
     .addColumn("duration", "integer", (col) => col.notNull())
@@ -66,13 +73,6 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .addColumn("eut_produced", "integer", (col) => col.notNull())
     .addColumn("input_ids", "text", (col) => col.defaultTo(""))
     .addColumn("output_ids", "text", (col) => col.defaultTo(""))
-    .execute();
-
-  // prettier-ignore
-  await db.schema
-    .createIndex("recipe_machine_index")
-    .on("recipe")
-    .columns(["machine"])
     .execute();
 
   await createIdsTriggerSql(db, "input");
