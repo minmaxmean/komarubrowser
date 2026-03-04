@@ -21,7 +21,7 @@
 
 <Card.Root class={cn('w-sm text-center', className)}>
   <Card.Header class="px-0">
-    <Card.Title>{getDisplayName(recipe.id)}</Card.Title>
+    <Card.Title class="text-pretty">{getDisplayName(recipe.id)}</Card.Title>
     <Card.Description class="flex flex-row items-center justify-center gap-2">
       {getDisplayName(recipe.machine, items)}
       <IngredientIcon item={items?.get(recipe.machine)} />

@@ -25,9 +25,18 @@ export const getItemIds = (r: Recipe): string[] => {
   );
 };
 
+export const FULL_CHANCE = 100_00;
+
 type AmountUnit = {
   amount: number;
   unit: string;
+};
+
+export const calcChance = (chance: number): string => {
+  if (chance === FULL_CHANCE) {
+    return '';
+  }
+  return `${chance / 100}%`;
 };
 
 export const calcUnit = (

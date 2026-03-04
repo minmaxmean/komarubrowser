@@ -4,7 +4,7 @@
   import { dbStore } from '$lib/db/dbStore.svelte';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   const offset = 0;
-  const pageSize = 4;
+  const pageSize = 10;
   let inputFilter = $state<Ingredient | undefined>();
   let outputFilter = $state<Ingredient | undefined>();
 

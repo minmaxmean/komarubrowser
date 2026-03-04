@@ -1,11 +1,7 @@
-export type IngredientFilter = {
-  idLike: string[];
-  displayNameLike: string[];
-  namespace: string[];
-};
+import { IngredientGlobalFilter } from "./ingredientRepo.js";
 
 export type GlobalFilter = {
-  ingredient: IngredientFilter;
+  ingredient: IngredientGlobalFilter;
 };
 
 export type GlobalFilterGetter = () => GlobalFilter;

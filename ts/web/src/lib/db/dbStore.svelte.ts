@@ -8,23 +8,22 @@ import { SqlJsDialect } from 'kysely-wasm';
 export const defaultGlobalFilter: GlobalFilter = {
   ingredient: {
     namespace: [
-      // 'architects_palette',
-      // 'createdieselgenerators',
-      // 'vintage',
-      // 'chipped',
-      // 'chisel_chipped_integration',
-      // 'create',
-      // 'dustrial_decor',
-      // 'rechiseled',
-      // 'xycraft_world',
-      // 'xtonesreworked',
-      // 'fantasyfurniture',
-      // 'rechiseledcreate',
-      // 'framedblocks',
+      'architects_palette',
+      'createdieselgenerators',
+      'vintage',
+      'chipped',
+      'chisel_chipped_integration',
+      'create',
+      'dustrial_decor',
+      'rechiseled',
+      'xycraft_world',
+      'xtonesreworked',
+      'fantasyfurniture',
+      'rechiseledcreate',
+      'framedblocks',
+      'thermal',
     ],
-    idLike: [
-      // '%_flowing', 'flowing_%', '%_bucket', '%_axe', '%_paxel', '%_sword', '%_shovel'
-    ],
+    idLike: ['%_flowing', '%:flowing_%', '%_bucket', '%_axe', '%_paxel', '%_sword', '%_shovel'],
     displayNameLike: [],
   },
 };

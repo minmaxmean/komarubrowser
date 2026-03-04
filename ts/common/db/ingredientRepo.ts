@@ -8,6 +8,12 @@ import { ExpressionBuilder } from "kysely";
 type IngredientSelectQuery = SelectQueryBuilder<Database, "ingredient", {}>;
 type IngredientExpressionBuilder = ExpressionBuilder<Database, "ingredient">;
 
+export type IngredientGlobalFilter = {
+  idLike: string[];
+  displayNameLike: string[];
+  namespace: string[];
+};
+
 export type IngredientFilter = {
   mode: "or" | "and";
   id?: string;
@@ -15,31 +21,51 @@ export type IngredientFilter = {
   displayNameLike?: string;
 };
 
+const hasFilter =
+  (filter: IngredientFilter) =>
+  (eb: IngredientExpressionBuilder): Expression<SqlBool> => {
+    const ops: Expression<SqlBool>[] = [];
+    if (filter.id) {
+      ops.push(eb("id", "=", filter.id));
+    }
+    if (filter.idLike) {
+      ops.push(eb("id", "like", `%${filter.idLike}%`));
+    }
+    if (filter.displayNameLike) {
+      ops.push(eb("display_name", "like", `%${filter.displayNameLike}%`));
+    }
+    if (filter.mode === "or") {
+      return eb.or(ops);
+    } else {
+      return eb.and(ops);
+    }
+  };
+
+const hasGlobalFilter =
+  (filter: IngredientGlobalFilter) =>
+  (eb: IngredientExpressionBuilder): Expression<SqlBool> => {
+    const ops: Expression<SqlBool>[] = [];
+    filter.displayNameLike.forEach((displayNameLike) => {
+      ops.push(eb("display_name", "not like", displayNameLike));
+    });
+    filter.idLike.forEach((idLike) => {
+      ops.push(eb("id", "not like", idLike));
+    });
+    if (filter.namespace.length > 0) {
+      ops.push(eb("namespace", "not in", filter.namespace));
+    }
+    return eb.and(ops);
+  };
+
 export class IngredientRepo {
   constructor(
     private db: KyselyDB,
     private globalFilterGetter?: GlobalFilterGetter,
   ) {}
   private withGlobalFilter(query: IngredientSelectQuery): IngredientSelectQuery {
-    if (!this.globalFilterGetter) {
-      console.log("[IngredientRepo] globalFilterGetter is not set");
-      return query;
-    }
-    const { ingredient: filter } = this.globalFilterGetter();
-    console.log("[IngredientRepo] using global filter", { filter });
-    return query.where((eb) => {
-      const ops: Expression<SqlBool>[] = [];
-      filter.displayNameLike.forEach((displayNameLike) => {
-        ops.push(eb("display_name", "not like", displayNameLike));
-      });
-      filter.idLike.forEach((idLike) => {
-        ops.push(eb("id", "not like", idLike));
-      });
-      if (filter.namespace.length > 0) {
-        ops.push(eb("namespace", "not in", filter.namespace));
-      }
-      return eb.and(ops);
-    });
+    if (!this.globalFilterGetter) return query;
+    const globalFilter = this.globalFilterGetter().ingredient;
+    return query.where(hasGlobalFilter(globalFilter));
   }
   public async all(): Promise<Ingredient[]> {
     let query = this.db.selectFrom("ingredient");
@@ -68,27 +94,9 @@ export class IngredientRepo {
   }
   async search(filter: IngredientFilter, pagination: Pagination): Promise<Ingredient[]> {
     let query = this.db.selectFrom("ingredient");
-    query = query.where(this.hasFilter(filter));
+    query = this.withGlobalFilter(query);
+    query = query.where(hasFilter(filter));
     query = applyPagination(query, pagination);
     return await query.selectAll().execute();
-  }
-  private hasFilter(filter: IngredientFilter) {
-    return (eb: IngredientExpressionBuilder): Expression<SqlBool> => {
-      const ops: Expression<SqlBool>[] = [];
-      if (filter.id) {
-        ops.push(eb("id", "=", filter.id));
-      }
-      if (filter.idLike) {
-        ops.push(eb("id", "like", `%${filter.idLike}%`));
-      }
-      if (filter.displayNameLike) {
-        ops.push(eb("display_name", "like", `%${filter.displayNameLike}%`));
-      }
-      if (filter.mode === "or") {
-        return eb.or(ops);
-      } else {
-        return eb.and(ops);
-      }
-    };
   }
 }
