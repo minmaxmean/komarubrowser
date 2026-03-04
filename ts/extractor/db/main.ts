@@ -1,19 +1,20 @@
 import path from "path";
-import Database from "better-sqlite3";
-import { SqliteDialect, Kysely } from "kysely";
+import { SqliteDialect, Kysely, type Insertable } from "kysely";
 import type { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
-import { getSuperRepo, type SuperRepo } from "@komarubrowser/common/db/repo.js";
+import { getDb } from "@komarubrowser/common/db/repo.js";
 import { migrate } from "@komarubrowser/common/db/schema.js";
 import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
 import * as utils from "../utils/utils.js";
 import * as argUtils from "../utils/argutils.js";
 import { buildManifestItems } from "./manifest.js";
+import { Database as KBDatabase, KyselyDB } from "@komarubrowser/common/db/database.js";
+import Database from "better-sqlite3";
 
-export async function initDb(dbPath: string): Promise<SuperRepo> {
+export async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
   const dialect = new SqliteDialect({ database: db });
   await migrate(new Kysely<any>({ dialect, log: ["error", "query"] }));
-  return getSuperRepo(dialect);
+  return getDb(dialect);
 }
 
 type IngredientJson = {
@@ -55,14 +56,25 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
   const tempDbDir = await utils.makeTmpDir(`db`);
   const tempDbPath = path.join(tempDbDir, "komaru.db");
-  const superRepo = await initDb(tempDbPath);
+  const db = await initDb(tempDbPath);
+
+  const insertMany = async <T extends keyof KBDatabase>(
+    table: T,
+    items: Insertable<KBDatabase[T]>[],
+  ): Promise<void> => {
+    const chunkSize = 500;
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize);
+      await db.insertInto(table).values(chunk).execute();
+    }
+  };
 
   try {
     // 1. Process Manifest
     const manifestRows = await buildManifestItems(EXTRACTED_PNG_DIR);
     console.log(`Inserting ${manifestRows.length} manifest entries...`);
 
-    await superRepo.manifest.insertMany(manifestRows);
+    await insertMany("manifest", manifestRows);
 
     // // Create a set for fast lookup: "jar/mod/type/filename"
     const manifestSet = new Set(manifestRows.map((m) => m.filepath));
@@ -104,7 +116,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       };
     });
     console.log(`Inserting ${ingredientRows.length} ingredients (deduplicated from ${ingredients.length})...`);
-    await superRepo.ingredients.insertMany(ingredientRows);
+    await insertMany("ingredient", ingredientRows);
 
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
@@ -135,20 +147,19 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
     }));
 
     console.log(`Inserting ${recipeRows.length} recipes...`);
-    await superRepo.recipe.insertMany(recipeRows);
-
-    await superRepo.close();
+    await insertMany("recipe", recipeRows);
 
     console.log(`Committing database to ${DB_OUTPUT}...`);
     await utils.atomicMove(tempDbPath, DB_OUTPUT);
 
     console.log(`Database successfully built at ${DB_OUTPUT}`);
   } catch (err) {
-    await superRepo.close();
     try {
       await utils.rmrf(tempDbPath);
     } catch {}
     throw err;
+  } finally {
+    await db.destroy();
   }
 }
 

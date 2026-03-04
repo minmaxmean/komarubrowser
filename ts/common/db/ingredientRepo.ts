@@ -1,9 +1,8 @@
-import type { Expression, SelectQueryBuilder, SqlBool } from "kysely";
+import type { Expression, SelectQueryBuilder, SqlBool, ExpressionBuilder } from "kysely";
 import type { Database, KyselyDB } from "./database.js";
 import type { GlobalFilterGetter } from "./globalFilter.js";
-import type { Ingredient, NewIngredient } from "./ingredient.js";
+import type { Ingredient } from "./ingredient.js";
 import { type Pagination, applyPagination } from "./common.js";
-import { ExpressionBuilder } from "kysely";
 
 type IngredientSelectQuery = SelectQueryBuilder<Database, "ingredient", {}>;
 type IngredientExpressionBuilder = ExpressionBuilder<Database, "ingredient">;
@@ -60,10 +59,9 @@ const hasGlobalFilter =
 export class IngredientRepo {
   constructor(
     private db: KyselyDB,
-    private globalFilterGetter?: GlobalFilterGetter,
+    private globalFilterGetter: GlobalFilterGetter,
   ) {}
   private withGlobalFilter(query: IngredientSelectQuery): IngredientSelectQuery {
-    if (!this.globalFilterGetter) return query;
     const globalFilter = this.globalFilterGetter().ingredient;
     return query.where(hasGlobalFilter(globalFilter));
   }
@@ -71,13 +69,6 @@ export class IngredientRepo {
     let query = this.db.selectFrom("ingredient");
     query = this.withGlobalFilter(query);
     return await query.selectAll().execute();
-  }
-  public async insertMany(items: NewIngredient[]): Promise<void> {
-    const chunkSize = 500;
-    for (let i = 0; i < items.length; i += chunkSize) {
-      const chunk = items.slice(i, i + chunkSize);
-      await this.db.insertInto("ingredient").values(chunk).execute();
-    }
   }
   public async getByIds(ids: string[]): Promise<Map<string, Ingredient>> {
     let query = this.db.selectFrom("ingredient").where("id", "in", ids);

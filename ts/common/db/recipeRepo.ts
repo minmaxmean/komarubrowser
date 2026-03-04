@@ -1,8 +1,7 @@
-import { Expression, ExpressionBuilder, SelectQueryBuilder } from "kysely";
-import { Database, KyselyDB } from "./database.js";
-import { Recipe, NewRecipe } from "./recipe.js";
-import { applyPagination, Pagination } from "./common.js";
-import { SqlBool } from "kysely";
+import type { Expression, ExpressionBuilder, SqlBool } from "kysely";
+import type { Database, KyselyDB } from "./database.js";
+import type { Recipe } from "./recipe.js";
+import { applyPagination, type Pagination } from "./common.js";
 
 type RecipeExpressionBuilder = ExpressionBuilder<Database, "recipe">;
 
@@ -18,13 +17,6 @@ export class RecipeRepo {
   async all(): Promise<Recipe[]> {
     let query = this.db.selectFrom("recipe");
     return await query.selectAll().execute();
-  }
-  async insertMany(items: NewRecipe[]): Promise<void> {
-    const chunkSize = 500;
-    for (let i = 0; i < items.length; i += chunkSize) {
-      const chunk = items.slice(i, i + chunkSize);
-      await this.db.insertInto("recipe").values(chunk).execute();
-    }
   }
   async search(filter: RecipeFilter, pagination: Pagination): Promise<Recipe[]> {
     let query = this.db.selectFrom("recipe");
