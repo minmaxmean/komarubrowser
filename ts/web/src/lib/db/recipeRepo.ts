@@ -1,12 +1,12 @@
-import type { Expression, ExpressionBuilder, SqlBool } from "kysely";
-import { applyPagination, type Pagination } from "./common.js";
-import type { Database, KyselyDB } from "@komarubrowser/common/db/database.js";
-import type { Recipe } from "@komarubrowser/common/db/recipe.js";
+import type { Expression, ExpressionBuilder, SqlBool } from 'kysely';
+import { applyPagination, type Pagination } from './common.js';
+import type { Database, KyselyDB } from '@komarubrowser/common/db/database.js';
+import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 
-type RecipeExpressionBuilder = ExpressionBuilder<Database, "recipe">;
+type RecipeExpressionBuilder = ExpressionBuilder<Database, 'recipe'>;
 
 export type RecipeFilter = {
-  mode: "or" | "and";
+  mode: 'or' | 'and';
   machine?: string;
   inputIngredientIncludes?: string;
   outputIngredientIncludes?: string;
@@ -15,11 +15,11 @@ export type RecipeFilter = {
 export class RecipeRepo {
   constructor(private db: KyselyDB) {}
   async all(): Promise<Recipe[]> {
-    let query = this.db.selectFrom("recipe");
+    let query = this.db.selectFrom('recipe');
     return await query.selectAll().execute();
   }
   async search(filter: RecipeFilter, pagination: Pagination): Promise<Recipe[]> {
-    let query = this.db.selectFrom("recipe");
+    let query = this.db.selectFrom('recipe');
     query = query.where(this.hasFilter(filter));
     query = applyPagination(query, pagination);
     return await query.selectAll().execute();
@@ -28,19 +28,24 @@ export class RecipeRepo {
     return (eb: RecipeExpressionBuilder): Expression<SqlBool> => {
       const ops: Expression<SqlBool>[] = [];
       if (filter.machine) {
-        ops.push(eb("machine", "=", filter.machine));
+        ops.push(eb('machine', '=', filter.machine));
       }
       if (filter.inputIngredientIncludes) {
-        ops.push(eb("recipe.input_ids", "like", `%${filter.inputIngredientIncludes}%`));
+        ops.push(eb('recipe.input_ids', 'like', `%${filter.inputIngredientIncludes}%`));
       }
       if (filter.outputIngredientIncludes) {
-        ops.push(eb("recipe.output_ids", "like", `%${filter.outputIngredientIncludes}%`));
+        ops.push(eb('recipe.output_ids', 'like', `%${filter.outputIngredientIncludes}%`));
       }
-      if (filter.mode === "or") {
+      if (filter.mode === 'or') {
         return eb.or(ops);
       } else {
         return eb.and(ops);
       }
     };
+  }
+  async allMachines(): Promise<string[]> {
+    const query = this.db.selectFrom('recipe').select('machine').distinct();
+    const items = await query.execute();
+    return items.map((item) => item.machine);
   }
 }

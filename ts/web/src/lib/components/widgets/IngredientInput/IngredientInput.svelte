@@ -8,18 +8,29 @@
   import IngredientItem from '../IngredientItem/IngredientItem.svelte';
   import * as Command from '$lib/components/ui/command/index.js';
   import * as Popover from '$lib/components/ui/popover/index.js';
-  import type { Pagination } from '@komarubrowser/common/db/common';
+  import type { Searcher } from './search';
 
   type Props = {
     selectedItem: Ingredient | undefined;
-    search: (query: string, pagination: Pagination) => Promise<Ingredient[]>;
+    search?: Searcher;
   };
 
   let { selectedItem = $bindable(), search }: Props = $props();
 
   let query = $state('');
 
-  const items = $derived(search(query, { limit: 10, offset: 0 }));
+  const items = $derived(
+    search
+      ? search(
+          {
+            mode: 'or',
+            idLike: query.toLowerCase(),
+            displayNameLike: query,
+          },
+          { limit: 10, offset: 0 },
+        )
+      : null,
+  );
 
   let open = $state(false);
   let triggerRef = $state<HTMLButtonElement>(null!);

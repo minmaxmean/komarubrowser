@@ -3,7 +3,10 @@ import { assets } from '$lib/assets';
 import initSqlJs from 'sql.js';
 import { SqlJsDialect } from 'kysely-wasm';
 import type { GlobalFilter } from './globalFilter';
-import { type SuperRepo, getSuperRepo } from './repo';
+import { IngredientRepo } from './ingredientRepo';
+import { ManifestRepo } from './manifestRepo';
+import { RecipeRepo } from './recipeRepo';
+import { getDb } from '@komarubrowser/common/db/database.js';
 
 export const defaultGlobalFilter: GlobalFilter = {
   ingredient: {
@@ -30,16 +33,26 @@ export const defaultGlobalFilter: GlobalFilter = {
 
 export const globalFilter = $state<GlobalFilter>(defaultGlobalFilter);
 
+export type SuperRepo = {
+  ingredients: IngredientRepo;
+  manifest: ManifestRepo;
+  recipe: RecipeRepo;
+  close: () => Promise<void>;
+};
+
 export const loadDB = async (): Promise<SuperRepo> => {
-  const sqlPromise = initSqlJs({
-    locateFile: () => assets.SQLITE_WASM,
-  });
+  const sqlPromise = initSqlJs({ locateFile: () => assets.SQLITE_WASM });
   const dataPromise = fetch(assets.ASSETS_DB).then((res) => res.arrayBuffer());
   const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-  const db = new SQL.Database(new Uint8Array(buf));
+  const db = getDb(new SqlJsDialect({ database: new SQL.Database(new Uint8Array(buf)) }));
+  console.log({ db });
 
-  const dialect = new SqlJsDialect({ database: db });
-  return getSuperRepo(dialect, () => globalFilter);
+  return {
+    ingredients: new IngredientRepo(db, globalFilter),
+    manifest: new ManifestRepo(db),
+    recipe: new RecipeRepo(db),
+    close: () => db.destroy(),
+  };
 };
 
 export const dbStore = new GenericStore(loadDB);

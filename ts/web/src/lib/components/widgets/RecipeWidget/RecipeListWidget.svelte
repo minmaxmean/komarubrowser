@@ -10,7 +10,6 @@
     class?: ClassValue | undefined | null;
   };
   const { recipes, class: className }: RecipeListWidgetProps = $props();
-  $inspect({ recipes });
 </script>
 
 <ScrollArea
