@@ -3,12 +3,11 @@ import {
   type SelectQueryBuilder,
   type SqlBool,
   type ExpressionBuilder,
-  sql,
 } from 'kysely';
 import type { Database, KyselyDB } from '@komarubrowser/common/db/database.js';
 import type { GlobalFilter } from './globalFilter.js';
-import { type Pagination, applyPagination } from './common.js';
-import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
+import { type Pagination, applyPagination, explain } from './common.js';
+import type { Ingredient, Machine } from '@komarubrowser/common/db/ingredient.js';
 
 type IngredientSelectQuery = SelectQueryBuilder<Database, 'ingredient', {}>;
 type IngredientExpressionBuilder = ExpressionBuilder<Database, 'ingredient'>;
@@ -99,20 +98,17 @@ export class IngredientRepo {
     query = applyPagination(query, pagination);
     return await query.selectAll().execute();
   }
-  async searchMachines(filter: IngredientFilter, pagination: Pagination): Promise<Ingredient[]> {
+
+  async searchMachines(filter: IngredientFilter, pagination: Pagination): Promise<Machine[]> {
     let query = this.db
+      .with('machines', (db) => db.selectFrom('recipe').select('machine').distinct())
       .selectFrom('ingredient')
-      .where((eb) =>
-        eb.exists(
-          eb
-            .selectFrom('recipe')
-            .select('recipe.machine')
-            .distinct()
-            .whereRef('recipe.machine', '=', 'ingredient.id'),
-        ),
-      );
+      .rightJoin('machines', 'machines.machine', 'ingredient.id')
+      .selectAll('ingredient');
     query = query.where(hasFilter(filter));
     query = applyPagination(query, pagination);
-    return query.selectAll().execute();
+    await explain(this.db, query);
+    const val = await query.selectAll().execute();
+    return val;
   }
 }

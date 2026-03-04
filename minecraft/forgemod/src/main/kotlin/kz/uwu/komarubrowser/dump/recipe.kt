@@ -72,7 +72,7 @@ data class RecipeIngredientDTO(
 
 data class RecipeDTO(
   val id: String,
-  val machine: String,
+  val recipeType: String,
   val duration: Int,
   val eutConsumed: Long,
   val eutProduced: Long,
@@ -100,7 +100,7 @@ data class RecipeDTO(
 
       return RecipeDTO(
         id = recipe.id.toString(),
-        machine = recipe.recipeType.registryName.toString(),
+        recipeType = recipe.recipeType.registryName.toString(),
         duration = recipe.duration,
         eutConsumed = RecipeHelper.getInputEUt(recipe),
         eutProduced = RecipeHelper.getOutputEUt(recipe),

@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kz.uwu.komarubrowser.client.addVisualData
 import kz.uwu.komarubrowser.dump.RecipeDTO
+import kz.uwu.komarubrowser.dump.getAllGTMachines
 import kz.uwu.komarubrowser.dump.getAllIngredient
 import kz.uwu.komarubrowser.search.getAllGTRecipes
 import net.minecraft.server.MinecraftServer
@@ -43,12 +44,24 @@ class PlannerServer(
           sendError(exchange, e)
         }
       }
+
       createContext("/api/recipes") { exchange ->
         try {
           check(mcServer != null) { "/api/recipes only available on server side" }
           val recipes = mcServer.recipeManager.getAllGTRecipes().map { RecipeDTO.fromGTRecipe(it) }
           logger.info("Found ${recipes.size} recipes")
           sendJsonResponse(exchange, recipes)
+        } catch (e: Exception) {
+          sendError(exchange, e)
+        }
+      }
+
+      createContext("/api/machines") { exchange ->
+        try {
+          check(mcServer != null) { "/api/recipes only available on server side" }
+          val machines = getAllGTMachines()
+          logger.info("Found ${machines.size} machines")
+          sendJsonResponse(exchange, machines)
         } catch (e: Exception) {
           sendError(exchange, e)
         }

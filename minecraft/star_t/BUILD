@@ -42,6 +42,7 @@ genrule(
     outs = [
         "recipes.json",
         "ingredients.json",
+        "machines.json",
     ],
     cmd = "$(location dump_jsons.sh) $(@D)",
     tags = ["local"],

@@ -22,3 +22,5 @@ export type IngredientWithIcon = Ingredient & {
 };
 
 export const ingredientIdFn = (item: Ingredient): string => item.id;
+
+export type Machine = { machine: string } & (Ingredient | {});

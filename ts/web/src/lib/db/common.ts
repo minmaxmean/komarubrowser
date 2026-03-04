@@ -6,12 +6,10 @@ export type Pagination = {
   limit: number;
 };
 
-type SelectQuery<T extends keyof Database> = SelectQueryBuilder<Database, T, {}>;
-
-export const applyPagination = <T extends keyof Database>(
-  query: SelectQuery<T>,
+export const applyPagination = <D, T extends keyof D, O>(
+  query: SelectQueryBuilder<D, T, O>,
   pagination: Pagination,
-): SelectQuery<T> => {
+): SelectQueryBuilder<D, T, O> => {
   return query.offset(pagination.offset).limit(pagination.limit);
 };
 
