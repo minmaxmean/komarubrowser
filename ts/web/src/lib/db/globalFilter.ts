@@ -1,4 +1,4 @@
-import { IngredientGlobalFilter } from "./ingredientRepo.js";
+import { type IngredientGlobalFilter } from "./ingredientRepo.js";
 
 export type GlobalFilter = {
   ingredient: IngredientGlobalFilter;

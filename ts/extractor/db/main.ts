@@ -1,7 +1,7 @@
 import path from "path";
 import { SqliteDialect, Kysely, type Insertable } from "kysely";
 import type { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
-import { getDb } from "@komarubrowser/common/db/repo.js";
+import { getDb } from "@komarubrowser/common/db/database.js";
 import { migrate } from "@komarubrowser/common/db/schema.js";
 import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
 import * as utils from "../utils/utils.js";

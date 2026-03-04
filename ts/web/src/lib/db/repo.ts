@@ -1,9 +1,9 @@
-import { Kysely, ParseJSONResultsPlugin, type Dialect } from "kysely";
-import { Database, KyselyDB } from "./database.js";
 import { IngredientRepo } from "./ingredientRepo.js";
 import { RecipeRepo } from "./recipeRepo.js";
 import { ManifestRepo } from "./manifestRepo.js";
-import { GlobalFilterGetter } from "./globalFilter.js";
+import { getDb } from "@komarubrowser/common/db/database.js";
+import type { Dialect } from "kysely";
+import type { GlobalFilterGetter } from "./globalFilter.js";
 
 export type SuperRepo = {
   ingredients: IngredientRepo;
@@ -12,12 +12,6 @@ export type SuperRepo = {
   close: () => Promise<void>;
 };
 
-export const getDb = (dialect: Dialect): KyselyDB =>
-  new Kysely<Database>({
-    dialect,
-    plugins: [new ParseJSONResultsPlugin()],
-    log: ["query", "error"],
-  });
 
 export const getSuperRepo = (dialect: Dialect, globalFilterGetter: GlobalFilterGetter): SuperRepo => {
   const db = getDb(dialect);

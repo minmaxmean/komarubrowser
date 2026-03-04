@@ -1,8 +1,8 @@
 import type { Expression, SelectQueryBuilder, SqlBool, ExpressionBuilder } from "kysely";
-import type { Database, KyselyDB } from "./database.js";
+import type { Database, KyselyDB } from "@komarubrowser/common/db/database.js";
 import type { GlobalFilterGetter } from "./globalFilter.js";
-import type { Ingredient } from "./ingredient.js";
 import { type Pagination, applyPagination } from "./common.js";
+import type { Ingredient } from "@komarubrowser/common/db/ingredient.js";
 
 type IngredientSelectQuery = SelectQueryBuilder<Database, "ingredient", {}>;
 type IngredientExpressionBuilder = ExpressionBuilder<Database, "ingredient">;

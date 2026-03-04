@@ -1,5 +1,5 @@
-import { SelectQueryBuilder } from "kysely";
-import { Database } from "./database.js";
+import type { SelectQueryBuilder } from "kysely";
+import type { Database } from "@komarubrowser/common/db/database.js";
 
 export type Pagination = {
   offset: number;
