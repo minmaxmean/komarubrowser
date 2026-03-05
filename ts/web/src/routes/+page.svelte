@@ -1,66 +1,26 @@
 <script lang="ts">
-  import IngredientInput from '$lib/components/widgets/IngredientInput/IngredientInput.svelte';
-  import type { Searcher } from '$lib/components/widgets/IngredientInput/search';
-  import RecipeListWidget from '$lib/components/widgets/RecipeWidget/RecipeListWidget.svelte';
-  import { dbStore } from '$lib/db/dbStore.svelte';
-  import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
-  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
-  import { recipeCategoryId } from '@komarubrowser/common/db/recipeType.js';
-  const offset = 0;
-  const pageSize = 10;
-  let inputFilter = $state<Ingredient | undefined>();
-  let outputFilter = $state<Ingredient | undefined>();
-  let machineFilter = $state<FullRecipeCategory | undefined>();
+  import RecipeSelector from '$lib/components/widgets/RecipeSelector/RecipeSelector.svelte';
+  import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+  import { onMount } from 'svelte';
 
-  const ingSearcher: Searcher<Ingredient> = $derived(
-    async (_, f, p) => (await dbStore.data?.ingredients.search(f, p)) ?? [],
-  );
-  const machineSearcher: Searcher<FullRecipeCategory> = $derived(
-    async (q, f, p) =>
-      (await dbStore.data?.recipeCategory.search(
-        {
-          mode: 'or',
-          machineFilter: f,
-          recipeCategoryLike: q,
-          recipeTypeLike: q,
-          displayNameLike: q,
-        },
-        p,
-      )) ?? [],
-  );
+  let selectedItems = $state<Recipe[]>([]);
+  const STORAGE_KEY = 'SELECTED_RECIPIES';
+  onMount(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        selectedItems = JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse recipes from storage', e);
+      }
+    }
+  });
 
-  const recipes = $derived(
-    dbStore.data?.recipe.search(
-      {
-        mode: 'and',
-        recipeType: machineFilter?.recipe_type,
-        inputIngredientIncludes: inputFilter?.id,
-        outputIngredientIncludes: outputFilter?.id,
-      },
-      { offset, limit: pageSize },
-    ),
-  );
+  // 3. Automatically save whenever selectedItems changes
+  $effect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedItems));
+  });
+  $inspect({ selectedItems });
 </script>
 
-<div class="flex flex-col gap-2">
-  <IngredientInput
-    bind:selectedItem={inputFilter}
-    search={ingSearcher}
-    getId={(item) => item.id}
-    getIngredient={(item) => item}
-  />
-  <IngredientInput
-    bind:selectedItem={outputFilter}
-    search={ingSearcher}
-    getId={(item) => item.id}
-    getIngredient={(item) => item}
-  />
-  <IngredientInput
-    bind:selectedItem={machineFilter}
-    search={machineSearcher}
-    getId={recipeCategoryId}
-    getIngredient={(item) => item.machine}
-  />
-
-  <RecipeListWidget recipes={(await recipes) ?? []} />
-</div>
+<RecipeSelector bind:selectedItems />

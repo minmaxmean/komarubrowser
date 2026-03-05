@@ -22,9 +22,9 @@
     <IngredientIcon {size} {display_name} {url} {hex_color} />
   </Item.Media>
   <Item.Content class="gap-0.5">
-    <Item.Title>{display_name}</Item.Title>
+    <Item.Title class="text-pretty">{display_name}</Item.Title>
     {#if size != 'sm'}
-      <Item.Description>{description}</Item.Description>
+      <Item.Description class="text-pretty">{description}</Item.Description>
     {/if}
   </Item.Content>
 </Item.Root>

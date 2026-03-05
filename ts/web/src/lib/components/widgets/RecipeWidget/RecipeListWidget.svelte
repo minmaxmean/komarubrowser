@@ -18,9 +18,7 @@
 >
   <div class="flex w-max space-x-4 p-4">
     {#each recipes as recipe (recipe.id)}
-      <div class="shrink-0">
-        <RecipeWidget class="w-sm overflow-hidden" {recipe} />
-      </div>
+      <RecipeWidget class="w-sm overflow-hidden" {recipe} />
     {/each}
   </div>
 </ScrollArea>

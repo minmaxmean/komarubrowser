@@ -15,12 +15,13 @@
 
   type Props = {
     selectedItem: T | undefined;
+    placeholder: string;
     search?: Searcher<T>;
     getId: (item: T) => string;
     getIngredient: (item: T) => Ingredient;
   };
 
-  let { selectedItem = $bindable(), search, getId }: Props = $props();
+  let { selectedItem = $bindable(), search, getId, placeholder }: Props = $props();
 
   let query = $state('');
 
@@ -46,27 +47,29 @@
       <Button
         {...props}
         variant="outline"
-        class="w-100 justify-between"
+        class="w-sm justify-between"
         role="combobox"
         aria-expanded={open}
       >
         {#if selectedItem}
           <IngredientItem size="sm" item={selectedItem} />
         {:else}
-          <p>Select a item...</p>
+          <p>{placeholder}</p>
         {/if}
         <div class="flex flex-row gap-2">
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            class="size-4"
-            onclick={(e) => {
-              e.stopPropagation();
-              selectedItem = undefined;
-            }}
-          >
-            <X class="opacity-50" />
-          </Button>
+          {#if !!selectedItem}
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              class="size-4"
+              onclick={(e) => {
+                e.stopPropagation();
+                selectedItem = undefined;
+              }}
+            >
+              <X class="opacity-50" />
+            </Button>
+          {/if}
           <Button size="icon-sm" variant="ghost" class="size-4">
             <ChevronsUpDownIcon class="opacity-50" />
           </Button>
@@ -74,9 +77,9 @@
       </Button>
     {/snippet}
   </Popover.Trigger>
-  <Popover.Content class="w-100 p-0">
+  <Popover.Content class="w-sm p-0">
     <Command.Root shouldFilter={false}>
-      <Command.Input placeholder="Search item..." bind:value={query} />
+      <Command.Input {placeholder} bind:value={query} />
       <Command.List>
         <Command.Empty>No item found.</Command.Empty>
         <Command.Group value="item">
@@ -89,6 +92,7 @@
               }}
             >
               <IngredientItem {item} />
+
               <CheckIcon
                 class={cn(
                   (!selectedItem || getId(selectedItem) !== getId(item)) && 'text-transparent',
