@@ -1,15 +1,18 @@
 import path from "path";
 import { SqliteDialect, Kysely, type Insertable } from "kysely";
+import Database from "better-sqlite3";
+
 import { getDb } from "@komarubrowser/common/db/database.js";
 import { migrate } from "@komarubrowser/common/db/schema.js";
 import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
-import * as utils from "../utils/utils.js";
-import * as argUtils from "../utils/argutils.js";
-import { buildManifestItems } from "./manifest.js";
 import { Database as KBDatabase, KyselyDB } from "@komarubrowser/common/db/database.js";
-import Database from "better-sqlite3";
-import { zIngredientJson, readJsonZ, RecipeJson, type IngredientJson, zRecipe } from "jsonSchema.js";
 import { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
+
+import * as utils from "@komarubrowser/extractor_utils/utils.js";
+import * as argUtils from "@komarubrowser/extractor_utils/argutils.js";
+import { IngredientJson, readIngredientsJson, readRecipesJson } from "@komarubrowser/extractor_utils/jsonSchema.js";
+
+import { buildManifestItems } from "./manifest.js";
 
 export async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
@@ -53,7 +56,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 2. Process Ingredients
     console.log(`Reading ingredients from ${INGREDIENTS_FILE}...`);
-    const ingredients: IngredientJson[] = await readJsonZ(INGREDIENTS_FILE, zIngredientJson);
+    const ingredients = await readIngredientsJson(INGREDIENTS_FILE);
 
     const deduplicated = new Map<string, IngredientJson>();
     for (const i of ingredients) {
@@ -92,7 +95,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
-    const recipes: RecipeJson[] = await readJsonZ(RECIPES_FILE, zRecipe);
+    const recipes = await readRecipesJson(RECIPES_FILE);
     const recipeRows: NewRecipe[] = recipes.map((r) => ({
       id: r.id,
       recipe_type: r.recipeType,

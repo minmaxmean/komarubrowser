@@ -7,9 +7,7 @@ load("@npm//:defs.bzl", "npm_link_all_packages", "npm_link_targets")
 load("@npm//ts/web:vite/package_json.bzl", vite_bin = "bin")
 
 # gazelle:exclude *
-npm_link_all_packages(
-    name = "node_modules",
-)
+npm_link_all_packages(name = "node_modules")
 
 copy_to_bin(
     name = "config",

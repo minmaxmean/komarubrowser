@@ -15,6 +15,8 @@
     "allowSyntheticDefaultImports": true,
     "types": ["node"],
     "baseUrl": ".",
-    "paths": { }
+    "paths": {
+      "@komarubrowser/extractor_utils/*": ["../utils/*"]
+    }
   }
 }

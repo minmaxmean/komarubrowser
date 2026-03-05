@@ -3,8 +3,17 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "dependencies": {},
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
   "devDependencies": {
     "@types/node": "^22.13.1"
+  },
+  "exports": {
+    "./*.js": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "default": "./dist/*.js"
+    }
   }
 }

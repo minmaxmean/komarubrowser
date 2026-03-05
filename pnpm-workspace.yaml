@@ -1,5 +1,7 @@
 packages:
-  - ts/extractor/*
+  - ts/extractor/db
+  - ts/extractor/pngs
+  - ts/extractor/utils
   - ts/web
   - ts/common
 

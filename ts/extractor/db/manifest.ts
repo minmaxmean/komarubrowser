@@ -2,7 +2,7 @@ import * as fs from "fs/promises";
 import { imageSize } from "image-size";
 import cliProgress from "cli-progress";
 import type { Manifest } from "@komarubrowser/common/db/manifest.js";
-import { pathExists } from "../utils/utils.js";
+import { pathExists } from "@komarubrowser/extractor_utils/utils.js";
 import path from "path";
 
 async function getPngInfo(extractedDir: string, filepath: string): Promise<Manifest | null> {

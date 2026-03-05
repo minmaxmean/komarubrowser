@@ -1,6 +1,18 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["node"]
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "strict": true,
+
+    /* Output Settings */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "outDir": "dist"
   }
 }

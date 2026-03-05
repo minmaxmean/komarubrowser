@@ -14,14 +14,14 @@ OUTPUT_DIR="${1?Error: <output_dir> arg not provided}"
 mkdir -p "$OUTPUT_DIR"
 
 echo "Dumping recipes to $OUTPUT_DIR/recipes.json"
-http ":6767/api/recipes" --sorted --pretty=format > "$OUTPUT_DIR/recipes.json"
+http --check-status --sorted --pretty=format ":6767/api/recipes" > "$OUTPUT_DIR/recipes.json"
 echo "  Done."
 
 echo "Dumping machines to $OUTPUT_DIR/machines.json"
-http ":6767/api/machines" --sorted --pretty=format > "$OUTPUT_DIR/machines.json"
+http --check-status --sorted --pretty=format ":6767/api/machines" > "$OUTPUT_DIR/machines.json"
 echo "  Done."
 
 echo "Dumping ingredients to $OUTPUT_DIR/ingredients.json"
-http ":7676/api/ingredients" --sorted --pretty=format > "$OUTPUT_DIR/ingredients.json"
+http --check-status --sorted --pretty=format ":7676/api/ingredients" > "$OUTPUT_DIR/ingredients.json"
 echo "  Done."
 

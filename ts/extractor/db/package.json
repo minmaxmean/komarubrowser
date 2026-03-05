@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@komarubrowser/common": "workspace:*",
+    "@komarubrowser/extractor_utils": "workspace:*",
     "better-sqlite3": "^12.6.2",
     "cli-progress": "^3.12.0",
     "image-size": "^2.0.2",

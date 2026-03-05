@@ -35,6 +35,9 @@ importers:
       '@komarubrowser/common':
         specifier: workspace:*
         version: link:../../common
+      '@komarubrowser/extractor_utils':
+        specifier: workspace:*
+        version: link:../utils
       better-sqlite3:
         specifier: ^12.6.2
         version: 12.6.2
@@ -63,6 +66,9 @@ importers:
 
   ts/extractor/pngs:
     dependencies:
+      '@komarubrowser/extractor_utils':
+        specifier: workspace:*
+        version: link:../utils
       adm-zip:
         specifier: ^0.5.16
         version: 0.5.16
@@ -81,6 +87,10 @@ importers:
         version: 22.19.13
 
   ts/extractor/utils:
+    dependencies:
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@types/node':
         specifier: ^22.13.1

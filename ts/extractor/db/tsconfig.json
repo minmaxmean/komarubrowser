@@ -16,7 +16,8 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@komarubrowser/common/*": ["../../common/*"]
+      "@komarubrowser/common/*": ["../../common/*"],
+      "@komarubrowser/extractor_utils/*": ["../utils/*"]
     }
   }
 }

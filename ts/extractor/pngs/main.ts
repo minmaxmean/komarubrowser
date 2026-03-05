@@ -2,18 +2,9 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import AdmZip from "adm-zip";
 import cliProgress from "cli-progress";
-import * as utils from "../utils/utils.js";
-import * as argUtils from "../utils/argutils.js";
-
-type IngredientJson = {
-  id: string;
-  displayName: string;
-  hexColor: string;
-  isFluid: boolean;
-  sourceJar: string;
-  tags: string[];
-  textureLocation?: string;
-};
+import * as utils from "@komarubrowser/extractor_utils/utils.js";
+import * as argUtils from "@komarubrowser/extractor_utils/argutils.js";
+import { readIngredientsJson } from "@komarubrowser/extractor_utils/jsonSchema.js";
 
 const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
@@ -92,8 +83,7 @@ export async function extractPngs(args: ExtractPngArgs): Promise<void> {
     process.exit(1);
   }
 
-  const ingredientsRaw = await fs.readFile(INGREDIENTS_FILE, "utf-8");
-  const ingredients: IngredientJson[] = JSON.parse(ingredientsRaw);
+  const ingredients = await readIngredientsJson(INGREDIENTS_FILE);
   const uniqueJars = new Set(
     ingredients
       .map((i) => i.sourceJar)

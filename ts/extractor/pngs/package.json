@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "dependencies": {
+    "@komarubrowser/extractor_utils": "workspace:*",
     "adm-zip": "^0.5.16",
     "cli-progress": "^3.12.0"
   },

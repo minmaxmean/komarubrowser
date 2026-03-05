@@ -23,9 +23,7 @@ ts_project(
     source_map = True,
     tsconfig = ":tsconfig",
     visibility = ["//visibility:public"],
-    deps = npm_link_targets() + [
-        "//ts/extractor/utils",
-    ],
+    deps = npm_link_targets(),
 )
 
 js_run_binary(
