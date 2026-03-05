@@ -11,6 +11,7 @@ export type RecipeIngredient = {
 export type RecipeTable = {
   id: string;
   recipe_type: string;
+  recipe_category: string;
   inputs: JSONColumnType<RecipeIngredient[]>;
   outputs: JSONColumnType<RecipeIngredient[]>;
   duration: number;

@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
 set -e
 
-# Manually add common Homebrew paths so Bazel can find 'http'
 export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
 
 if ! command -v http &> /dev/null; then
-    echo "Error: 'http' (HTTPie) could not be found. Please install it."
+    echo "Error: 'http' (HTTPie) could not be found."
     exit 1
 fi
 
 OUTPUT_DIR="${1?Error: <output_dir> arg not provided}"
-
 mkdir -p "$OUTPUT_DIR"
 
-echo "Dumping recipes to $OUTPUT_DIR/recipes.json"
-http --check-status --sorted --pretty=format ":6767/api/recipes" > "$OUTPUT_DIR/recipes.json"
-echo "  Done."
+# Function to safely fetch and save
+fetch_api() {
+    local url=$1
+    local dest=$2
+    
+    echo "Dumping to $dest..."
+    # 1. Capture output to a variable. 
+    # 2. --check-status ensures httpie exits with non-zero on 4xx/5xx errors.
+    if response=$(http --check-status --sorted --pretty=format "$url"); then
+        echo "$response" > "$dest"
+        echo "  Done."
+    else
+        echo "  Error: Failed to fetch $url" >&2
+        echo "  $response"
+        return 1
+    fi
+}
 
-echo "Dumping machines to $OUTPUT_DIR/machines.json"
-http --check-status --sorted --pretty=format ":6767/api/machines" > "$OUTPUT_DIR/machines.json"
-echo "  Done."
-
-echo "Dumping ingredients to $OUTPUT_DIR/ingredients.json"
-http --check-status --sorted --pretty=format ":7676/api/ingredients" > "$OUTPUT_DIR/ingredients.json"
-echo "  Done."
-
+fetch_api ":6767/api/recipes" "$OUTPUT_DIR/recipes.json"
+fetch_api ":6767/api/recipeCategories" "$OUTPUT_DIR/recipeCategories.json"
+fetch_api ":7676/api/ingredients" "$OUTPUT_DIR/ingredients.json"

@@ -7,6 +7,7 @@ import { IngredientRepo } from './ingredientRepo';
 import { ManifestRepo } from './manifestRepo';
 import { RecipeRepo } from './recipeRepo';
 import { getDb } from '@komarubrowser/common/db/database.js';
+import { RecipeTypeRepo } from './recipeTypeRepo';
 
 export const defaultGlobalFilter: GlobalFilter = {
   ingredient: {
@@ -37,6 +38,7 @@ export type SuperRepo = {
   ingredients: IngredientRepo;
   manifest: ManifestRepo;
   recipe: RecipeRepo;
+  recipeType: RecipeTypeRepo;
   close: () => Promise<void>;
 };
 
@@ -51,6 +53,7 @@ export const loadDB = async (): Promise<SuperRepo> => {
     ingredients: new IngredientRepo(db, globalFilter),
     manifest: new ManifestRepo(db),
     recipe: new RecipeRepo(db),
+    recipeType: new RecipeTypeRepo(db),
     close: () => db.destroy(),
   };
 };

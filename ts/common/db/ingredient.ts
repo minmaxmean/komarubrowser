@@ -14,6 +14,18 @@ export type IngredientTable = {
   namespace: GeneratedAlways<string>;
 };
 
+export const INGREDIENT_COLUMNS: (keyof IngredientTable)[] = [
+  "id",
+  "display_name",
+  "is_fluid",
+  "tags",
+  "source_jar",
+  "original_texture_location",
+  "texture_location",
+  "hex_color",
+  "namespace",
+] as const;
+
 export type Ingredient = Selectable<IngredientTable>;
 export type NewIngredient = Insertable<IngredientTable>;
 

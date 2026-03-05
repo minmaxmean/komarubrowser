@@ -1,37 +1,35 @@
-<script lang="ts">
+<script lang="ts" generics="T">
+  import { tick } from 'svelte';
+  import { cn } from 'tailwind-variants';
+  import X from '@lucide/svelte/icons/x';
   import CheckIcon from '@lucide/svelte/icons/check';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import { Button } from '$lib/components/ui/button/index.js';
   import { type Ingredient } from '@komarubrowser/common/db/ingredient.js';
-  import { tick } from 'svelte';
-  import { cn } from 'tailwind-variants';
   import * as Command from '$lib/components/ui/command/index.js';
   import * as Popover from '$lib/components/ui/popover/index.js';
-  import X from '@lucide/svelte/icons/x';
-  import type { Searcher } from './search';
+  import type { IngredientFilter } from '$lib/db/ingredientRepo.js';
+  import type { Searcher } from './search.js';
   import IngredientItem from '../IngredientItem/IngredientItem.svelte';
 
-  type Props = {
-    selectedItem: Ingredient | undefined;
-    search?: Searcher;
+  type Props<T> = {
+    selectedItem: T | undefined;
+    search?: Searcher<T>;
+    getId: (item: T) => string;
+    getIngredient: (item: T) => Ingredient;
   };
 
-  let { selectedItem = $bindable(), search }: Props = $props();
+  let { selectedItem = $bindable(), search, getIngredient, getId }: Props<T> = $props();
 
   let query = $state('');
 
-  const items = $derived(
-    search
-      ? search(
-          {
-            mode: 'or',
-            idLike: query.toLowerCase(),
-            displayNameLike: query,
-          },
-          { limit: 10, offset: 0 },
-        )
-      : null,
-  );
+  const filter = $derived<IngredientFilter>({
+    mode: 'or',
+    idLike: query.toLowerCase(),
+    displayNameLike: query,
+  });
+  const pagination = { limit: 10, offset: 0 };
+  const items = $derived(search ? search(query, filter, pagination) : null);
 
   let open = $state(false);
   let triggerRef = $state<HTMLButtonElement>(null!);
@@ -52,7 +50,7 @@
         aria-expanded={open}
       >
         {#if selectedItem}
-          <IngredientItem size="sm" item={selectedItem} />
+          <IngredientItem size="sm" item={getIngredient(selectedItem)} />
         {:else}
           <p>Select a item...</p>
         {/if}
@@ -81,16 +79,20 @@
       <Command.List>
         <Command.Empty>No item found.</Command.Empty>
         <Command.Group value="item">
-          {#each await items as item (item.id)}
+          {#each await items as item (getId(item))}
             <Command.Item
-              value={item.id}
+              value={getId(item)}
               onSelect={() => {
                 selectedItem = item;
                 closeAndFocusTrigger();
               }}
             >
-              <IngredientItem {item} />
-              <CheckIcon class={cn(selectedItem?.id !== item.id && 'text-transparent')} />
+              <IngredientItem item={getIngredient(item)} />
+              <CheckIcon
+                class={cn(
+                  (!selectedItem || getId(selectedItem) !== getId(item)) && 'text-transparent',
+                )}
+              />
             </Command.Item>
           {/each}
         </Command.Group>

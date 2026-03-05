@@ -23,8 +23,8 @@
   <Card.Header class="px-0">
     <Card.Title class="text-pretty">{getDisplayName(recipe.id)}</Card.Title>
     <Card.Description class="flex flex-row items-center justify-center gap-2">
-      {getDisplayName(recipe.machine, items)}
-      <IngredientIcon item={items?.get(recipe.machine)} />
+      {getDisplayName(recipe.recipe_type, items)}
+      <IngredientIcon item={items?.get(recipe.recipe_type)} />
     </Card.Description>
   </Card.Header>
   <Card.Content class="px-0">

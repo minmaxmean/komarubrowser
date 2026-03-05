@@ -38,11 +38,14 @@ sh_binary(
 
 genrule(
     name = "dump_jsons",
-    srcs = ["dump_jsons.sh"],
+    srcs = [
+        "dump_jsons.sh",
+        "//minecraft/forgemod:mod_jar",
+    ],
     outs = [
         "recipes.json",
         "ingredients.json",
-        "machines.json",
+        "recipeCategories.json",
     ],
     cmd = "$(location dump_jsons.sh) $(@D)",
     tags = ["local"],

@@ -7,7 +7,7 @@ type RecipeExpressionBuilder = ExpressionBuilder<Database, 'recipe'>;
 
 export type RecipeFilter = {
   mode: 'or' | 'and';
-  machine?: string;
+  recipeType?: string;
   inputIngredientIncludes?: string;
   outputIngredientIncludes?: string;
 };
@@ -27,8 +27,8 @@ export class RecipeRepo {
   private hasFilter(filter: RecipeFilter) {
     return (eb: RecipeExpressionBuilder): Expression<SqlBool> => {
       const ops: Expression<SqlBool>[] = [];
-      if (filter.machine) {
-        ops.push(eb('machine', '=', filter.machine));
+      if (filter.recipeType) {
+        ops.push(eb('recipe_type', '=', filter.recipeType));
       }
       if (filter.inputIngredientIncludes) {
         ops.push(eb('recipe.input_ids', 'like', `%${filter.inputIngredientIncludes}%`));
@@ -42,10 +42,5 @@ export class RecipeRepo {
         return eb.and(ops);
       }
     };
-  }
-  async allMachines(): Promise<string[]> {
-    const query = this.db.selectFrom('recipe').select('machine').distinct();
-    const items = await query.execute();
-    return items.map((item) => item.machine);
   }
 }

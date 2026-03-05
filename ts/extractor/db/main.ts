@@ -5,7 +5,6 @@ import Database from "better-sqlite3";
 import { getDb } from "@komarubrowser/common/db/database.js";
 import { migrate } from "@komarubrowser/common/db/schema.js";
 import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
-import type { NewRecipeType } from "@komarubrowser/common/db/recipeType.js";
 import { Database as KBDatabase, KyselyDB } from "@komarubrowser/common/db/database.js";
 import { EnergyTierID, energyTiers } from "@komarubrowser/common/db/energyTier.js";
 
@@ -13,19 +12,21 @@ import * as utils from "@komarubrowser/extractor_utils/utils.js";
 import * as argUtils from "@komarubrowser/extractor_utils/argutils.js";
 import {
   IngredientJson,
-  MachineJson,
   readIngredientsJson,
   readMachinesJson,
   readRecipesJson,
+  RecipeJson,
+  RecipeMachines,
 } from "@komarubrowser/extractor_utils/jsonSchema.js";
 
 import { buildManifestItems } from "./manifest.js";
+import { NewRecipeCategoryType } from "@komarubrowser/common/db/recipeType.js";
 
 async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
   const dialect = new SqliteDialect({ database: db });
-  await migrate(new Kysely<any>({ dialect, log: ["error", "query"] }));
-  return getDb(dialect);
+  await migrate(new Kysely<any>({ dialect }));
+  return getDb(dialect, false);
 }
 
 const pickDisplayMachine = (machines: string[]): string => {
@@ -39,26 +40,41 @@ const pickDisplayMachine = (machines: string[]): string => {
   return machines[0];
 };
 
-const buildRecipeTypes = (machineJsons: MachineJson[]): NewRecipeType[] => {
-  const machineRecipePairs = machineJsons.flatMap((machine) =>
-    machine.recipeTypes.map((recipeType) => ({ machineId: machine.id, recipeType })),
+const buildRecipeTypes = (
+  { machines, recipeCategories }: RecipeMachines,
+  recipies: RecipeJson[],
+): NewRecipeCategoryType[] => {
+  const interestingRecipeCategories = new Set(
+    recipies.map(({ recipeType, recipeCategory }) => `${recipeType}#${recipeCategory}`),
+  );
+  const machineRecipePairs = machines.flatMap((machine) =>
+    machine.recipeTypes.map((recipeType) => ({ machineId: machine.machineId, recipeType })),
   );
   const m = Map.groupBy(machineRecipePairs, (p) => p.recipeType);
-  return [...m].map(([recipe_type, m]): NewRecipeType => {
-    const all_machines = m.map((p) => p.machineId);
-    return {
-      recipe_type,
-      display_machine: pickDisplayMachine(all_machines),
-      all_machines: JSON.stringify(all_machines),
-    };
-  });
+  return recipeCategories
+    .filter(({ recipeType, recipeCategory }) => interestingRecipeCategories.has(`${recipeType}#${recipeCategory}`))
+    .map(({ recipeType, recipeCategory, displayName }): NewRecipeCategoryType => {
+      const all_machines = m.get(recipeType)?.map((m) => m.machineId);
+      if (!all_machines) {
+        console.log("###DEBUG");
+        console.table(machineRecipePairs);
+        throw Error(`could not find machines for ${recipeType}`);
+      }
+      return {
+        recipe_type: recipeType,
+        recipe_category: recipeCategory,
+        display_name: displayName,
+        machine_id: pickDisplayMachine(all_machines),
+        all_machines: JSON.stringify(all_machines),
+      };
+    });
 };
 
 const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
 const ignoreMissingTexture = (id: string) => IGNORED_TEXTURE_MODS.has(id.split(":")[0]);
 
 export async function buildDb(args: BuildDBArgs): Promise<void> {
-  const { INGREDIENTS_FILE, RECIPES_FILE, MACHINES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = args;
+  const { INGREDIENTS_FILE, RECIPES_FILE, RECIPE_CATEGORIES: MACHINES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = args;
   console.log({ args, cwd: process.cwd() });
   console.log("Building SQLite database...");
 
@@ -126,16 +142,13 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
     console.log(`Inserting ${ingredientRows.length} ingredients (deduplicated from ${ingredients.length})...`);
     await insertMany("ingredient", ingredientRows);
 
-    const machines = await readMachinesJson(MACHINES_FILE);
-    const recipeTypes = buildRecipeTypes(machines);
-    await insertMany("recipe_type", recipeTypes);
-
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
-    const recipes = await readRecipesJson(RECIPES_FILE);
-    const recipeRows: NewRecipe[] = recipes.map((r) => ({
+    const recipesJson = await readRecipesJson(RECIPES_FILE);
+    const recipeRows: NewRecipe[] = recipesJson.map((r) => ({
       id: r.id,
       recipe_type: r.recipeType,
+      recipe_category: r.recipeCategory,
       duration: r.duration,
       eut_consumed: r.eutConsumed,
       eut_produced: r.eutProduced,
@@ -157,6 +170,13 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
         })),
       ),
     }));
+    console.log(`  Found ${recipeRows.length} recipes...`);
+
+    console.log(`Reading recipe categories from ${MACHINES_FILE}...`);
+    const machines = await readMachinesJson(MACHINES_FILE);
+    const recipeCategories = buildRecipeTypes(machines, recipesJson);
+    console.log(`  Inserting ${recipeCategories.length} recipe categories...`);
+    await insertMany("recipe_category", recipeCategories);
 
     console.log(`Inserting ${recipeRows.length} recipes...`);
     await insertMany("recipe", recipeRows);
@@ -177,20 +197,20 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
 type BuildDBArgs = {
   INGREDIENTS_FILE: string;
-  MACHINES_FILE: string;
+  RECIPE_CATEGORIES: string;
   RECIPES_FILE: string;
   EXTRACTED_PNG_DIR: string;
   DB_OUTPUT: string;
 };
 
-const REQUIRED_ARGS = ["output", "ingredients", "recipes", "machines", "extracted_pngs"] as const;
+const REQUIRED_ARGS = ["output", "ingredients", "recipes", "recipe_categories", "extracted_pngs"] as const;
 
 (async () => {
   const parsed = argUtils.parseArgs(REQUIRED_ARGS);
   await buildDb({
     INGREDIENTS_FILE: parsed["ingredients"]!,
     RECIPES_FILE: parsed["recipes"],
-    MACHINES_FILE: parsed["machines"],
+    RECIPE_CATEGORIES: parsed["recipe_categories"],
     DB_OUTPUT: parsed["output"],
     EXTRACTED_PNG_DIR: parsed["extracted_pngs"],
   });

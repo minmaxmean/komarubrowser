@@ -55,16 +55,20 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .execute();
 
   await db.schema
-    .createTable("recipe_type")
-    .addColumn("recipe_type", "text", (col) => col.primaryKey())
-    .addColumn("display_machine", "text", (col) => col.notNull().references("ingredient.id"))
+    .createTable("recipe_category")
+    .addColumn("recipe_type", "text", (col) => col.notNull())
+    .addColumn("recipe_category", "text", (col) => col.notNull())
+    .addColumn("display_name", "text", (col) => col.notNull())
+    .addColumn("machine_id", "text", (col) => col.notNull().references("ingredient.id"))
     .addColumn("all_machines", "jsonb", (col) => col.notNull())
+    .addPrimaryKeyConstraint("recipe_category_primary_key", ["recipe_type", "recipe_category"])
     .execute();
 
   await db.schema
     .createTable("recipe")
     .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("recipe_type", "text", (col) => col.notNull().references("recipe_type.recipe_type"))
+    .addColumn("recipe_type", "text", (col) => col.notNull())
+    .addColumn("recipe_category", "text", (col) => col.notNull())
     .addColumn("inputs", "text", (col) => col.notNull())
     .addColumn("outputs", "text", (col) => col.notNull())
     .addColumn("duration", "integer", (col) => col.notNull())
@@ -73,6 +77,10 @@ export const migrate = async (db: Kysely<any>): Promise<void> => {
     .addColumn("eut_produced", "integer", (col) => col.notNull())
     .addColumn("input_ids", "text", (col) => col.defaultTo(""))
     .addColumn("output_ids", "text", (col) => col.defaultTo(""))
+    .addForeignKeyConstraint("recipe_category_foreign_key", ["recipe_type", "recipe_category"], "recipe_category", [
+      "recipe_type",
+      "recipe_category",
+    ])
     .execute();
 
   await createIdsTriggerSql(db, "input");

@@ -33,6 +33,7 @@ const zRecipeIngredient = z.object({
 const zRecipeJson = z.object({
   id: zResourceID,
   recipeType: zResourceID,
+  recipeCategory: z.string(),
   duration: z.int(),
   eutConsumed: z.int(),
   eutProduced: z.int(),
@@ -47,13 +48,26 @@ export const readRecipesJson = async (filepath: string): Promise<RecipeJson[]> =
   return z.array(zRecipeJson).parse(data);
 };
 
+const zRecipeCategory = z.object({
+  recipeType: zResourceID,
+  recipeCategory: z.string(),
+  displayName: z.string(),
+});
+export type RecipeCategoryJson = z.Infer<typeof zRecipeCategory>;
+
 const zMachineJson = z.object({
-  id: zResourceID,
+  machineId: zResourceID,
   recipeTypes: z.array(zResourceID),
 });
 export type MachineJson = z.Infer<typeof zMachineJson>;
 
-export const readMachinesJson = async (filepath: string): Promise<MachineJson[]> => {
+const zRecipeMachines = z.object({
+  recipeCategories: z.array(zRecipeCategory),
+  machines: z.array(zMachineJson),
+});
+export type RecipeMachines = z.Infer<typeof zRecipeMachines>;
+
+export const readMachinesJson = async (filepath: string) => {
   const data = await readJson(filepath);
-  return z.array(zMachineJson).parse(data);
+  return zRecipeMachines.parse(data);
 };

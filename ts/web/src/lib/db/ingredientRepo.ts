@@ -5,9 +5,9 @@ import {
   type ExpressionBuilder,
 } from 'kysely';
 import type { Database, KyselyDB } from '@komarubrowser/common/db/database.js';
+import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
 import type { GlobalFilter } from './globalFilter.js';
-import { type Pagination, applyPagination, explain } from './common.js';
-import type { Ingredient, Machine } from '@komarubrowser/common/db/ingredient.js';
+import { type Pagination, applyPagination } from './common.js';
 
 type IngredientSelectQuery = SelectQueryBuilder<Database, 'ingredient', {}>;
 type IngredientExpressionBuilder = ExpressionBuilder<Database, 'ingredient'>;
@@ -25,18 +25,18 @@ export type IngredientFilter = {
   displayNameLike?: string;
 };
 
-const hasFilter =
+export const hasIngredientFilter =
   (filter: IngredientFilter) =>
   (eb: IngredientExpressionBuilder): Expression<SqlBool> => {
     const ops: Expression<SqlBool>[] = [];
     if (filter.id) {
-      ops.push(eb('id', '=', filter.id));
+      ops.push(eb('ingredient.id', '=', filter.id));
     }
     if (filter.idLike) {
-      ops.push(eb('id', 'like', `%${filter.idLike}%`));
+      ops.push(eb('ingredient.id', 'like', `%${filter.idLike}%`));
     }
     if (filter.displayNameLike) {
-      ops.push(eb('display_name', 'like', `%${filter.displayNameLike}%`));
+      ops.push(eb('ingredient.display_name', 'like', `%${filter.displayNameLike}%`));
     }
     if (filter.mode === 'or') {
       return eb.or(ops);
@@ -82,33 +82,14 @@ export class IngredientRepo {
     const ingredients: Ingredient[] = await query.selectAll().execute();
     const m = new Map<string, Ingredient>();
     ingredients.forEach((item) => m.set(item.id, item));
-    // if (m.size != ids.length) {
-    //   console.warn(
-    //     'could not find some ingredients',
-    //     ids.filter((id) => !m.has(id)),
-    //   );
-    // }
     return m;
   }
   async search(filter: IngredientFilter, pagination: Pagination): Promise<Ingredient[]> {
     console.log('this.db', this.db);
     let query = this.db.selectFrom('ingredient');
     query = this.withGlobalFilter(query);
-    query = query.where(hasFilter(filter));
+    query = query.where(hasIngredientFilter(filter));
     query = applyPagination(query, pagination);
     return await query.selectAll().execute();
-  }
-
-  async searchMachines(filter: IngredientFilter, pagination: Pagination): Promise<Machine[]> {
-    let query = this.db
-      .with('machines', (db) => db.selectFrom('recipe').select('machine').distinct())
-      .selectFrom('ingredient')
-      .rightJoin('machines', 'machines.machine', 'ingredient.id')
-      .selectAll('ingredient');
-    query = query.where(hasFilter(filter));
-    query = applyPagination(query, pagination);
-    await explain(this.db, query);
-    const val = await query.selectAll().execute();
-    return val;
   }
 }

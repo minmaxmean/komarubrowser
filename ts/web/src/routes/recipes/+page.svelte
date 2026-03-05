@@ -11,7 +11,7 @@
 
   const columns: ColumnDef<Recipe, any>[] = [
     columnHelper.accessor('id', { header: 'Recipe ID' }),
-    columnHelper.accessor('machine', { header: 'Machine' }),
+    columnHelper.accessor('recipe_type', { header: 'Recipe Type' }),
     columnHelper.accessor('inputs', {
       header: 'Inputs',
       cell: (info) => renderComponent(RecipeIngredientList, { items: info.getValue() }),

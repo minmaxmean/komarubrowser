@@ -2,6 +2,9 @@ import type { Ingredient } from '@komarubrowser/common/db/ingredient';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 
 export const getDisplayName = (id: string, map?: Map<string, Ingredient>) => {
+  if (!id) {
+    return '<N/A>';
+  }
   let item = map?.get(id);
   if (item?.display_name) {
     return item.display_name;
@@ -19,7 +22,7 @@ export const fakeDisplayName = (id: string): string => {
 };
 
 export const getItemIds = (r: Recipe): string[] => {
-  return [r.machine].concat(
+  return [r.recipe_type].concat(
     r.inputs.map((i) => i.accepted_ids[0]),
     r.outputs.map((i) => i.accepted_ids[0]),
   );

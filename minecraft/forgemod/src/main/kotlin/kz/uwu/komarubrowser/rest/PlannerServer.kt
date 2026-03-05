@@ -6,14 +6,18 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import kz.uwu.komarubrowser.client.addVisualData
 import kz.uwu.komarubrowser.dump.RecipeDTO
-import kz.uwu.komarubrowser.dump.getAllGTMachines
 import kz.uwu.komarubrowser.dump.getAllIngredient
+import kz.uwu.komarubrowser.dump.getAllRecipeMachines
 import kz.uwu.komarubrowser.search.getAllGTRecipes
+import net.minecraft.client.player.LocalPlayer
 import net.minecraft.server.MinecraftServer
 import org.apache.http.HttpStatus
 import org.apache.logging.log4j.LogManager
 import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets
+import net.minecraft.client.Minecraft
+
+
 
 class PlannerServer(
   private val mcServer: MinecraftServer?, private val port: Int = 8888
@@ -36,10 +40,14 @@ class PlannerServer(
 
       createContext("/api/ingredients") { exchange ->
         try {
-          val allIngredients = getAllIngredient()
-          allIngredients.forEach { it.addVisualData() }
-          logger.info("Found ${allIngredients.size} ingredients")
-          sendJsonResponse(exchange, allIngredients)
+          if (!isClientInGame()) {
+            sendError(exchange, Exception("Client needs to join the game first"))
+          } else {
+            val allIngredients = getAllIngredient()
+            allIngredients.forEach { it.addVisualData() }
+            logger.info("Found ${allIngredients.size} ingredients")
+            sendJsonResponse(exchange, allIngredients)
+          }
         } catch (e: Exception) {
           sendError(exchange, e)
         }
@@ -56,12 +64,12 @@ class PlannerServer(
         }
       }
 
-      createContext("/api/machines") { exchange ->
+      createContext("/api/recipeCategories") { exchange ->
         try {
-          check(mcServer != null) { "/api/recipes only available on server side" }
-          val machines = getAllGTMachines()
-          logger.info("Found ${machines.size} machines")
-          sendJsonResponse(exchange, machines)
+          check(mcServer != null) { "/api/recipeCategories only available on server side" }
+          val rm = getAllRecipeMachines()
+          logger.info("Found ${rm.machines.size} machines & ${rm.recipeCategories.size} recipeCategories")
+          sendJsonResponse(exchange, rm)
         } catch (e: Exception) {
           sendError(exchange, e)
         }
@@ -97,3 +105,12 @@ class PlannerServer(
   }
 }
 
+
+private fun isClientInGame(): Boolean {
+  val mc = Minecraft.getInstance()
+  if (mc == null) {
+    return false
+  }
+  // Check if the world/level exists. If level is null, you're in the menu.
+  return mc.level != null && mc.player != null
+}
