@@ -8,7 +8,7 @@ import * as argUtils from "../utils/argutils.js";
 import { buildManifestItems } from "./manifest.js";
 import { Database as KBDatabase, KyselyDB } from "@komarubrowser/common/db/database.js";
 import Database from "better-sqlite3";
-import { IngredientZ, readJsonZ, RecipeJson, type IngredientJson, RecipeZ } from "jsonSchema.js";
+import { zIngredientJson, readJsonZ, RecipeJson, type IngredientJson, zRecipe } from "jsonSchema.js";
 import { EnergyTierID } from "@komarubrowser/common/db/energyTier.js";
 
 export async function initDb(dbPath: string): Promise<KyselyDB> {
@@ -53,7 +53,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 2. Process Ingredients
     console.log(`Reading ingredients from ${INGREDIENTS_FILE}...`);
-    const ingredients: IngredientJson[] = await readJsonZ(INGREDIENTS_FILE, IngredientZ);
+    const ingredients: IngredientJson[] = await readJsonZ(INGREDIENTS_FILE, zIngredientJson);
 
     const deduplicated = new Map<string, IngredientJson>();
     for (const i of ingredients) {
@@ -92,7 +92,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
-    const recipes: RecipeJson[] = await readJsonZ(RECIPES_FILE, RecipeZ);
+    const recipes: RecipeJson[] = await readJsonZ(RECIPES_FILE, zRecipe);
     const recipeRows: NewRecipe[] = recipes.map((r) => ({
       id: r.id,
       recipe_type: r.recipeType,
