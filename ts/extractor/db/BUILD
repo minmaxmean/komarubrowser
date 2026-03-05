@@ -34,6 +34,7 @@ js_run_binary(
     name = "build_db",
     srcs = [
         "//minecraft/star_t:ingredients.json",
+        "//minecraft/star_t:machines.json",
         "//minecraft/star_t:recipes.json",
         "//ts/extractor/pngs:extract_pngs",
     ],
@@ -42,6 +43,7 @@ js_run_binary(
         "--output ts/extractor/db/assets.db",
         "--ingredients $(rootpath //minecraft/star_t:ingredients.json)",
         "--recipes $(rootpath //minecraft/star_t:recipes.json)",
+        "--machines $(rootpath //minecraft/star_t:machines.json)",
         "--extracted_pngs ts/extractor/pngs/extracted_pngs",
     ],
     silent_on_success = False,
