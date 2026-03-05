@@ -5,6 +5,7 @@
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   import type { ClassValue } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { getTextProps } from '$lib/db/recipeCategoryRepo';
 
   type RecipeIngredientWidgetProps = {
     ingredient: RecipeIngredient;
@@ -20,7 +21,7 @@
 <div class={cn('contents', className)}>
   <p class="text-right text-pretty">{displayName}</p>
   <div class="flex items-center justify-center">
-    <IngredientIcon {item} />
+    <IngredientIcon {...getTextProps(item)} />
   </div>
   <p class="text-right">{amount}</p>
   <p class="text-left">{unit}{chance}</p>

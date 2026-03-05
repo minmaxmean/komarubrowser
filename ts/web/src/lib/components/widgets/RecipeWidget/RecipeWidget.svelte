@@ -8,6 +8,7 @@
   import { cn } from '$lib/utils';
   import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
+  import { getTextProps } from '$lib/db/recipeCategoryRepo';
 
   type RecipeWidgetProps = {
     recipe: Recipe;
@@ -17,14 +18,20 @@
 
   const itemIds = $derived(getItemIds(recipe));
   const items = $derived(await dbStore.data?.ingredients.getByIds(itemIds));
+  const recipeCategory = $derived(
+    await dbStore.data?.recipeCategory.getById(recipe.recipe_type, recipe.recipe_category),
+  );
+  // $inspect({ recipeCategory });
 </script>
 
 <Card.Root class={cn('w-sm text-center', className)}>
   <Card.Header class="px-0">
-    <Card.Title class="text-pretty">{getDisplayName(recipe.id)}</Card.Title>
+    <Card.Title class="text-pretty"
+      >{recipeCategory?.display_name ?? getDisplayName(recipe.id)}</Card.Title
+    >
     <Card.Description class="flex flex-row items-center justify-center gap-2">
       {getDisplayName(recipe.recipe_type, items)}
-      <IngredientIcon item={items?.get(recipe.recipe_type)} />
+      <IngredientIcon {...getTextProps(recipeCategory)} />
     </Card.Description>
   </Card.Header>
   <Card.Content class="px-0">

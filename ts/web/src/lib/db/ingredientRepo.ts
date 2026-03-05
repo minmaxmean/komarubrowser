@@ -65,9 +65,7 @@ export class IngredientRepo {
   constructor(
     private db: KyselyDB,
     private globalFilter: GlobalFilter,
-  ) {
-    console.log('constructor', db);
-  }
+  ) {}
   private withGlobalFilter(query: IngredientSelectQuery): IngredientSelectQuery {
     const globalFilter = this.globalFilter.ingredient;
     return query.where(hasGlobalFilter(globalFilter));
@@ -85,7 +83,6 @@ export class IngredientRepo {
     return m;
   }
   async search(filter: IngredientFilter, pagination: Pagination): Promise<Ingredient[]> {
-    console.log('this.db', this.db);
     let query = this.db.selectFrom('ingredient');
     query = this.withGlobalFilter(query);
     query = query.where(hasIngredientFilter(filter));

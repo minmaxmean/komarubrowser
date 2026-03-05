@@ -5,6 +5,7 @@
   import { dbStore } from '$lib/db/dbStore.svelte';
   import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
+  import { recipeCategoryId } from '@komarubrowser/common/db/recipeType.js';
   const offset = 0;
   const pageSize = 10;
   let inputFilter = $state<Ingredient | undefined>();
@@ -15,8 +16,17 @@
     async (_, f, p) => (await dbStore.data?.ingredients.search(f, p)) ?? [],
   );
   const machineSearcher: Searcher<FullRecipeCategory> = $derived(
-    async (_, f, p) =>
-      (await dbStore.data?.recipeCategory.search({ mode: 'or', ingredientFilter: f }, p)) ?? [],
+    async (q, f, p) =>
+      (await dbStore.data?.recipeCategory.search(
+        {
+          mode: 'or',
+          machineFilter: f,
+          recipeCategoryLike: q,
+          recipeTypeLike: q,
+          displayNameLike: q,
+        },
+        p,
+      )) ?? [],
   );
 
   const recipes = $derived(
@@ -48,7 +58,7 @@
   <IngredientInput
     bind:selectedItem={machineFilter}
     search={machineSearcher}
-    getId={(item) => item.recipe_type}
+    getId={recipeCategoryId}
     getIngredient={(item) => item.machine}
   />
 

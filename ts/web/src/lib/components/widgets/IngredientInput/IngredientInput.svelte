@@ -1,4 +1,4 @@
-<script lang="ts" generics="T">
+<script lang="ts" generics="T extends IngredientLike">
   import { tick } from 'svelte';
   import { cn } from 'tailwind-variants';
   import X from '@lucide/svelte/icons/x';
@@ -11,15 +11,16 @@
   import type { IngredientFilter } from '$lib/db/ingredientRepo.js';
   import type { Searcher } from './search.js';
   import IngredientItem from '../IngredientItem/IngredientItem.svelte';
+  import type { IngredientLike } from '$lib/db/recipeCategoryRepo.js';
 
-  type Props<T> = {
+  type Props = {
     selectedItem: T | undefined;
     search?: Searcher<T>;
     getId: (item: T) => string;
     getIngredient: (item: T) => Ingredient;
   };
 
-  let { selectedItem = $bindable(), search, getIngredient, getId }: Props<T> = $props();
+  let { selectedItem = $bindable(), search, getId }: Props = $props();
 
   let query = $state('');
 
@@ -50,7 +51,7 @@
         aria-expanded={open}
       >
         {#if selectedItem}
-          <IngredientItem size="sm" item={getIngredient(selectedItem)} />
+          <IngredientItem size="sm" item={selectedItem} />
         {:else}
           <p>Select a item...</p>
         {/if}
@@ -87,7 +88,7 @@
                 closeAndFocusTrigger();
               }}
             >
-              <IngredientItem item={getIngredient(item)} />
+              <IngredientItem {item} />
               <CheckIcon
                 class={cn(
                   (!selectedItem || getId(selectedItem) !== getId(item)) && 'text-transparent',

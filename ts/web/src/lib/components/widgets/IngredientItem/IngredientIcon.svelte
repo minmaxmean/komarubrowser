@@ -1,16 +1,13 @@
 <script lang="ts">
-  import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
   import { iconVariants, type IconVariants } from './iconVariants';
   import { cn } from '$lib/utils';
 
-  type Props = { item?: Ingredient } & IconVariants;
-  const { item, size }: Props = $props();
+  type Props = { display_name?: string; url?: string | null; hex_color?: string } & IconVariants;
   const default_texture_location = '/komaru_16.png';
-  const texture = $derived(item?.texture_location ?? default_texture_location);
-  const color = $derived(item?.hex_color);
+  const { display_name, url = default_texture_location, hex_color, size }: Props = $props();
 </script>
 
-{#if color}
+{#if hex_color}
   <div
     class={cn(
       'inline-block aspect-square overflow-hidden [image-rendering:pixelated]',
@@ -18,18 +15,18 @@
       'mask-(--icon-tex) mask-[100%_auto] mask-top',
       iconVariants({ size }),
     )}
-    style="--icon-tex: url('{texture}'); --icon-color: {color};"
+    style="--icon-tex: url('{url}'); --icon-color: {hex_color};"
     role="img"
-    aria-label={item?.display_name}
-    title={item?.display_name}
+    aria-label={display_name}
+    title={display_name}
   ></div>
 {:else}
   <div class={cn('inline-block aspect-square overflow-hidden', iconVariants({ size }))}>
     <img
-      src={texture}
+      src={url}
       class="h-auto w-full object-top [image-rendering:pixelated]"
-      alt={item?.display_name}
-      title={item?.display_name}
+      alt={display_name}
+      title={display_name}
     />
   </div>
 {/if}

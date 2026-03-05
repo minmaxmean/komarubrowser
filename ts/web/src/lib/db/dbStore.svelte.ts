@@ -46,8 +46,7 @@ export const loadDB = async (): Promise<SuperRepo> => {
   const sqlPromise = initSqlJs({ locateFile: () => assets.SQLITE_WASM });
   const dataPromise = fetch(assets.ASSETS_DB).then((res) => res.arrayBuffer());
   const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
-  const db = getDb(new SqlJsDialect({ database: new SQL.Database(new Uint8Array(buf)) }));
-  console.log({ db });
+  const db = getDb(new SqlJsDialect({ database: new SQL.Database(new Uint8Array(buf)) }), false);
 
   return {
     ingredients: new IngredientRepo(db, globalFilter),
