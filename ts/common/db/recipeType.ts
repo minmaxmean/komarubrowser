@@ -8,7 +8,7 @@ export type RecipeCategoryTable = {
   all_machines: JSONColumnType<string[]>;
 };
 
-export type RecipeCategoryType = Selectable<RecipeCategoryTable>;
-export type NewRecipeCategoryType = Insertable<RecipeCategoryTable>;
+export type RecipeCategory = Selectable<RecipeCategoryTable>;
+export type NewRecipeCategory = Insertable<RecipeCategoryTable>;
 
-export const recipeCategoryId = (item: RecipeCategoryType): string => `${item.recipe_type}/${item.recipe_category}`;
+export const recipeCategoryId = (item: RecipeCategory): string => `${item.recipe_type}/${item.recipe_category}`;

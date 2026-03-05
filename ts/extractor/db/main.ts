@@ -20,7 +20,7 @@ import {
 } from "@komarubrowser/extractor_utils/jsonSchema.js";
 
 import { buildManifestItems } from "./manifest.js";
-import { NewRecipeCategoryType } from "@komarubrowser/common/db/recipeType.js";
+import { NewRecipeCategory } from "@komarubrowser/common/db/recipeType.js";
 
 async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
@@ -43,7 +43,7 @@ const pickDisplayMachine = (machines: string[]): string => {
 const buildRecipeTypes = (
   { machines, recipeCategories }: RecipeMachines,
   recipies: RecipeJson[],
-): NewRecipeCategoryType[] => {
+): NewRecipeCategory[] => {
   const interestingRecipeCategories = new Set(
     recipies.map(({ recipeType, recipeCategory }) => `${recipeType}#${recipeCategory}`),
   );
@@ -53,7 +53,7 @@ const buildRecipeTypes = (
   const m = Map.groupBy(machineRecipePairs, (p) => p.recipeType);
   return recipeCategories
     .filter(({ recipeType, recipeCategory }) => interestingRecipeCategories.has(`${recipeType}#${recipeCategory}`))
-    .map(({ recipeType, recipeCategory, displayName }): NewRecipeCategoryType => {
+    .map(({ recipeType, recipeCategory, displayName }): NewRecipeCategory => {
       const all_machines = m.get(recipeType)?.map((m) => m.machineId);
       if (!all_machines) {
         console.log("###DEBUG");

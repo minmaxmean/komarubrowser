@@ -3,20 +3,20 @@
   import type { Searcher } from '$lib/components/widgets/IngredientInput/search';
   import RecipeListWidget from '$lib/components/widgets/RecipeWidget/RecipeListWidget.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
-  import { type FullRecipeType } from '$lib/db/recipeTypeRepo.js';
+  import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   const offset = 0;
   const pageSize = 10;
   let inputFilter = $state<Ingredient | undefined>();
   let outputFilter = $state<Ingredient | undefined>();
-  let machineFilter = $state<FullRecipeType | undefined>();
+  let machineFilter = $state<FullRecipeCategory | undefined>();
 
   const ingSearcher: Searcher<Ingredient> = $derived(
     async (_, f, p) => (await dbStore.data?.ingredients.search(f, p)) ?? [],
   );
-  const machineSearcher: Searcher<FullRecipeType> = $derived(
+  const machineSearcher: Searcher<FullRecipeCategory> = $derived(
     async (_, f, p) =>
-      (await dbStore.data?.recipeType.search({ mode: 'or', ingredientFilter: f }, p)) ?? [],
+      (await dbStore.data?.recipeCategory.search({ mode: 'or', ingredientFilter: f }, p)) ?? [],
   );
 
   const recipes = $derived(

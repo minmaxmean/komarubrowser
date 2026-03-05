@@ -1,13 +1,13 @@
-import { GenericStore } from '$lib/store/genericStore.svelte';
-import { assets } from '$lib/assets';
 import initSqlJs from 'sql.js';
 import { SqlJsDialect } from 'kysely-wasm';
+import { getDb } from '@komarubrowser/common/db/database.js';
+import { GenericStore } from '$lib/store/genericStore.svelte';
+import { assets } from '$lib/assets';
 import type { GlobalFilter } from './globalFilter';
 import { IngredientRepo } from './ingredientRepo';
 import { ManifestRepo } from './manifestRepo';
 import { RecipeRepo } from './recipeRepo';
-import { getDb } from '@komarubrowser/common/db/database.js';
-import { RecipeTypeRepo } from './recipeTypeRepo';
+import { RecipeCategoryRepo } from './recipeCategoryRepo';
 
 export const defaultGlobalFilter: GlobalFilter = {
   ingredient: {
@@ -38,7 +38,7 @@ export type SuperRepo = {
   ingredients: IngredientRepo;
   manifest: ManifestRepo;
   recipe: RecipeRepo;
-  recipeType: RecipeTypeRepo;
+  recipeCategory: RecipeCategoryRepo;
   close: () => Promise<void>;
 };
 
@@ -53,7 +53,7 @@ export const loadDB = async (): Promise<SuperRepo> => {
     ingredients: new IngredientRepo(db, globalFilter),
     manifest: new ManifestRepo(db),
     recipe: new RecipeRepo(db),
-    recipeType: new RecipeTypeRepo(db),
+    recipeCategory: new RecipeCategoryRepo(db),
     close: () => db.destroy(),
   };
 };
