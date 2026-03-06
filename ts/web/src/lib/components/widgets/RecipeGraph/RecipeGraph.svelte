@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { Background, ConnectionLineType, SvelteFlow } from '@xyflow/svelte';
+  import { Background, ConnectionLineType, Controls, MiniMap, SvelteFlow } from '@xyflow/svelte';
+  import type { NodeTypes } from '@xyflow/svelte';
   import { mode as colorMode } from 'mode-watcher';
-  import { tick, untrack } from 'svelte';
+  import { untrack } from 'svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import RecipeNode from './RecipeNode.svelte';
   import { type EdgeType, type NodeType, calcGraph, reposition } from './graph';
 
   type Props = {
@@ -38,6 +40,10 @@
       }
     }
   });
+
+  const nodeTypes: NodeTypes = {
+    recipe: RecipeNode,
+  };
 </script>
 
 <div class="w-full h-240 rounded-md border">
@@ -45,10 +51,13 @@
     colorMode={colorMode.current}
     bind:nodes
     bind:edges
+    {nodeTypes}
     fitView
     connectionLineType={ConnectionLineType.SmoothStep}
     defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
   >
     <Background />
+    <MiniMap nodeStrokeWidth={3} />
+    <Controls />
   </SvelteFlow>
 </div>

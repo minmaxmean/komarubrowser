@@ -119,3 +119,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.svelte-flow {
+  /* --xy-edge-stroke-default: #e2e8f0 !important; */
+  --xy-edge-stroke-width-default: 4px !important;
+}

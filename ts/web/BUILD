@@ -9,7 +9,7 @@ load("@npm//ts/web:vite/package_json.bzl", vite_bin = "bin")
 # gazelle:exclude *
 npm_link_all_packages(name = "node_modules")
 
-copy_to_bin(
+filegroup(
     name = "config",
     srcs = [
         "components.json",
@@ -26,7 +26,7 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-copy_to_bin(
+filegroup(
     name = "vite_static",
     srcs = glob(["static/**/*"]),
     visibility = ["//visibility:public"],

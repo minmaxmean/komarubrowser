@@ -17,8 +17,9 @@
     class?: ClassValue | undefined | null;
     onToggle?: (item: Recipe) => void;
     selected?: boolean;
+    withHandles?: boolean;
   };
-  const { recipe, class: className, onToggle, selected }: RecipeWidgetProps = $props();
+  const { recipe, class: className, onToggle, selected, withHandles }: RecipeWidgetProps = $props();
 
   const itemIds = $derived(getItemIds(recipe));
   const items = $derived(await dbStore.data?.ingredients.getByIds(itemIds));
@@ -29,7 +30,7 @@
 
 <div
   class={cn(
-    'w-sm rounded-xl border bg-card py-4 text-center',
+    'w-sm rounded-xl border bg-card py-4 text-center relative',
     'grid grid-cols-[3fr_auto_1fr_1fr] items-center gap-x-4 gap-y-2',
     className,
   )}
@@ -64,7 +65,7 @@
     <div class="col-span-4 bg-red-800 py-1">Input</div>
     {#each recipe.inputs as ingredient}
       {@const item = items?.get(ingredient.accepted_ids[0])}
-      <RecipeIngredientWidget {ingredient} {item} />
+      <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'target'} />
     {/each}
   {/if}
 
@@ -72,7 +73,7 @@
     <div class="col-span-4 bg-green-800 py-1">Output</div>
     {#each recipe.outputs as ingredient}
       {@const item = items?.get(ingredient.accepted_ids[0])}
-      <RecipeIngredientWidget {ingredient} {item} />
+      <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'source'} />
     {/each}
   {/if}
 

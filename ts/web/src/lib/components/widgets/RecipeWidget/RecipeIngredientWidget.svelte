@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Handle, type HandleProps, Position } from '@xyflow/svelte';
   import type { ClassValue } from 'svelte/elements';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
@@ -11,14 +12,28 @@
     ingredient: RecipeIngredient;
     item?: Ingredient;
     class?: ClassValue | undefined | null;
+    handleType?: HandleProps['type'] | false;
   };
-  const { ingredient: ingredient, item, class: className }: RecipeIngredientWidgetProps = $props();
+  const {
+    ingredient: ingredient,
+    item,
+    class: className,
+    handleType,
+  }: RecipeIngredientWidgetProps = $props();
   const displayName = $derived(item?.display_name ?? fakeDisplayName(ingredient.accepted_ids[0]));
   const { amount, unit } = $derived(calcUnit(!!item?.is_fluid, ingredient.amount));
   const chance = $derived(calcChance(ingredient.chance));
 </script>
 
-<div class={cn('contents', className)}>
+<div class={cn('col-span-4 grid grid-cols-subgrid relative items-center', className)}>
+  {#if handleType && ingredient.chance > 0}
+    <Handle
+      type={handleType}
+      position={handleType === 'source' ? Position.Right : Position.Left}
+      id={ingredient.accepted_ids[0]}
+    />
+  {/if}
+
   <p class="text-right text-pretty">{displayName}</p>
   <div class="flex items-center justify-center">
     <IngredientIcon {...getTextProps(item)} />

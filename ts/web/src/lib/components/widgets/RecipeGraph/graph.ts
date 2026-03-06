@@ -1,9 +1,12 @@
 import darge from '@dagrejs/dagre';
-import { type BuiltInEdge, type BuiltInNode, Position } from '@xyflow/svelte';
+import type { BuiltInEdge, BuiltInNode, Node } from '@xyflow/svelte';
+import { Position } from '@xyflow/svelte';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
-import { getDisplayName } from '../RecipeWidget/utils';
 
-export type NodeType = BuiltInNode;
+export type RecipeNodeData = { recipe: Recipe };
+export type RecipeNodeType = Node<RecipeNodeData, 'recipe'>;
+
+export type NodeType = BuiltInNode | RecipeNodeType;
 export type EdgeType = BuiltInEdge;
 
 type FlowGraph = {
@@ -13,28 +16,30 @@ type FlowGraph = {
 
 export function calcGraph(recipes: Recipe[]): FlowGraph {
   const nodes = recipes.map(
-    (r, idx): NodeType => ({
+    (r, idx): RecipeNodeType => ({
       id: r.id,
       position: { x: idx * 10, y: idx * 60 },
-      type: 'default',
-      data: { label: getDisplayName(r.id) },
+      type: 'recipe',
+      data: { recipe: r },
     }),
   );
-  const edges: EdgeType[] = recipes.flatMap((producer) => {
-    const inputIds = producer.outputs.map((output) => output.accepted_ids[0]);
-    if (inputIds.length === 0) {
-      return [];
-    }
-    return recipes
-      .filter((consumer) =>
-        consumer.inputs.some((input) => inputIds.includes(input.accepted_ids[0])),
-      )
-      .map((consumer) => ({
-        id: `${producer.id}_to_${consumer.id}`,
-        source: producer.id,
-        target: consumer.id,
-      }));
-  });
+  const edges = recipes.flatMap((producer) =>
+    producer.outputs.flatMap((output) => {
+      const productedItem = output.accepted_ids[0];
+      const consumers = recipes.filter((consumer) =>
+        consumer.inputs.some((input) => input.accepted_ids[0] === productedItem),
+      );
+      return consumers.map(
+        (consumer): EdgeType => ({
+          id: `${producer.id}_${consumer.id}_${productedItem}`,
+          source: producer.id,
+          target: consumer.id,
+          sourceHandle: productedItem,
+          targetHandle: productedItem,
+        }),
+      );
+    }),
+  );
   return { nodes, edges };
 }
 
@@ -47,7 +52,6 @@ export function reposition(nodes: NodeType[], edges: EdgeType[]): NodeType[] {
   nodes.forEach((node) => {
     const width = node.measured?.width ?? defaultWidth;
     const height = node.measured?.height ?? defaultHeight;
-    console.log(node.id, width, height);
     g.setNode(node.id, { ...node, width, height });
   });
   darge.layout(g);
@@ -56,12 +60,6 @@ export function reposition(nodes: NodeType[], edges: EdgeType[]): NodeType[] {
     const x = position.x - (node.measured?.width ?? defaultWidth) / 2;
     const y = position.y - (node.measured?.height ?? defaultHeight) / 2;
 
-    return {
-      ...node,
-      position: { x, y },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
-      style: 'text-wrap: pretty',
-    };
+    return { ...node, position: { x, y } };
   });
 }
