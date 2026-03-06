@@ -53,6 +53,10 @@
     bind:edges
     {nodeTypes}
     fitView
+    minZoom={0.25}
+    nodesDraggable={false}
+    nodesConnectable={false}
+    elementsSelectable={false}
     connectionLineType={ConnectionLineType.SmoothStep}
     defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
   >

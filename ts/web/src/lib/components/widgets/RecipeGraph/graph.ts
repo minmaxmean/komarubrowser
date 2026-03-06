@@ -1,12 +1,12 @@
 import darge from '@dagrejs/dagre';
-import type { BuiltInEdge, BuiltInNode, Node } from '@xyflow/svelte';
-import { Position } from '@xyflow/svelte';
+import type { BuiltInEdge, Node } from '@xyflow/svelte';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
+import { type NodeCalcState, initCalcState } from './calc';
 
-export type RecipeNodeData = { recipe: Recipe };
+export type RecipeNodeData = { recipe: Recipe; calcState: NodeCalcState };
 export type RecipeNodeType = Node<RecipeNodeData, 'recipe'>;
 
-export type NodeType = BuiltInNode | RecipeNodeType;
+export type NodeType = RecipeNodeType;
 export type EdgeType = BuiltInEdge;
 
 type FlowGraph = {
@@ -20,7 +20,7 @@ export function calcGraph(recipes: Recipe[]): FlowGraph {
       id: r.id,
       position: { x: idx * 10, y: idx * 60 },
       type: 'recipe',
-      data: { recipe: r },
+      data: { recipe: r, calcState: initCalcState },
     }),
   );
   const edges = recipes.flatMap((producer) =>
