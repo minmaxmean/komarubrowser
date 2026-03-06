@@ -6,7 +6,11 @@ const config: Config = {
   singleQuote: true,
   trailingComma: 'all',
   printWidth: 100,
-  plugins: ['prettier-plugin-svelte', 'prettier-plugin-tailwindcss'],
+  plugins: [
+    'prettier-plugin-svelte',
+    'prettier-plugin-tailwindcss',
+    '@trivago/prettier-plugin-sort-imports',
+  ],
   overrides: [
     {
       files: '*.svelte',
@@ -17,6 +21,9 @@ const config: Config = {
     },
   ],
   tailwindStylesheet: './src/routes/layout.css',
+  importOrder: ['^@komarubrowser/(.*)$', '^[\$lib]', '^[./]'],
+  // importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 };
 
 export default config;

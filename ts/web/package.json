@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-    "sync": "SHOULD_ALIAS=TRUE svelte-kit sync"
+		"sync": "SHOULD_ALIAS=TRUE svelte-kit sync"
 	},
 	"devDependencies": {
 		"@internationalized/date": "^3.11.0",
@@ -16,6 +16,7 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.18",
 		"@tanstack/table-core": "^8.21.3",
+		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
 		"@types/sql.js": "^1.4.9",
 		"bits-ui": "^2.16.2",
 		"clsx": "^2.1.1",
