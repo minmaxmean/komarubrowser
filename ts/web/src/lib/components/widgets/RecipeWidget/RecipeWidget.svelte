@@ -1,6 +1,7 @@
 <script lang="ts">
   import Minus from '@lucide/svelte/icons/minus';
   import Plus from '@lucide/svelte/icons/plus';
+  import type { Snippet } from 'svelte';
   import type { ClassValue } from 'svelte/elements';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
   import { Button } from '$lib/components/ui/button';
@@ -18,8 +19,18 @@
     onToggle?: (item: Recipe) => void;
     selected?: boolean;
     withHandles?: boolean;
+    action?: Snippet<[]>;
+    machineSettings?: Snippet<[]>;
   };
-  const { recipe, class: className, onToggle, selected, withHandles }: RecipeWidgetProps = $props();
+  const {
+    recipe,
+    class: className,
+    onToggle,
+    selected,
+    withHandles,
+    action,
+    machineSettings,
+  }: RecipeWidgetProps = $props();
 
   const itemIds = $derived(getItemIds(recipe));
   const items = $derived(await dbStore.data?.ingredients.getByIds(itemIds));
@@ -54,6 +65,7 @@
         {/if}
       </Button>
     {/if}
+    {@render action?.()}
   </div>
 
   <p class="text-right">{getDisplayName(recipe.recipe_type, items)}</p>
@@ -102,4 +114,5 @@
     <p class="text-right">{recipe.eut_produced}</p>
     <p class="text-left">EU/t</p>
   {/if}
+  {@render machineSettings?.()}
 </div>

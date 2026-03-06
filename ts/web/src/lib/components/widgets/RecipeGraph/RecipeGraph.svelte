@@ -1,16 +1,26 @@
 <script lang="ts">
   import { Background, ConnectionLineType, Controls, MiniMap, SvelteFlow } from '@xyflow/svelte';
-  import type { NodeTypes } from '@xyflow/svelte';
+  import type { GetMiniMapNodeAttribute, NodeTypes } from '@xyflow/svelte';
   import { mode as colorMode } from 'mode-watcher';
   import { untrack } from 'svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
   import RecipeNode from './RecipeNode.svelte';
-  import { type EdgeType, type NodeType, calcGraph, reposition } from './graph';
+  import type { Customs } from './customs';
+  import {
+    type EdgeType,
+    type NodeType,
+    type RecipeNodeData,
+    calcGraph,
+    reposition,
+  } from './graph';
 
   type Props = {
     recipes: Recipe[];
+    customs: Customs;
   };
-  const { recipes }: Props = $props();
+  const { recipes, customs = $bindable() }: Props = $props();
+
+  $inspect(`customs`, customs);
 
   let nodes = $state.raw<NodeType[]>([]);
   let edges = $state.raw<EdgeType[]>([]);
@@ -18,7 +28,7 @@
 
   // Phase 1: Generate initial nodes when `recipes` prop changes
   $effect(() => {
-    const rawGraph = calcGraph(recipes);
+    const rawGraph = calcGraph(recipes, customs);
 
     nodes = rawGraph.nodes;
     edges = rawGraph.edges;
@@ -44,6 +54,14 @@
   const nodeTypes: NodeTypes = {
     recipe: RecipeNode,
   };
+
+  const minimapNodeColor: GetMiniMapNodeAttribute = (node) => {
+    const data = node.data as RecipeNodeData;
+    if (data.calcState.isAuto) {
+      return 'var(--color-green-500)';
+    }
+    return 'var(--color-blue-500)';
+  };
 </script>
 
 <div class="w-full h-240 rounded-md border">
@@ -61,7 +79,7 @@
     defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
   >
     <Background />
-    <MiniMap nodeStrokeWidth={3} />
+    <MiniMap nodeStrokeWidth={3} nodeColor={minimapNodeColor} />
     <Controls />
   </SvelteFlow>
 </div>
