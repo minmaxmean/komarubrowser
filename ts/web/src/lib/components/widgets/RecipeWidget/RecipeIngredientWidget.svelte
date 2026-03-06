@@ -6,7 +6,7 @@
   import { getTextProps } from '$lib/db/recipeCategoryRepo';
   import { cn } from '$lib/utils';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
-  import { calcChance, calcUnit, fakeDisplayName } from './utils';
+  import { calcChance, calcUnit, cleanAndCapitalize } from './utils';
 
   type RecipeIngredientWidgetProps = {
     ingredient: RecipeIngredient;
@@ -20,7 +20,9 @@
     class: className,
     handleType,
   }: RecipeIngredientWidgetProps = $props();
-  const displayName = $derived(item?.display_name ?? fakeDisplayName(ingredient.accepted_ids[0]));
+  const displayName = $derived(
+    cleanAndCapitalize(item?.display_name ?? ingredient.accepted_ids[0]),
+  );
   const { amount, unit } = $derived(calcUnit(!!item?.is_fluid, ingredient.amount));
   const chance = $derived(calcChance(ingredient.chance));
 </script>

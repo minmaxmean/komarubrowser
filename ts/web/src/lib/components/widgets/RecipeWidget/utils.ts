@@ -5,20 +5,18 @@ export const getDisplayName = (id: string, map?: Map<string, Ingredient>) => {
   if (!id) {
     return '<N/A>';
   }
-  let item = map?.get(id);
-  if (item?.display_name) {
-    return item.display_name;
-  }
-  return fakeDisplayName(id);
+  let label = map?.get(id)?.display_name ?? id;
+  return cleanAndCapitalize(label);
 };
 
-export const fakeDisplayName = (id: string): string => {
-  let splits = id.split('/');
-  id = splits[splits.length - 1];
-  splits = id.split(':');
-  id = splits[splits.length - 1];
+export const cleanAndCapitalize = (id: string): string => {
+  id = id.replaceAll(/^[^:]+:/g, '');
+  id = id.replaceAll(/^[^.]+\./g, '');
   id = id.replaceAll('_', ' ');
-  return id;
+  return id
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 };
 
 export const getItemIds = (r: Recipe): string[] => {

@@ -10,7 +10,7 @@
   import EnergyTierWidget from '../EnergyTier/EnergyTierWidget.svelte';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
   import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
-  import { getDisplayName, getItemIds } from './utils';
+  import { cleanAndCapitalize, getDisplayName, getItemIds } from './utils';
 
   type RecipeWidgetProps = {
     recipe: Recipe;
@@ -37,7 +37,7 @@
 >
   <div class="relative col-span-4 mb-4 flex items-center justify-center">
     <div class="text-lg font-bold">
-      {recipeCategory?.display_name ?? getDisplayName(recipe.id)}
+      {cleanAndCapitalize(recipeCategory?.display_name ?? recipe.id)}
     </div>
 
     {#if onToggle}
