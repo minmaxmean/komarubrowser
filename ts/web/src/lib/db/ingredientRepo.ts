@@ -3,6 +3,7 @@ import {
   type ExpressionBuilder,
   type SelectQueryBuilder,
   type SqlBool,
+  sql,
 } from 'kysely';
 import type { Database, KyselyDB } from '@komarubrowser/common/db/database.js';
 import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
@@ -83,7 +84,10 @@ export class IngredientRepo {
     return m;
   }
   async search(filter: IngredientFilter, pagination: Pagination): Promise<Ingredient[]> {
-    let query = this.db.selectFrom('ingredient');
+    let query = this.db
+      .selectFrom('ingredient')
+      .orderBy(sql`LENGTH(display_name)`)
+      .orderBy('display_name');
     query = this.withGlobalFilter(query);
     query = query.where(hasIngredientFilter(filter));
     query = applyPagination(query, pagination);

@@ -34,7 +34,10 @@
 		"vite-plugin-watch-node-modules": "^0.5.0"
 	},
 	"dependencies": {
+		"@dagrejs/dagre": "^2.0.4",
+		"@dagrejs/graphlib": "^3.0.4",
 		"@komarubrowser/common": "workspace:*",
+		"@xyflow/svelte": "^1.5.1",
 		"kysely": "^0.28.11",
 		"kysely-wasm": "^1.2.1",
 		"mode-watcher": "^1.1.0",

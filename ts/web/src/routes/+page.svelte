@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe.js';
   import * as Collapsible from '$lib/components/ui/collapsible';
+  import RecipeGraph from '$lib/components/widgets/RecipeGraph/RecipeGraph.svelte';
   import RecipeSelector from '$lib/components/widgets/RecipeSelector/RecipeSelector.svelte';
 
   let selectedItems = $state<Recipe[]>([]);
@@ -19,12 +20,9 @@
   });
 
   // 3. Automatically save whenever selectedItems changes
-  $effect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedItems));
-  });
-  $inspect({ selectedItems });
+  $effect(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedItems)));
 
-  let searchOpen = $state(true);
+  let searchOpen = $state(false);
 </script>
 
 <Collapsible.Root class="w-full rounded-md border whitespace-nowrap" bind:open={searchOpen}>
@@ -36,3 +34,5 @@
     <RecipeSelector bind:selectedItems />
   </Collapsible.Content>
 </Collapsible.Root>
+
+<RecipeGraph recipes={selectedItems} />

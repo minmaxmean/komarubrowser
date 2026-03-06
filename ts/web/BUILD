@@ -20,7 +20,7 @@ copy_to_bin(
     ],
 )
 
-copy_to_bin(
+filegroup(
     name = "vite_srcs",
     srcs = glob(["src/**/*"]),
     visibility = ["//visibility:public"],
