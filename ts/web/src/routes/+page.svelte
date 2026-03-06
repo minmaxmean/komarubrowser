@@ -1,6 +1,8 @@
 <script lang="ts">
+  import Chevron from '@lucide/svelte/icons/chevron-right';
   import { onMount } from 'svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import RecipeSelector from '$lib/components/widgets/RecipeSelector/RecipeSelector.svelte';
 
   let selectedItems = $state<Recipe[]>([]);
@@ -21,6 +23,16 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedItems));
   });
   $inspect({ selectedItems });
+
+  let searchOpen = $state(true);
 </script>
 
-<RecipeSelector bind:selectedItems />
+<Collapsible.Root class="w-full rounded-md border whitespace-nowrap" bind:open={searchOpen}>
+  <Collapsible.Trigger variant="ghost" size="lg" class="m-4 pl-0!">
+    <Chevron class="transition-transform duration-200 {searchOpen ? 'rotate-90' : 'rotate-0'}" />
+    Add Recipes
+  </Collapsible.Trigger>
+  <Collapsible.Content>
+    <RecipeSelector bind:selectedItems />
+  </Collapsible.Content>
+</Collapsible.Root>

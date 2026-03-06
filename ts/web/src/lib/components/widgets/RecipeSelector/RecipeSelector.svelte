@@ -67,7 +67,7 @@
     />
   </div>
 
-  <ScrollArea class="w-full rounded-md border whitespace-nowrap" orientation="horizontal">
+  <ScrollArea class="w-full" orientation="horizontal">
     {#if selectedItems.length > 0}
       <div class="flex w-max space-x-4 p-4">
         {#each selectedItems as recipe (recipe.id)}
