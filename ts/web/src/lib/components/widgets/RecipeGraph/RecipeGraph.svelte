@@ -1,10 +1,19 @@
 <script lang="ts">
-  import { Background, ConnectionLineType, Controls, MiniMap, SvelteFlow } from '@xyflow/svelte';
+  import {
+    Background,
+    ConnectionLineType,
+    Controls,
+    MiniMap,
+    Panel,
+    SvelteFlow,
+  } from '@xyflow/svelte';
   import type { GetMiniMapNodeAttribute, NodeTypes } from '@xyflow/svelte';
   import { mode as colorMode } from 'mode-watcher';
   import { untrack } from 'svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import Button from '$lib/components/ui/button/button.svelte';
   import RecipeNode from './RecipeNode.svelte';
+  import { calcMachineCnt } from './calc';
   import type { Customs } from './customs';
   import {
     type EdgeType,
@@ -62,6 +71,17 @@
     }
     return 'var(--color-blue-500)';
   };
+
+  const autoBalance = () => {
+    const machineCnt = calcMachineCnt(nodes, edges);
+    nodes = nodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        calcState: { ...node.data.calcState, machineCnt: machineCnt.get(node.id) },
+      },
+    }));
+  };
 </script>
 
 <div class="w-full h-240 rounded-md border">
@@ -78,6 +98,9 @@
     connectionLineType={ConnectionLineType.SmoothStep}
     defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
   >
+    <Panel position="bottom-center">
+      <Button onclick={autoBalance}>Auto Balance</Button>
+    </Panel>
     <Background />
     <MiniMap nodeStrokeWidth={3} nodeColor={minimapNodeColor} />
     <Controls />

@@ -18,7 +18,7 @@
 
     <p class="text-right"># of machines</p>
     <div></div>
-    <p class="text-right">{calcState.machineCnt ?? 0}</p>
+    <p class="text-right">{Number(calcState.machineCnt ?? 0).toFixed(2)}</p>
     <Button size="icon-sm" variant="ghost" class="hover:bg-muted" onclick={() => toggleManual(id)}>
       {#if calcState.isAuto}
         <Wand class="opacity-50" />
