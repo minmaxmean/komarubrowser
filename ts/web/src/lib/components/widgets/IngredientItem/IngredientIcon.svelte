@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { iconVariants, type IconVariants } from './iconVariants';
   import { cn } from '$lib/utils';
+  import { type IconVariants, iconVariants } from './iconVariants';
 
   type Props = { display_name?: string; url?: string | null; hex_color?: string } & IconVariants;
   const default_texture_location = '/komaru_16.png';

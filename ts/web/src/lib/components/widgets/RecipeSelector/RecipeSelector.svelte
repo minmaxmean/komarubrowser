@@ -1,14 +1,13 @@
 <script lang="ts">
-  import IngredientInput from '$lib/components/widgets/IngredientInput/IngredientInput.svelte';
-  import { dbStore } from '$lib/db/dbStore.svelte';
-  import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
   import { recipeCategoryId } from '@komarubrowser/common/db/recipeType.js';
-  import { ingSearcher, machineSearcher } from './searchers';
-
   import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
+  import IngredientInput from '$lib/components/widgets/IngredientInput/IngredientInput.svelte';
   import RecipeWidget from '$lib/components/widgets/RecipeWidget/RecipeWidget.svelte';
+  import { dbStore } from '$lib/db/dbStore.svelte';
+  import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
+  import { ingSearcher, machineSearcher } from './searchers';
 
   type Props = {
     pageSize?: number;

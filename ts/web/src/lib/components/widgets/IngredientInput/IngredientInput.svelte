@@ -1,17 +1,17 @@
 <script lang="ts" generics="T extends IngredientLike">
-  import { tick } from 'svelte';
-  import { cn } from 'tailwind-variants';
-  import X from '@lucide/svelte/icons/x';
   import CheckIcon from '@lucide/svelte/icons/check';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
-  import { Button } from '$lib/components/ui/button/index.js';
+  import X from '@lucide/svelte/icons/x';
+  import { tick } from 'svelte';
+  import { cn } from 'tailwind-variants';
   import { type Ingredient } from '@komarubrowser/common/db/ingredient.js';
+  import { Button } from '$lib/components/ui/button/index.js';
   import * as Command from '$lib/components/ui/command/index.js';
   import * as Popover from '$lib/components/ui/popover/index.js';
   import type { IngredientFilter } from '$lib/db/ingredientRepo.js';
-  import type { Searcher } from './search.js';
-  import IngredientItem from '../IngredientItem/IngredientItem.svelte';
   import type { IngredientLike } from '$lib/db/recipeCategoryRepo.js';
+  import IngredientItem from '../IngredientItem/IngredientItem.svelte';
+  import type { Searcher } from './search.js';
 
   type Props = {
     selectedItem: T | undefined;

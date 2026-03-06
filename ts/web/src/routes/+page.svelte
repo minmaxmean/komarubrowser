@@ -1,7 +1,7 @@
 <script lang="ts">
-  import RecipeSelector from '$lib/components/widgets/RecipeSelector/RecipeSelector.svelte';
-  import type { Recipe } from '@komarubrowser/common/db/recipe.js';
   import { onMount } from 'svelte';
+  import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+  import RecipeSelector from '$lib/components/widgets/RecipeSelector/RecipeSelector.svelte';
 
   let selectedItems = $state<Recipe[]>([]);
   const STORAGE_KEY = 'SELECTED_RECIPIES';

@@ -1,13 +1,13 @@
 import {
   type Expression,
+  type ExpressionBuilder,
   type SelectQueryBuilder,
   type SqlBool,
-  type ExpressionBuilder,
 } from 'kysely';
 import type { Database, KyselyDB } from '@komarubrowser/common/db/database.js';
 import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
-import type { GlobalFilter } from './globalFilter.js';
 import { type Pagination, applyPagination } from './common.js';
+import type { GlobalFilter } from './globalFilter.js';
 
 type IngredientSelectQuery = SelectQueryBuilder<Database, 'ingredient', {}>;
 type IngredientExpressionBuilder = ExpressionBuilder<Database, 'ingredient'>;

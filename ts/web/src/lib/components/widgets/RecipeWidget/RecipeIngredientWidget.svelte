@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
-  import { calcChance, calcUnit, fakeDisplayName } from './utils';
-  import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
-  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
   import type { ClassValue } from 'svelte/elements';
-  import { cn } from '$lib/utils';
+  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
+  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
   import { getTextProps } from '$lib/db/recipeCategoryRepo';
+  import { cn } from '$lib/utils';
+  import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
+  import { calcChance, calcUnit, fakeDisplayName } from './utils';
 
   type RecipeIngredientWidgetProps = {
     ingredient: RecipeIngredient;

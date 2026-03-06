@@ -2,16 +2,16 @@
   import {
     type ColumnDef,
     type FilterFnOption,
+    type PaginationState,
+    type Updater,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
-    type PaginationState,
-    type Updater,
   } from '@tanstack/table-core';
-  import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table/index.js';
-  import * as Table from '$lib/components/ui/table/index.js';
   import { Button } from '$lib/components/ui/button';
+  import { FlexRender, createSvelteTable } from '$lib/components/ui/data-table/index.js';
   import { Input } from '$lib/components/ui/input';
+  import * as Table from '$lib/components/ui/table/index.js';
 
   type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];

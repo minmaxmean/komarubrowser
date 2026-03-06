@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { type EnergyTierID, energyTierFromID } from '@komarubrowser/common/db/energyTier.js';
   import Badge from '$lib/components/ui/badge/badge.svelte';
-  import { energyTierFromID, type EnergyTierID } from '@komarubrowser/common/db/energyTier.js';
   import { energyTierVarient } from './variants';
 
   type Props = { tier: EnergyTierID };

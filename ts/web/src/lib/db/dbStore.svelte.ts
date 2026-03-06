@@ -1,13 +1,13 @@
-import initSqlJs from 'sql.js';
 import { SqlJsDialect } from 'kysely-wasm';
+import initSqlJs from 'sql.js';
 import { getDb } from '@komarubrowser/common/db/database.js';
-import { GenericStore } from '$lib/store/genericStore.svelte';
 import { assets } from '$lib/assets';
+import { GenericStore } from '$lib/store/genericStore.svelte';
 import type { GlobalFilter } from './globalFilter';
 import { IngredientRepo } from './ingredientRepo';
 import { ManifestRepo } from './manifestRepo';
-import { RecipeRepo } from './recipeRepo';
 import { RecipeCategoryRepo } from './recipeCategoryRepo';
+import { RecipeRepo } from './recipeRepo';
 
 export const defaultGlobalFilter: GlobalFilter = {
   ingredient: {

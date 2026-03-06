@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { Recipe } from '@komarubrowser/common/db/recipe';
-  import { getDisplayName, getItemIds } from './utils';
-  import EnergyTierWidget from '../EnergyTier/EnergyTierWidget.svelte';
-  import { dbStore } from '$lib/db/dbStore.svelte';
-  import type { ClassValue } from 'svelte/elements';
-  import { cn } from '$lib/utils';
-  import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
-  import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
-  import { getTextProps } from '$lib/db/recipeCategoryRepo';
-  import { Button } from '$lib/components/ui/button';
-  import Plus from '@lucide/svelte/icons/plus';
   import Minus from '@lucide/svelte/icons/minus';
+  import Plus from '@lucide/svelte/icons/plus';
+  import type { ClassValue } from 'svelte/elements';
+  import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import { Button } from '$lib/components/ui/button';
+  import { dbStore } from '$lib/db/dbStore.svelte';
+  import { getTextProps } from '$lib/db/recipeCategoryRepo';
+  import { cn } from '$lib/utils';
+  import EnergyTierWidget from '../EnergyTier/EnergyTierWidget.svelte';
+  import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
+  import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
+  import { getDisplayName, getItemIds } from './utils';
 
   type RecipeWidgetProps = {
     recipe: Recipe;

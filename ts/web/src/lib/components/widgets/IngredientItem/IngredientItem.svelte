@@ -1,10 +1,10 @@
 <script lang="ts" generics="T extends IngredientLike">
+  import type { ClassValue } from 'svelte/elements';
   import * as Item from '$lib/components/ui/item/index.js';
   import type { ItemSize } from '$lib/components/ui/item/item.svelte';
-  import IngredientIcon from './IngredientIcon.svelte';
+  import { type IngredientLike, getTextProps } from '$lib/db/recipeCategoryRepo';
   import { cn } from '$lib/utils';
-  import type { ClassValue } from 'svelte/elements';
-  import { getTextProps, type IngredientLike } from '$lib/db/recipeCategoryRepo';
+  import IngredientIcon from './IngredientIcon.svelte';
 
   type Props = {
     item: T;

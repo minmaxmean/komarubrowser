@@ -1,9 +1,9 @@
 <script lang="ts">
+  import type { ClassValue } from 'clsx';
+  import type { Recipe } from '@komarubrowser/common/db/recipe';
   import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
   import RecipeWidget from '$lib/components/widgets/RecipeWidget/RecipeWidget.svelte';
   import { cn } from '$lib/utils';
-  import type { Recipe } from '@komarubrowser/common/db/recipe';
-  import type { ClassValue } from 'clsx';
 
   type RecipeListWidgetProps = {
     recipes: Recipe[];

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import './layout.css';
-  import favicon from '$lib/assets/favicon.svg';
   import { ModeWatcher } from 'mode-watcher';
-  import { dbStore } from '$lib/db/dbStore.svelte';
   import { onMount } from 'svelte';
+  import favicon from '$lib/assets/favicon.svg';
+  import { dbStore } from '$lib/db/dbStore.svelte';
+  import './layout.css';
 
   onMount(() => {
     dbStore.fetch();

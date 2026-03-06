@@ -1,6 +1,6 @@
+import type { Ingredient } from '@komarubrowser/common/db/ingredient';
 import type { SuperRepo } from '$lib/db/dbStore.svelte';
 import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
-import type { Ingredient } from '@komarubrowser/common/db/ingredient';
 import type { Searcher } from '../IngredientInput/search';
 
 export const ingSearcher =

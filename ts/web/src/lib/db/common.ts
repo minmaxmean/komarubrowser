@@ -1,4 +1,4 @@
-import { sql, type SelectQueryBuilder } from 'kysely';
+import { type SelectQueryBuilder, sql } from 'kysely';
 import type { Database, KyselyDB } from '@komarubrowser/common/db/database.js';
 
 export type Pagination = {

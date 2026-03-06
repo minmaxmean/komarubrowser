@@ -21,7 +21,7 @@ const config: Config = {
     },
   ],
   tailwindStylesheet: './src/routes/layout.css',
-  importOrder: ['^@komarubrowser/(.*)$', '^[\$lib]', '^[./]'],
+  importOrder: ['^@komarubrowser/(.*)$', '^\\$lib', '^[./]'],
   // importOrderSeparation: true,
   importOrderSortSpecifiers: true,
 };
