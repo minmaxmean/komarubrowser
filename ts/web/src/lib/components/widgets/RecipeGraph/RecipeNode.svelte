@@ -1,14 +1,15 @@
 <script lang="ts">
   import Manual from '@lucide/svelte/icons/user';
   import Wand from '@lucide/svelte/icons/wand-sparkles';
-  import { type NodeProps, useSvelteFlow } from '@xyflow/svelte';
+  import { type NodeProps } from '@xyflow/svelte';
   import { Button } from '$lib/components/ui/button';
   import RecipeWidget from '../RecipeWidget/RecipeWidget.svelte';
-  import type { NodeType, RecipeNodeType } from './graph';
+  import { useCustoms } from './customs';
+  import type { RecipeNodeType } from './graph';
 
   const { id, data }: NodeProps<RecipeNodeType> = $props();
   const { calcState, recipe } = $derived(data);
-  const { updateNodeData } = useSvelteFlow<NodeType>();
+  const { toggleManual } = useCustoms();
 </script>
 
 <RecipeWidget {recipe} withHandles>
@@ -18,12 +19,7 @@
     <p class="text-right"># of machines</p>
     <div></div>
     <p class="text-right">{calcState.machineCnt ?? 0}</p>
-    <Button
-      size="icon-sm"
-      variant="ghost"
-      class="hover:bg-muted"
-      onclick={() => updateNodeData(id, { calcState: { isAuto: !calcState.isAuto } })}
-    >
+    <Button size="icon-sm" variant="ghost" class="hover:bg-muted" onclick={() => toggleManual(id)}>
       {#if calcState.isAuto}
         <Wand class="opacity-50" />
       {:else}
