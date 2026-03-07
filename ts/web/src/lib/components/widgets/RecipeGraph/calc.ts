@@ -1,7 +1,7 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { Customs, FakeFraction } from './customs';
-import type { EdgeType } from './graph';
+import { type EdgeType, calcEdges } from './graph';
 
 export type NodeCalcState = {
   isAuto: boolean;
@@ -77,7 +77,8 @@ function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction):
   return consumed_pt.div(produced_pt);
 }
 
-export const calcMachineCnt = (recipes: Recipe[], flowEdges: EdgeType[], cust: Customs) => {
+export const calcMachineCnt = (recipes: Recipe[], cust: Customs) => {
+  const flowEdges = calcEdges(recipes);
   const machines: Map<string, Recipe> = new Map();
   const machineCnt: Map<string, Fraction> = new Map();
   recipes.forEach((r) => {
@@ -128,6 +129,5 @@ export const calcMachineCnt = (recipes: Recipe[], flowEdges: EdgeType[], cust: C
     const cAdditionCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, pCnt).inverse();
     machineCnt.set(cId, new Fraction(cAdditionCnt.add(cCurCnt)));
   });
-  console.log(s(machineCnt));
   return machineCnt;
 };

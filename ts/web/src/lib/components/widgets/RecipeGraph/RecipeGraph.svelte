@@ -1,17 +1,11 @@
 <script lang="ts">
-  import {
-    Background,
-    ConnectionLineType,
-    Controls,
-    MiniMap,
-    Panel,
-    SvelteFlow,
-  } from '@xyflow/svelte';
+  import { Background, ConnectionLineType, Controls, MiniMap, SvelteFlow } from '@xyflow/svelte';
   import type { GetMiniMapNodeAttribute, NodeTypes } from '@xyflow/svelte';
   import { mode as colorMode } from 'mode-watcher';
   import { untrack } from 'svelte';
+  import { toast } from 'svelte-sonner';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
-  import Button from '$lib/components/ui/button/button.svelte';
+  import { deepMerge } from '$lib/utils';
   import RecipeNode from './RecipeNode.svelte';
   import { calcMachineCnt } from './calc';
   import type { Customs } from './customs';
@@ -29,8 +23,6 @@
   };
   const { recipes, customs = $bindable() }: Props = $props();
 
-  $inspect(`customs.manualMachinesCnt`, customs.manualMachinesCnt);
-
   let nodes = $state.raw<NodeType[]>([]);
   let edges = $state.raw<EdgeType[]>([]);
   let needsLayout = $state(false);
@@ -38,6 +30,23 @@
   // Phase 1: Generate initial nodes when `recipes` prop changes
   $effect(() => {
     const rawGraph = calcGraph(recipes, customs);
+
+    try {
+      const machineCnt = calcMachineCnt(recipes, customs);
+      rawGraph.nodes = rawGraph.nodes.map((n) =>
+        deepMerge(n, {
+          data: {
+            calcState: { machineCnt: machineCnt.get(n.id) },
+          },
+        }),
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(`Could not auto balance:\n${e.message}`);
+      } else {
+        toast.error(`Unknown erro ${e}`);
+      }
+    }
 
     nodes = rawGraph.nodes;
     edges = rawGraph.edges;
@@ -71,17 +80,6 @@
     }
     return 'var(--color-blue-500)';
   };
-
-  const autoBalance = () => {
-    const machineCnt = calcMachineCnt(recipes, edges, customs);
-    nodes = nodes.map((node) => ({
-      ...node,
-      data: {
-        ...node.data,
-        calcState: { ...node.data.calcState, machineCnt: machineCnt.get(node.id) },
-      },
-    }));
-  };
 </script>
 
 <div class="w-full h-full rounded-md border">
@@ -98,9 +96,6 @@
     connectionLineType={ConnectionLineType.SmoothStep}
     defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
   >
-    <Panel position="bottom-center">
-      <Button onclick={autoBalance}>Auto Balance</Button>
-    </Panel>
     <Background />
     <MiniMap nodeStrokeWidth={3} nodeColor={minimapNodeColor} />
     <Controls />

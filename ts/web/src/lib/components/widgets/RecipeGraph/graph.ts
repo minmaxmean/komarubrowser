@@ -15,16 +15,8 @@ type FlowGraph = {
   edges: EdgeType[];
 };
 
-export function calcGraph(recipes: Recipe[], customs: Customs): FlowGraph {
-  const nodes = recipes.map(
-    (r, idx): RecipeNodeType => ({
-      id: r.id,
-      position: { x: idx * 10, y: idx * 60 },
-      type: 'recipe',
-      data: { recipe: r, calcState: initCalcState(r.id, customs) },
-    }),
-  );
-  const edges = recipes.flatMap((producer) =>
+export const calcEdges = (recipes: Recipe[]): EdgeType[] =>
+  recipes.flatMap((producer) =>
     producer.outputs.flatMap((output) => {
       const productedItem = output.accepted_ids[0];
       const consumers = recipes.filter((consumer) =>
@@ -41,7 +33,17 @@ export function calcGraph(recipes: Recipe[], customs: Customs): FlowGraph {
       );
     }),
   );
-  return { nodes, edges };
+
+export function calcGraph(recipes: Recipe[], customs: Customs): FlowGraph {
+  const nodes = recipes.map(
+    (r, idx): RecipeNodeType => ({
+      id: r.id,
+      position: { x: idx * 10, y: idx * 60 },
+      type: 'recipe',
+      data: { recipe: r, calcState: initCalcState(r.id, customs) },
+    }),
+  );
+  return { nodes, edges: calcEdges(recipes) };
 }
 
 export function reposition(nodes: NodeType[], edges: EdgeType[]): NodeType[] {
