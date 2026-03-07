@@ -21,7 +21,9 @@ export const calcEdges = (recipes: Recipe[]): EdgeType[] =>
     producer.outputs.flatMap((output) => {
       const productedItem = output.accepted_ids[0];
       const consumers = recipes.filter((consumer) =>
-        consumer.inputs.some((input) => input.accepted_ids[0] === productedItem),
+        consumer.inputs.some(
+          (input) => input.accepted_ids[0] === productedItem && input.chance > 0,
+        ),
       );
       return consumers.map(
         (consumer): EdgeType => ({
