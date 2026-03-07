@@ -1,16 +1,47 @@
+import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import { type Customs, initCustoms } from '$lib/components/widgets/RecipeGraph/customs';
 
-function createPersistedState<T>(key: string, initialValue: T) {
-  let state = $state(initialValue);
+export type AppState = {
+  selectedRecipes: Recipe[];
+  calcCustoms: Customs;
+};
 
-  const stored = localStorage.getItem(key);
+const initAppState: AppState = {
+  selectedRecipes: [],
+  calcCustoms: initCustoms,
+};
+
+const postProcess = (appState: AppState): AppState => ({
+  ...initAppState,
+  ...appState,
+  calcCustoms: {
+    ...appState.calcCustoms,
+    manualMachinesCnt: Object.fromEntries(
+      Object.entries(appState.calcCustoms.manualMachinesCnt).map(([key, value]) => [
+        key,
+        new Fraction(value),
+      ]),
+    ),
+  },
+});
+const APP_STATE_KEY = 'APP_STATE';
+
+function createPersistedState() {
+  let state = $state(initAppState);
+
+  const stored = localStorage.getItem(APP_STATE_KEY);
   if (stored !== null) {
-    state = { ...initialValue, ...JSON.parse(stored) };
+    state = postProcess(JSON.parse(stored));
   }
 
   $effect.root(() => {
-    $effect(() => localStorage.setItem(key, JSON.stringify(state)));
+    $effect(() =>
+      localStorage.setItem(
+        APP_STATE_KEY,
+        JSON.stringify(state, (_, value) => (typeof value === 'bigint' ? value.toString() : value)),
+      ),
+    );
   });
 
   return {
@@ -22,15 +53,4 @@ function createPersistedState<T>(key: string, initialValue: T) {
     },
   };
 }
-
-export type AppState = {
-  selectedRecipes: Recipe[];
-  calcCustoms: Customs;
-};
-
-export const defaultAppState: AppState = {
-  selectedRecipes: [],
-  calcCustoms: initCustoms,
-};
-
-export const appState = createPersistedState('APP_STATE', defaultAppState);
+export const appState = createPersistedState();

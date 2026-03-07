@@ -1,15 +1,16 @@
+import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { Customs } from './customs';
 import type { EdgeType, NodeType, RecipeNodeData } from './graph';
 
 export type NodeCalcState = {
   isAuto: boolean;
-  machineCnt?: number;
+  machineCnt?: Fraction;
 };
 
 export const initCalcState = (nodeId: string, customs: Customs): NodeCalcState => {
   if (!customs.manualMachines.includes(nodeId)) return { isAuto: true };
-  return { isAuto: false, machineCnt: customs.manualMachinesCnt[nodeId] ?? 0 };
+  return { isAuto: false, machineCnt: customs.manualMachinesCnt[nodeId] ?? new Fraction(0) };
 };
 
 const simplifyMap: Record<string, string> = {
@@ -59,7 +60,7 @@ function rev_top_sort(nodes: string[], edges: EdgeMap): string[] {
   return ans;
 }
 
-function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: number): number {
+function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction): Fraction {
   const consumedItem = consumer.inputs.find((input) =>
     producer.output_ids.includes(input.accepted_ids[0]),
   );
@@ -72,20 +73,21 @@ function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: number): n
   if (!producedItem) {
     throw Error(`recipies ${consumer.id} and ${producer.id} has no common item`);
   }
-  const consumed_pt = (consumerCnt * consumedItem.amount) / consumer.duration;
+  console.log(consumerCnt);
+  const consumed_pt = consumerCnt.mul(consumedItem.amount).div(consumer.duration);
   console.log(
     `  ${s(consumer.id)}: (${consumerCnt} * ${consumedItem.amount}) / ${consumer.duration} = ${consumed_pt}`,
   );
-  const produced_pt = producedItem.amount / producer.duration;
+  const produced_pt = new Fraction(producedItem.amount).div(producer.duration);
   console.log(
     `  ${s(producer.id)} = ${producedItem.amount}/ ${producer.duration} = ${produced_pt}`,
   );
-  return consumed_pt / produced_pt;
+  return consumed_pt.div(produced_pt);
 }
 
 export const calcMachineCnt = (flowNodes: NodeType[], flowEdges: EdgeType[]) => {
   const machines: Map<string, RecipeNodeData> = new Map();
-  const machineCnt: Map<string, number> = new Map();
+  const machineCnt: Map<string, Fraction> = new Map();
   flowNodes.forEach((n) => {
     machines.set(n.id, n.data);
     const cnt = n.data.calcState.machineCnt;
@@ -118,8 +120,8 @@ export const calcMachineCnt = (flowNodes: NodeType[], flowEdges: EdgeType[]) => 
       const pCnt = machineCnt.get(pId) ?? 0;
       console.log(`${s(pId)} based on ${s(cId)} * ${cCnt}:`);
       const pAddCnt = _calc_ratio(machines.get(cId)!.recipe, machines.get(pId)!.recipe, cCnt);
-      machineCnt.set(pId, pAddCnt + pCnt);
-      console.log(`${s(pId)} -> ${s(cId)} went from ${pCnt} to ${pAddCnt + pCnt}`);
+      machineCnt.set(pId, pAddCnt.add(pCnt));
+      console.log(`${s(pId)} -> ${s(cId)} went from ${pCnt} to ${pAddCnt.add(pCnt)}`);
     });
   });
   console.log('machineCnt:', s(machineCnt));
@@ -133,8 +135,8 @@ export const calcMachineCnt = (flowNodes: NodeType[], flowEdges: EdgeType[]) => 
       if (!cCnt) return true;
       console.log(`${s(cId)} based on ${s(pId)} * ${cCnt}:`);
       const cAdditionCnt = _calc_ratio(machines.get(cId)!.recipe, machines.get(pId)!.recipe, cCnt);
-      pCnt -= cAdditionCnt;
-      if (pCnt < 0) throw Error(`something bad happned pCnt ${pCnt} went below zero for ${pId}`);
+      pCnt = pCnt.sub(cAdditionCnt);
+      if (pCnt.lt(0)) throw Error(`something bad happned pCnt ${pCnt} went below zero for ${pId}`);
       return false;
     });
 
@@ -143,12 +145,15 @@ export const calcMachineCnt = (flowNodes: NodeType[], flowEdges: EdgeType[]) => 
     if (remainingPoopTargets.length > 1)
       throw Error(`don't know how to split output from ${pId} between ${remainingPoopTargets}`);
     const cId = poopTargets.values().toArray()[0];
-    const cCurCnt = machineCnt.get(cId) ?? 0;
+    const cCurCnt = machineCnt.get(cId) ?? new Fraction(0);
     console.log(`${s(cId)} based on ${s(pId)} * ${pCnt}:`);
-    const cAdditionCnt =
-      1 / _calc_ratio(machines.get(cId)!.recipe, machines.get(pId)!.recipe, pCnt);
-    machineCnt.set(cId, cAdditionCnt + cCurCnt);
-    console.log(`${s(pId)} <- ${s(cId)} went from ${cCurCnt} to ${cAdditionCnt}`);
+    const cAdditionCnt = _calc_ratio(
+      machines.get(cId)!.recipe,
+      machines.get(pId)!.recipe,
+      pCnt,
+    ).inverse();
+    machineCnt.set(cId, cAdditionCnt.add(cCurCnt));
+    console.log(`${s(pId)} <- ${s(cId)} went from ${cCurCnt} to ${cCurCnt.add(cAdditionCnt)}`);
   });
   console.log('machineCnt:', s(machineCnt));
   return machineCnt;

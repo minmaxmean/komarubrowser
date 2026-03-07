@@ -38,6 +38,7 @@
 		"@dagrejs/graphlib": "^3.0.4",
 		"@komarubrowser/common": "workspace:*",
 		"@xyflow/svelte": "^1.5.1",
+		"fraction.js": "^5.3.4",
 		"kysely": "^0.28.11",
 		"kysely-wasm": "^1.2.1",
 		"mode-watcher": "^1.1.0",

@@ -1,8 +1,9 @@
+import { Fraction } from 'fraction.js';
 import { appState } from '$lib/appstate/app_state.svelte';
 
 export type Customs = {
   manualMachines: string[];
-  manualMachinesCnt: Record<string, number>;
+  manualMachinesCnt: Record<string, Fraction>;
 };
 
 export const initCustoms: Customs = {
@@ -20,7 +21,7 @@ export const useCustoms = () => {
         delete customs.manualMachinesCnt[nodeId];
       } else {
         customs.manualMachines.push(nodeId);
-        customs.manualMachinesCnt[nodeId] = 1;
+        customs.manualMachinesCnt[nodeId] = new Fraction(1);
       }
     },
   };
