@@ -15,7 +15,7 @@
 
 <RecipeWidget {recipe} withHandles>
   {#snippet machineSettings()}
-    <div class="col-span-4 bg-sky-800 py-1">Machine</div>
+    <div class="col-span-4 bg-(--machine-block) py-1">Machine</div>
 
     <p class="text-right"># of machines</p>
     <div></div>

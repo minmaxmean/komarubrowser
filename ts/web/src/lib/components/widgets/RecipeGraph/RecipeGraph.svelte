@@ -30,7 +30,9 @@
   $effect(() => {
     const rawGraph = calcGraph(recipes, customs);
 
-    rawGraph.nodes = rawGraph.nodes.map((n) => setMachineCnt(n, calculations.machineCnt(n.id)));
+    rawGraph.nodes = rawGraph.nodes.map((n) =>
+      setMachineCnt(n, calculations.machineCnt(n.id), calculations.isBadMachine(n.id)),
+    );
 
     nodes = rawGraph.nodes;
     edges = rawGraph.edges;
@@ -60,10 +62,13 @@
 
   const minimapNodeColor: GetMiniMapNodeAttribute = (node) => {
     const data = node.data as RecipeNodeData;
-    if (data.calcSettings.isAuto) {
-      return 'var(--color-green-500)';
+    if (data.isBad) {
+      return 'var(--color-red-800)';
     }
-    return 'var(--color-blue-500)';
+    if (!data.calcSettings.isAuto) {
+      return 'var(--machine-block)';
+    }
+    return 'var(--color-neutral-700)';
   };
 </script>
 

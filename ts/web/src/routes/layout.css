@@ -37,6 +37,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --input-block: var(--color-rose-900);
+  --output-block: var(--color-teal-900);
+  --recipe-block: var(--color-cyan-900);
+  --machine-block: var(--color-indigo-900);
+  --recycle-block: var(--recipe-block);
 }
 
 .dark {

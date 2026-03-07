@@ -74,7 +74,7 @@
   <p></p>
 
   {#if recipe.inputs.length > 0}
-    <div class="col-span-4 bg-red-800 py-1">Input</div>
+    <div class="col-span-4 bg-(--input-block) py-1">Input</div>
     {#each recipe.inputs as ingredient}
       {@const item = items?.get(ingredient.accepted_ids[0])}
       <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'target'} />
@@ -82,14 +82,14 @@
   {/if}
 
   {#if recipe.outputs.length > 0}
-    <div class="col-span-4 bg-green-800 py-1">Output</div>
+    <div class="col-span-4 bg-(--output-block) py-1">Output</div>
     {#each recipe.outputs as ingredient}
       {@const item = items?.get(ingredient.accepted_ids[0])}
       <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'source'} />
     {/each}
   {/if}
 
-  <div class="col-span-4 bg-yellow-800 py-1">Recipe</div>
+  <div class="col-span-4 bg-(--recipe-block) py-1">Recipe</div>
 
   <p class="text-right">Base Duration</p>
   <div></div>

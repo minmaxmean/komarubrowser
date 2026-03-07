@@ -5,9 +5,9 @@
     base: 'col-span-4 py-2 px-4',
     variants: {
       variant: {
-        produces: 'bg-red-800',
-        consumes: 'bg-green-800',
-        recycles: 'bg-blue-800',
+        consumes: 'bg-(--input-block)',
+        produces: 'bg-(--output-block)',
+        recycles: 'bg-(--recycle-block)',
       },
     },
   });

@@ -2,6 +2,9 @@ import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { Customs } from '$lib/components/widgets/RecipeGraph/customs';
 import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
+import type { MachineCount } from './store.svelte';
+
+// export
 
 type EdgeMap = Map<string, Set<string>>;
 
@@ -29,18 +32,33 @@ function rev_top_sort(nodes: string[], edges: EdgeMap): string[] {
   return ans;
 }
 
+export class CalcError extends Error {
+  constructor(
+    message: string,
+    public bad_machines: string[],
+  ) {
+    super(message);
+  }
+}
+
 function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction): Fraction {
   const consumedItem = consumer.inputs.find((input) =>
     producer.output_ids.includes(input.accepted_ids[0]),
   );
   if (!consumedItem) {
-    throw Error(`recipies ${consumer.id} and ${producer.id} has no common item`);
+    throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
+      consumer.id,
+      producer.id,
+    ]);
   }
   const producedItem = producer.outputs.find(
     (output) => output.accepted_ids[0] === consumedItem.accepted_ids[0],
   );
   if (!producedItem) {
-    throw Error(`recipies ${consumer.id} and ${producer.id} has no common item`);
+    throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
+      consumer.id,
+      producer.id,
+    ]);
   }
   const consumed_pt = consumerCnt.mul(consumedItem.amount).div(consumer.duration);
   const produced_pt = new Fraction(producedItem.amount).div(producer.duration);
@@ -50,14 +68,18 @@ function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction):
 export const calcMachineCnt = (recipes: Recipe[], cust: Customs) => {
   const flowEdges = calcEdges(recipes);
   const machines: Map<string, Recipe> = new Map();
-  const machineCnt: Map<string, Fraction> = new Map();
+  const machineCnt: MachineCount = new Map();
   recipes.forEach((r) => {
     machines.set(r.id, r);
     const cnt = cust.manualMachinesCnt[r.id];
     if (cust.manualMachines.includes(r.id) && cnt) machineCnt.set(r.id, new Fraction(cnt));
   });
-  if (machineCnt.size === 0) {
-    throw Error('at least 1 anchor should be provided');
+  const anchors = new Set(machineCnt.keys());
+  if (anchors.size === 0) {
+    throw new CalcError(
+      'at least 1 anchor should be provided',
+      recipes.map((r) => r.id),
+    );
   }
   const poopsTo: Map<string, Set<string>> = new Map();
   const eatsFrom: Map<string, Set<string>> = new Map();
@@ -71,6 +93,7 @@ export const calcMachineCnt = (recipes: Recipe[], cust: Customs) => {
     const cCnt = machineCnt.get(cId)!;
     if (!cCnt) return;
     eatsFrom.get(cId)?.forEach((pId) => {
+      if (anchors.has(pId)) return;
       const pCnt = machineCnt.get(pId) ?? 0;
       const pAddCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, cCnt);
       machineCnt.set(pId, new Fraction(pAddCnt.add(pCnt)));
@@ -82,18 +105,27 @@ export const calcMachineCnt = (recipes: Recipe[], cust: Customs) => {
     const poopTargets = poopsTo.get(pId);
     if (!poopTargets) return;
     const remainingPoopTargets = [...poopTargets].filter((cId) => {
+      if (anchors.has(pId)) return false;
       const cCnt = machineCnt.get(cId);
       if (!cCnt) return true;
       const cAdditionCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, cCnt);
       pCnt = pCnt.sub(cAdditionCnt);
-      if (pCnt.lt(0)) throw Error(`something bad happned pCnt ${pCnt} went below zero for ${pId}`);
+      if (pCnt.lt(0))
+        throw new CalcError(`something bad happned pCnt ${pCnt} went below zero for ${pId}`, [
+          pId,
+          cId,
+        ]);
       return false;
     });
+    if (pCnt.equals(0)) return;
 
     if (remainingPoopTargets.length === 0) return;
 
     if (remainingPoopTargets.length > 1)
-      throw Error(`don't know how to split output from ${pId} between ${remainingPoopTargets}`);
+      throw new CalcError(
+        `don't know how to split output from ${pId} between ${remainingPoopTargets}`,
+        [pId],
+      );
     const cId = poopTargets.values().toArray()[0];
     const cCurCnt = machineCnt.get(cId) ?? new Fraction(0);
     const cAdditionCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, pCnt).inverse();

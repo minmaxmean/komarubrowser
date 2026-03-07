@@ -2,26 +2,33 @@ import type Fraction from 'fraction.js';
 import { toast } from 'svelte-sonner';
 import { appState } from '$lib/appstate/app_state.svelte';
 import { type IngredientBalance, calcBalance } from './balance.js';
-import { calcMachineCnt } from './machineCnt.js';
+import { CalcError, calcMachineCnt } from './machineCnt.js';
 
 export type MachineCount = Map<string, Fraction>;
 
 type Calcuations = {
   machineCnt: MachineCount | null;
   balance: IngredientBalance[] | null;
+  errorMsg: string | null;
+  badMachines: string[];
 };
 
 const calcResult = $derived.by<Calcuations>(() => {
-  const res: Calcuations = { machineCnt: null, balance: null };
+  const res: Calcuations = { machineCnt: null, balance: null, errorMsg: null, badMachines: [] };
   try {
     res.machineCnt = calcMachineCnt(appState.value.selectedRecipes, appState.value.calcCustoms);
     res.balance = calcBalance(appState.value.selectedRecipes, res.machineCnt);
   } catch (e) {
-    if (e instanceof Error) {
-      toast.error(`Could not auto balance:\n${e.message}`);
+    if (e instanceof CalcError) {
+      res.errorMsg = `Could not auto balance:\n${e.message}`;
+      res.badMachines = e.bad_machines;
+    } else if (e instanceof Error) {
+      res.errorMsg = `Could not auto balance:\n${e.message}`;
     } else {
-      toast.error(`Unknown erro ${e}`);
+      res.errorMsg = `Unknown error ${e}`;
     }
+    toast.error(res.errorMsg);
+    console.error(e);
   }
   return res;
 });
@@ -30,7 +37,16 @@ export const calculations = {
   machineCnt(recipeId: string): Fraction | null {
     return calcResult.machineCnt?.get(recipeId) ?? null;
   },
+  get badMachines(): string[] {
+    return calcResult.badMachines;
+  },
+  isBadMachine(recipeId: string): boolean {
+    return calcResult.badMachines.includes(recipeId);
+  },
   get balance(): IngredientBalance[] {
     return calcResult.balance ?? [];
+  },
+  get errorMsg(): string | null {
+    return calcResult.errorMsg;
   },
 };
