@@ -8,9 +8,11 @@ This project is intended for browsing recipes and planning processing lines for 
 
 The architecture consists of three main components:
 
-1. **KomaruBrowser Mod (`minecraft/forgemod`)**: A Kotlin-based Minecraft Forge mod that lives on the server, serving a REST API to provide up-to-date recipes and machine data.
-2. **Backend**: (Currently WIP/Planned as Golang) A backend to communicate with the Kotlin mod, cache data, and serve the frontend.
-3. **Frontend (`ts/web`)**: A TypeScript/SvelteKit web application that interacts with the backend/mod, allowing users to search for items, view recipes, and calculate processing lines.
+1. **KomaruBrowser Mod (`minecraft/forgemod/`)**: A Kotlin-based Minecraft Forge mod that lives on the server, serving a REST API to provide up-to-date recipes and machine data.
+
+2. **Extractor (`ts/extractor/`)**: TypeScript scripts that extract recipe, item, and machine data from Minecraft mod JARs and pack files, populating a SQLite database. The database file is committed to the repository or generated during development.
+
+3. **Frontend (`ts/web/`)**: A TypeScript/SvelteKit web application that reads directly from the SQLite database (using sql.js compiled to WASM), allowing users to search for items, view recipes, and calculate processing lines.
 
 This is a **Bazel monorepo** with integrated pnpm workspaces for TypeScript packages, and standard Forge Gradle/Bazel setup for the Kotlin mod.
 
@@ -40,17 +42,24 @@ To run a single test, you must identify its Bazel target and execute it using th
 
 ### Frontend & TypeScript Commands (`ts/` directory)
 
-The TypeScript projects (e.g., `ts/web`, `ts/common`, `ts/extractor`) are managed via `pnpm` workspaces. If making changes to the frontend, you can use the localized NPM scripts from within their respective directories.
+The TypeScript projects (e.g., `ts/web`, `ts/common`, `ts/extractor`) are managed via `pnpm` workspaces but are built and run using Bazel rules defined in their respective `BUILD` files.
 
-From `ts/web` (or via `pnpm --filter @komarubrowser/frontend ...`):
+From `ts/web` (or via Bazel):
 
-- **Run dev server:** `pnpm run preview`
-- **Type checking:** `pnpm run check` (runs `svelte-check` against `tsconfig.json`)
-- **Type checking (watch mode):** `pnpm run check:watch`
-- **Lint (check formatting):** `pnpm run lint` (runs `prettier --check .`)
-- **Format code:** `pnpm run format` (runs `prettier --write .`)
+- **Run dev server:** `bazel run //ts/web:dev`
+- **Build for production:** `bazel build //ts/web:build`
 
-Always ensure that code passes type checks (`pnpm run check` or `bazel build`) before committing or concluding a task.
+**Local type checking and formatting** (run from `ts/web` directory):
+
+- **Type checking:** `pnpm exec svelte-check` (or install dependencies and run `pnpm exec svelte-check`)
+- **Lint (check formatting):** `pnpm exec prettier --check .`
+- **Format code:** `pnpm exec prettier --write .`
+
+From `ts/extractor`:
+
+- **Run extractor:** `pnpm run extract` (check `package.json` for available extraction commands)
+
+Always ensure that code passes type checks (`pnpm exec svelte-check` from `ts/web` or `bazel build`) before committing or concluding a task.
 
 ---
 
@@ -60,7 +69,7 @@ Always ensure that code passes type checks (`pnpm run check` or `bazel build`) b
 
 - **Formatting:** We use Prettier. The configuration enforces:
   - 2 spaces for indentation (`tabWidth: 2`), NO tabs.
-  - Single quotes (`singleQuote: true`) for strings (though `ts/common` currently has some double quotes; prefer single quotes for new code to align with the `.prettierrc.ts`).
+  - Single quotes (`singleQuote: true`) for strings.
   - Print width of 100 characters.
   - No trailing commas (`trailingComma: 'none'`), EXCEPT in `.svelte` files where they are set to `'all'`.
 - **Imports:**
@@ -73,7 +82,8 @@ Always ensure that code passes type checks (`pnpm run check` or `bazel build`) b
 - **Database / Data Handling:**
   - The project uses `kysely` and `sql.js` (compiled to WASM) for database interactions.
   - Define table schemas clearly in `ts/common/tables/` and use them to type the Kysely database instance.
-  - Database migrations and schemas should remain synchronized between the extractor and frontend.
+  - Database migrations and schemas must remain synchronized between the extractor and frontend.
+  - The extractor (`ts/extractor/`) is responsible for creating and populating the SQLite database from Minecraft mod data.
 - **SvelteKit Conventions:**
   - Use Svelte 5 features (`.svelte.ts` for stores/runes). Avoid older Svelte 4 reactivity models.
   - Use TailwindCSS for styling. Do not write custom CSS unless strictly necessary. Components use `bits-ui` and Tailwind variants (`tv`).
