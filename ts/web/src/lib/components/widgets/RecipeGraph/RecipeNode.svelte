@@ -9,7 +9,7 @@
   import type { RecipeNodeType } from './graph';
 
   const { id, data }: NodeProps<RecipeNodeType> = $props();
-  const { calcState, recipe } = $derived(data);
+  const { calcSettings, recipe } = $derived(data);
   const { toggleManual } = useCustoms();
 </script>
 
@@ -19,9 +19,9 @@
 
     <p class="text-right"># of machines</p>
     <div></div>
-    <p class="text-right">{new Fraction(calcState.machineCnt ?? 0)}</p>
+    <p class="text-right">{new Fraction(calcSettings.machineCnt ?? 0)}</p>
     <Button size="icon-sm" variant="ghost" class="hover:bg-muted" onclick={() => toggleManual(id)}>
-      {#if calcState.isAuto}
+      {#if calcSettings.isAuto}
         <Wand class="opacity-50" />
       {:else}
         <Manual class="opacity-50" />

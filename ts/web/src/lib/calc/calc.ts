@@ -1,37 +1,7 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
-import type { Customs, FakeFraction } from './customs';
-import { type EdgeType, calcEdges } from './graph';
-
-export type NodeCalcState = {
-  isAuto: boolean;
-  machineCnt?: FakeFraction;
-};
-
-export const initCalcState = (nodeId: string, customs: Customs): NodeCalcState => {
-  if (!customs.manualMachines.includes(nodeId)) return { isAuto: true };
-  return { isAuto: false, machineCnt: customs.manualMachinesCnt[nodeId] ?? new Fraction(0) };
-};
-
-const simplifyMap: Record<string, string> = {
-  'gtceu:large_chemical_reactor/sulfuric_acid_from_trioxide': 'H2SO4',
-  'gtceu:large_chemical_reactor/sulfur_trioxide': 'SO3',
-  'gtceu:large_chemical_reactor/sulfur_dioxide_from_sulfur': 'SO2',
-  'gtceu:electrolyzer/water_electrolysis': 'O2',
-};
-
-function s<T>(id: Map<string, T>): Record<string, T>;
-function s(id: string[]): string[];
-function s(id: string): string;
-function s(
-  input: string | string[] | Map<string, unknown>,
-): string | string[] | Record<string, unknown> {
-  if (typeof input === 'string') return simplifyMap[input] ?? input;
-  if (Array.isArray(input)) return input.map((item) => s(item));
-  if (input instanceof Map)
-    return Object.fromEntries(input.entries().map(([key, values]) => [s(key), values]));
-  throw Error(`Unknown input: ${input}`);
-}
+import type { Customs } from '$lib/components/widgets/RecipeGraph/customs';
+import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
 
 type EdgeMap = Map<string, Set<string>>;
 

@@ -32,3 +32,13 @@ export const useCustoms = () => {
     },
   };
 };
+
+export type NodeCalcState = {
+  isAuto: boolean;
+  machineCnt: FakeFraction | null;
+};
+
+export const initCalcState = (nodeId: string, customs: Customs): NodeCalcState => {
+  if (!customs.manualMachines.includes(nodeId)) return { isAuto: true, machineCnt: null };
+  return { isAuto: false, machineCnt: customs.manualMachinesCnt[nodeId] ?? new Fraction(0) };
+};

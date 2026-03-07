@@ -1,10 +1,11 @@
 import darge from '@dagrejs/dagre';
 import type { BuiltInEdge, Node } from '@xyflow/svelte';
+import type Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
-import { type NodeCalcState, initCalcState } from './calc';
-import type { Customs } from './customs';
+import { deepMerge } from '$lib/utils';
+import { type Customs, type NodeCalcState, initCalcState } from './customs';
 
-export type RecipeNodeData = { recipe: Recipe; calcState: NodeCalcState };
+export type RecipeNodeData = { recipe: Recipe; calcSettings: NodeCalcState };
 export type RecipeNodeType = Node<RecipeNodeData, 'recipe'>;
 
 export type NodeType = RecipeNodeType;
@@ -40,7 +41,7 @@ export function calcGraph(recipes: Recipe[], customs: Customs): FlowGraph {
       id: r.id,
       position: { x: idx * 10, y: idx * 60 },
       type: 'recipe',
-      data: { recipe: r, calcState: initCalcState(r.id, customs) },
+      data: { recipe: r, calcSettings: initCalcState(r.id, customs) },
     }),
   );
   return { nodes, edges: calcEdges(recipes) };
@@ -66,3 +67,10 @@ export function reposition(nodes: NodeType[], edges: EdgeType[]): NodeType[] {
     return { ...node, position: { x, y } };
   });
 }
+
+export const setMachineCnt = (n: RecipeNodeType, machineCnt: Fraction | null): RecipeNodeType =>
+  deepMerge(n, {
+    data: {
+      calcSettings: { machineCnt },
+    },
+  });

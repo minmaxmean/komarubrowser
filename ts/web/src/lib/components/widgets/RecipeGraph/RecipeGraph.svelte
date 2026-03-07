@@ -3,11 +3,9 @@
   import type { GetMiniMapNodeAttribute, NodeTypes } from '@xyflow/svelte';
   import { mode as colorMode } from 'mode-watcher';
   import { untrack } from 'svelte';
-  import { toast } from 'svelte-sonner';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
-  import { deepMerge } from '$lib/utils';
+  import { calculations } from '$lib/calc/store.svelte';
   import RecipeNode from './RecipeNode.svelte';
-  import { calcMachineCnt } from './calc';
   import type { Customs } from './customs';
   import {
     type EdgeType,
@@ -15,6 +13,7 @@
     type RecipeNodeData,
     calcGraph,
     reposition,
+    setMachineCnt,
   } from './graph';
 
   type Props = {
@@ -31,22 +30,7 @@
   $effect(() => {
     const rawGraph = calcGraph(recipes, customs);
 
-    try {
-      const machineCnt = calcMachineCnt(recipes, customs);
-      rawGraph.nodes = rawGraph.nodes.map((n) =>
-        deepMerge(n, {
-          data: {
-            calcState: { machineCnt: machineCnt.get(n.id) },
-          },
-        }),
-      );
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(`Could not auto balance:\n${e.message}`);
-      } else {
-        toast.error(`Unknown erro ${e}`);
-      }
-    }
+    rawGraph.nodes = rawGraph.nodes.map((n) => setMachineCnt(n, calculations.machineCnt(n.id)));
 
     nodes = rawGraph.nodes;
     edges = rawGraph.edges;
@@ -57,16 +41,17 @@
   });
 
   $effect(() => {
-    if (needsLayout && nodes.length > 0) {
-      const allMeasured = nodes.every((n) => n.measured?.width && n.measured?.height);
-
-      if (allMeasured) {
-        untrack(() => {
-          nodes = reposition(nodes, edges);
-          needsLayout = false;
-        });
-      }
+    if (!needsLayout || nodes.length === 0) {
+      return;
     }
+    const allMeasured = nodes.every((n) => n.measured?.width && n.measured?.height);
+    if (!allMeasured) {
+      return;
+    }
+    untrack(() => {
+      nodes = reposition(nodes, edges);
+      needsLayout = false;
+    });
   });
 
   const nodeTypes: NodeTypes = {
@@ -75,7 +60,7 @@
 
   const minimapNodeColor: GetMiniMapNodeAttribute = (node) => {
     const data = node.data as RecipeNodeData;
-    if (data.calcState.isAuto) {
+    if (data.calcSettings.isAuto) {
       return 'var(--color-green-500)';
     }
     return 'var(--color-blue-500)';
