@@ -29,7 +29,7 @@
   };
   const { recipes, customs = $bindable() }: Props = $props();
 
-  $inspect(`customs`, customs);
+  $inspect(`customs.manualMachinesCnt`, customs.manualMachinesCnt);
 
   let nodes = $state.raw<NodeType[]>([]);
   let edges = $state.raw<EdgeType[]>([]);
@@ -73,7 +73,7 @@
   };
 
   const autoBalance = () => {
-    const machineCnt = calcMachineCnt(nodes, edges);
+    const machineCnt = calcMachineCnt(recipes, edges, customs);
     nodes = nodes.map((node) => ({
       ...node,
       data: {

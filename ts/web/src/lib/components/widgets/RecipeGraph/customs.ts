@@ -1,9 +1,15 @@
 import { Fraction } from 'fraction.js';
 import { appState } from '$lib/appstate/app_state.svelte';
 
+export type FakeFraction = {
+  s: bigint;
+  n: bigint;
+  d: bigint;
+};
+
 export type Customs = {
   manualMachines: string[];
-  manualMachinesCnt: Record<string, Fraction>;
+  manualMachinesCnt: Record<string, FakeFraction>;
 };
 
 export const initCustoms: Customs = {

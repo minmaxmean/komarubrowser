@@ -14,7 +14,6 @@
 
   const { item, size, class: className }: Props = $props();
   const { display_name, url, hex_color, description } = $derived.by(() => getTextProps(item));
-  // $inspect(item, { display_name, texture_location, hex_color, description });
 </script>
 
 <Item.Root {size} class={cn('w-full p-2', className)}>

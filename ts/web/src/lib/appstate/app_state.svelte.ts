@@ -1,4 +1,5 @@
 import Fraction from 'fraction.js';
+import superjson from 'superjson';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import { type Customs, initCustoms } from '$lib/components/widgets/RecipeGraph/customs';
 
@@ -15,33 +16,35 @@ const initAppState: AppState = {
 const postProcess = (appState: AppState): AppState => ({
   ...initAppState,
   ...appState,
-  calcCustoms: {
-    ...appState.calcCustoms,
-    manualMachinesCnt: Object.fromEntries(
-      Object.entries(appState.calcCustoms.manualMachinesCnt).map(([key, value]) => [
-        key,
-        new Fraction(value),
-      ]),
-    ),
-  },
 });
 const APP_STATE_KEY = 'APP_STATE';
+
+type FractionJSON = string;
+
+superjson.registerCustom<Fraction, FractionJSON>(
+  {
+    isApplicable(v) {
+      return v instanceof Fraction;
+    },
+    serialize: (v) => v.toString(),
+    deserialize: (v) => new Fraction(v),
+  },
+  'Fraction',
+);
 
 function createPersistedState() {
   let state = $state(initAppState);
 
   const stored = localStorage.getItem(APP_STATE_KEY);
   if (stored !== null) {
-    state = postProcess(JSON.parse(stored));
+    state = postProcess(superjson.parse(stored));
   }
 
   $effect.root(() => {
-    $effect(() =>
-      localStorage.setItem(
-        APP_STATE_KEY,
-        JSON.stringify(state, (_, value) => (typeof value === 'bigint' ? value.toString() : value)),
-      ),
-    );
+    $effect(() => {
+      const json = superjson.stringify(state);
+      localStorage.setItem(APP_STATE_KEY, json);
+    });
   });
 
   return {

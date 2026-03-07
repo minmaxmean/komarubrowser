@@ -23,7 +23,6 @@
     },
   ];
   const ingrediets = $derived(await dbStore.data?.ingredients.all());
-  // $inspect({ globalFilter, ingrediets });
 </script>
 
 {#if dbStore.status === 'loading'}
