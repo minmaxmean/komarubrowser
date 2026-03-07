@@ -47,7 +47,7 @@
       <Button
         {...props}
         variant="outline"
-        class="w-sm justify-between"
+        class="w-xs justify-between"
         role="combobox"
         aria-expanded={open}
       >
@@ -77,7 +77,7 @@
       </Button>
     {/snippet}
   </Popover.Trigger>
-  <Popover.Content class="w-sm p-0">
+  <Popover.Content class="w-xs p-0" side="right" align="start">
     <Command.Root shouldFilter={false}>
       <Command.Input {placeholder} bind:value={query} />
       <Command.List>

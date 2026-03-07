@@ -12,6 +12,6 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <ModeWatcher defaultMode="dark" />
-<div class="h-screen w-screen overflow-hidden">
+<div class="h-screen w-screen">
   {@render children()}
 </div>

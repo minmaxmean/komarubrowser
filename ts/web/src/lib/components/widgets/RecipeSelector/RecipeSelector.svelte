@@ -45,7 +45,7 @@
   let searchOpen = $state(false);
 </script>
 
-<Collapsible.Root class="w-full rounded-md border whitespace-nowrap" bind:open={searchOpen}>
+<Collapsible.Root class="w-full rounded-md border" bind:open={searchOpen}>
   <Collapsible.Trigger variant="ghost" size="lg" class="m-4 pl-0!">
     <Chevron class="transition-transform duration-200 {searchOpen ? 'rotate-90' : 'rotate-0'}" />
     Add Recipes
@@ -81,7 +81,7 @@
           <div class="flex w-max space-x-4 p-4">
             {#each selectedItems as recipe (recipe.id)}
               <RecipeWidget
-                class="w-sm overflow-hidden"
+                class="overflow-hidden"
                 {recipe}
                 {onToggle}
                 selected={idx(recipe) != -1}
@@ -93,7 +93,7 @@
         <div class="flex w-max space-x-4 p-4">
           {#each await recipes as recipe (recipe.id)}
             <RecipeWidget
-              class="w-sm overflow-hidden"
+              class="overflow-hidden"
               {recipe}
               {onToggle}
               selected={idx(recipe) != -1}

@@ -41,7 +41,7 @@
 
 <div
   class={cn(
-    'w-sm rounded-xl border bg-card py-4 text-center relative',
+    'w-xs rounded-xl border bg-card py-4 text-center relative',
     'grid grid-cols-[3fr_auto_1fr_1fr] items-center gap-x-4 gap-y-2',
     className,
   )}

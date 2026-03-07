@@ -84,7 +84,7 @@
   };
 </script>
 
-<div class="w-full h-240 rounded-md border">
+<div class="w-full h-full rounded-md border">
   <SvelteFlow
     colorMode={colorMode.current}
     bind:nodes
