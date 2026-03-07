@@ -6,6 +6,7 @@
   type Props = CollapsiblePrimitive.TriggerProps & {
     variant?: ButtonVariant;
     size?: ButtonSize;
+    customStyles?: boolean;
   };
 
   let {
@@ -13,12 +14,13 @@
     variant = 'default',
     size = 'default',
     class: className,
+    customStyles = false,
     ...restProps
   }: Props = $props();
 </script>
 
 <CollapsiblePrimitive.Trigger
-  class={cn(buttonVariants({ variant, size }), className)}
+  class={cn(!customStyles && buttonVariants({ variant, size }), className)}
   bind:ref
   data-slot="collapsible-trigger"
   {...restProps}

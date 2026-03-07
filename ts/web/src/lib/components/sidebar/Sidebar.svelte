@@ -1,11 +1,9 @@
 <script lang="ts">
   import { calculations } from '$lib/calc/store.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
-  import { getTextProps } from '$lib/db/recipeCategoryRepo';
+  import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
   import Separator from '../ui/separator/separator.svelte';
-  import IngredientIcon from '../widgets/IngredientItem/IngredientIcon.svelte';
-  import { cleanAndCapitalize } from '../widgets/RecipeWidget/utils';
-  import { calcUnit } from './utils';
+  import BalanceList from './BalanceList.svelte';
 
   const itemIds = $derived(calculations.balance.map((b) => b.ingredientId));
   const items = $derived(await dbStore.data?.ingredients.getByIds(itemIds));
@@ -22,53 +20,16 @@
 
 <Separator />
 
-<div class="grid grid-cols-[3fr_auto_1fr_1fr] items-center gap-x-4 gap-y-2">
-  {#if systemInput.length > 0}
-    <div class="col-span-4 bg-red-800 py-1">System consumes, per second</div>
-    {#each systemInput as balance}
-      {@const item = items?.get(balance.ingredientId)}
-      {@const { unit, amount } = calcUnit(!!item?.is_fluid, balance.value)}
-
-      <p class="text-right text-pretty">
-        {cleanAndCapitalize(item?.display_name ?? balance.ingredientId)}
-      </p>
-      <div class="flex items-center justify-center">
-        <IngredientIcon {...getTextProps(item)} />
-      </div>
-      <p class="text-right">{amount}</p>
-      <p class="text-left">{unit}</p>
-    {/each}
-  {/if}
-  {#if systemOutput.length > 0}
-    <div class="col-span-4 bg-green-800 py-1">System procudes, per second</div>
-    {#each systemOutput as balance}
-      {@const item = items?.get(balance.ingredientId)}
-      {@const { unit, amount } = calcUnit(!!item?.is_fluid, balance.value)}
-
-      <p class="text-right text-pretty">
-        {cleanAndCapitalize(item?.display_name ?? balance.ingredientId)}
-      </p>
-      <div class="flex items-center justify-center">
-        <IngredientIcon {...getTextProps(item)} />
-      </div>
-      <p class="text-right">{amount}</p>
-      <p class="text-left">{unit}</p>
-    {/each}
-  {/if}
-  {#if systemRecycle.length > 0}
-    <div class="col-span-4 bg-blue-800 py-1">System recycles, per second</div>
-    {#each systemRecycle as balance}
-      {@const item = items?.get(balance.ingredientId)}
-      {@const { unit, amount } = calcUnit(!!item?.is_fluid, balance.value)}
-
-      <p class="text-right text-pretty">
-        {cleanAndCapitalize(item?.display_name ?? balance.ingredientId)}
-      </p>
-      <div class="flex items-center justify-center">
-        <IngredientIcon {...getTextProps(item)} />
-      </div>
-      <p class="text-right">{amount}</p>
-      <p class="text-left">{unit}</p>
-    {/each}
-  {/if}
-</div>
+<ScrollArea class="contents" orientation="vertical">
+  <div class="grid grid-cols-[3fr_auto_1fr_1fr] items-center gap-x-4 gap-y-2">
+    {#if systemInput.length > 0}
+      <BalanceList variant="consumes" balances={systemInput} {items} />
+    {/if}
+    {#if systemOutput.length > 0}
+      <BalanceList variant="produces" balances={systemOutput} {items} />
+    {/if}
+    {#if systemRecycle.length > 0}
+      <BalanceList variant="recycles" balances={systemRecycle} {items} />
+    {/if}
+  </div>
+</ScrollArea>
