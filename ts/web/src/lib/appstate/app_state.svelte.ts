@@ -73,6 +73,12 @@ class AppStateWrapper {
       this.#state.setups[name] = { ...this.currentSetup, name };
       this.#state.currentSetup = name;
     },
+    rename: (newName: string) => {
+      const currentName = this.#state.currentSetup;
+      this.#state.setups[newName] = { ...this.currentSetup, name: newName };
+      this.#state.currentSetup = newName;
+      delete this.#state.setups[currentName];
+    },
     deleteCurrent: () => {
       const current = this.#state.currentSetup;
       delete this.#state.setups[current];
