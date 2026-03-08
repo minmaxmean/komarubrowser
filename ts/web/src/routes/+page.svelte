@@ -11,10 +11,7 @@
   <main class="w-full flex flex-col gap-4 p-4 min-w-0">
     <RecipeSelector bind:selectedItems={appState.value.selectedRecipes} />
 
-    <RecipeGraph
-      recipes={appState.value.selectedRecipes}
-      bind:customs={appState.value.calcCustoms}
-    />
+    <RecipeGraph />
   </main>
   <aside class="w-lg flex flex-col bg-card gap-4 pt-4">
     <Sidebar />

@@ -70,7 +70,7 @@ export function reposition(nodes: NodeType[], edges: EdgeType[]): NodeType[] {
   });
 }
 
-export const setMachineCnt = (
+export const applyMachineCnt = (
   n: RecipeNodeType,
   machineCnt: Fraction | null,
   isBad: boolean,

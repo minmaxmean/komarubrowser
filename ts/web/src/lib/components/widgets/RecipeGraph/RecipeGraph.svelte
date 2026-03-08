@@ -4,6 +4,7 @@
   import { mode as colorMode } from 'mode-watcher';
   import { untrack } from 'svelte';
   import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import { appState } from '$lib/appstate/app_state.svelte';
   import { calculations } from '$lib/calc/store.svelte';
   import RecipeNode from './RecipeNode.svelte';
   import type { Customs } from './customs';
@@ -11,63 +12,58 @@
     type EdgeType,
     type NodeType,
     type RecipeNodeData,
+    applyMachineCnt,
     calcGraph,
     reposition,
-    setMachineCnt,
   } from './graph';
 
-  type Props = {
-    recipes: Recipe[];
-    customs: Customs;
-  };
-  const { recipes, customs = $bindable() }: Props = $props();
+  // 1. Single derived model combining appState and derived calculations
+  const graphModel = $derived.by(() => {
+    const rawGraph = calcGraph(appState.value.selectedRecipes, appState.value.calcCustoms);
+
+    rawGraph.nodes = rawGraph.nodes.map((n) =>
+      applyMachineCnt(n, calculations.machineCnt(n.id), calculations.isBadMachine(n.id)),
+    );
+
+    return rawGraph;
+  });
 
   let nodes = $state.raw<NodeType[]>([]);
   let edges = $state.raw<EdgeType[]>([]);
   let needsLayout = $state(false);
 
-  // Phase 1: Generate initial nodes when `recipes` prop changes
+  // 2. Sync to SvelteFlow state ONLY when the underlying model changes
   $effect(() => {
-    const rawGraph = calcGraph(recipes, customs);
-
-    rawGraph.nodes = rawGraph.nodes.map((n) =>
-      setMachineCnt(n, calculations.machineCnt(n.id), calculations.isBadMachine(n.id)),
-    );
-
-    nodes = rawGraph.nodes;
-    edges = rawGraph.edges;
-
-    if (rawGraph.nodes.length > 0) {
-      needsLayout = true;
-    }
+    const updatedModel = graphModel;
+    untrack(() => {
+      nodes = updatedModel.nodes;
+      edges = updatedModel.edges;
+      if (nodes.length > 0) {
+        needsLayout = true;
+      }
+    });
   });
 
+  // 3. Layout pass
   $effect(() => {
     if (!needsLayout || nodes.length === 0) {
       return;
     }
     const allMeasured = nodes.every((n) => n.measured?.width && n.measured?.height);
-    if (!allMeasured) {
-      return;
-    }
+    if (!allMeasured) return;
+
     untrack(() => {
       nodes = reposition(nodes, edges);
       needsLayout = false;
     });
   });
 
-  const nodeTypes: NodeTypes = {
-    recipe: RecipeNode,
-  };
+  const nodeTypes: NodeTypes = { recipe: RecipeNode };
 
   const minimapNodeColor: GetMiniMapNodeAttribute = (node) => {
     const data = node.data as RecipeNodeData;
-    if (data.isBad) {
-      return 'var(--color-red-800)';
-    }
-    if (!data.calcSettings.isAuto) {
-      return 'var(--machine-block)';
-    }
+    if (data.isBad) return 'var(--color-red-800)';
+    if (!data.calcSettings.isAuto) return 'var(--machine-block)';
     return 'var(--color-neutral-700)';
   };
 </script>
