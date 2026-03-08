@@ -1,3 +1,4 @@
+import Fraction from 'fraction.js';
 import type { Ingredient } from '@komarubrowser/common/db/ingredient';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 
@@ -52,4 +53,22 @@ export const calcUnit = (
     return { amount: amount / 1000, unit: 'b' };
   }
   return { amount: amount, unit: 'mb' };
+};
+
+const TICKS_PER_SEC = 20;
+
+export const timeUnit = (
+  durPerTick: number | Fraction,
+  useTicks = false,
+): { amount: string; unit: string } => {
+  if (useTicks) {
+    return {
+      amount: durPerTick.toString(),
+      unit: 'ticks',
+    };
+  }
+  return {
+    amount: new Fraction(durPerTick).div(TICKS_PER_SEC).toString(),
+    unit: 'sec',
+  };
 };

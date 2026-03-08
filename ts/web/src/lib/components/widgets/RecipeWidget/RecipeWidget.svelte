@@ -11,7 +11,7 @@
   import EnergyTierWidget from '../EnergyTier/EnergyTierWidget.svelte';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
   import RecipeIngredientWidget from './RecipeIngredientWidget.svelte';
-  import { cleanAndCapitalize, getDisplayName, getItemIds } from './utils';
+  import { cleanAndCapitalize, getDisplayName, getItemIds, timeUnit } from './utils';
 
   type RecipeWidgetProps = {
     recipe: Recipe;
@@ -37,6 +37,7 @@
   const recipeCategory = $derived(
     await dbStore.data?.recipeCategory.getById(recipe.recipe_type, recipe.recipe_category),
   );
+  const dur = $derived(timeUnit(recipe.duration, true));
 </script>
 
 <div
@@ -93,8 +94,8 @@
 
   <p class="text-right">Base Duration</p>
   <div></div>
-  <p class="text-right">{recipe.duration / 20}</p>
-  <p class="text-left">sec</p>
+  <p class="text-right">{dur.amount}</p>
+  <p class="text-left">{dur.unit}</p>
 
   <p class="text-right">Base Voltage Tier</p>
   <div></div>
