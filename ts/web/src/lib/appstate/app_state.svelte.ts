@@ -67,7 +67,6 @@ class AppStateWrapper {
     <K extends keyof MachineCust>(key: K): MachineCustSetter<K> =>
     (nodeId, value) => {
       const cust: MachineCust = this.state.customs[nodeId] || defaultCustomization;
-      console.log(`${key} setter`, $state.snapshot(cust), value);
       cust[key] = value;
       this.state.customs[nodeId] = cust;
     };

@@ -15,9 +15,9 @@ export const applyPagination = <D, T extends keyof D, O>(
 
 export const explain = async (db: KyselyDB, query: SelectQueryBuilder<Database, any, any>) => {
   const raw_sql = query.compile();
-  console.log('QUERY', raw_sql.sql, raw_sql.parameters);
+  console.debug('QUERY', raw_sql.sql, raw_sql.parameters);
   const explain = await sql<{ detail: string }>`EXPLAIN QUERY PLAN ${sql.raw(raw_sql.sql)}`.execute(
     db,
   );
-  console.log(`EXPLAIN QUERY PLAN:\n${explain.rows.map((r) => r.detail).join('\n')}`);
+  console.debug(`EXPLAIN QUERY PLAN:\n${explain.rows.map((r) => r.detail).join('\n')}`);
 };

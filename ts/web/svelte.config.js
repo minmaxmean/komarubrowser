@@ -6,22 +6,22 @@ const config = {
     adapter: adapter({
       fallback: '404.html',
       pages: 'dist',
-      assets: 'dist'
-    })
+      assets: 'dist',
+    }),
   },
   compilerOptions: {
     experimental: {
-      async: true
-    }
-  }
+      async: true,
+    },
+  },
 };
 
 const SHOULD_ALIAS = !!process.env['SHOULD_ALIAS'];
-console.log({ SHOULD_ALIAS });
+console.debug({ SHOULD_ALIAS });
 
 if (SHOULD_ALIAS) {
   config.kit.alias = {
-    '@komarubrowser/common': '../common'
+    '@komarubrowser/common': '../common',
   };
 }
 
