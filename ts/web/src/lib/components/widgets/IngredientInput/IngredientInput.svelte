@@ -77,7 +77,7 @@
       </Button>
     {/snippet}
   </Popover.Trigger>
-  <Popover.Content class="w-xs p-0" side="right" align="start">
+  <Popover.Content class="w-xs p-0 mx-3" side="right" align="start">
     <Command.Root shouldFilter={false}>
       <Command.Input {placeholder} bind:value={query} />
       <Command.List>

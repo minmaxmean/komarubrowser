@@ -65,8 +65,11 @@ function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction):
   return consumed_pt.div(produced_pt);
 }
 
-export const calcMachineCnt = (recipes: Recipe[], cust: Customs) => {
+export const calcMachineCnt = (recipes: Recipe[], cust: Customs): MachineCount => {
   const flowEdges = calcEdges(recipes);
+  if (recipes.length === 0 || flowEdges.length === 0) {
+    return new Map();
+  }
   const machines: Map<string, Recipe> = new Map();
   const machineCnt: MachineCount = new Map();
   recipes.forEach((r) => {
@@ -105,7 +108,7 @@ export const calcMachineCnt = (recipes: Recipe[], cust: Customs) => {
     const poopTargets = poopsTo.get(pId);
     if (!poopTargets) return;
     const remainingPoopTargets = [...poopTargets].filter((cId) => {
-      if (anchors.has(pId)) return false;
+      if (anchors.has(cId)) return false;
       const cCnt = machineCnt.get(cId);
       if (!cCnt) return true;
       const cAdditionCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, cCnt);
