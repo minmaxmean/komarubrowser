@@ -4,7 +4,6 @@
   import { calculations } from '$lib/calc/store.svelte';
   import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
   import Separator from '$lib/components/ui/separator/separator.svelte';
-  import SetupSelector from '$lib/components/widgets/SetupWidget/SetupSelector.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
   import SetupWidget from '../widgets/SetupWidget/SetupWidget.svelte';
   import BalanceList from './BalanceList.svelte';

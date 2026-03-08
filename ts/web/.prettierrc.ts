@@ -20,9 +20,9 @@ const config: Config = {
       },
     },
   ],
+  tailwindFunctions: ['tv', 'cn'],
   tailwindStylesheet: './src/routes/layout.css',
   importOrder: ['^@komarubrowser/(.*)$', '^\\$lib', '^[./]'],
-  // importOrderSeparation: true,
   importOrderSortSpecifiers: true,
 };
 

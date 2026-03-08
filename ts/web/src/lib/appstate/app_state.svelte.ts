@@ -66,11 +66,11 @@ class AppStateWrapper {
   }
 
   public setups = {
-    create: (name: string) => {
+    duplicate: (name: string) => {
       if (this.#state.setups[name]) {
         throw Error(`Setup ${name} already exists`);
       }
-      this.#state.setups[name] = newSetup(name);
+      this.#state.setups[name] = { ...this.currentSetup, name };
     },
     delete: (name: string) => {
       if (!this.#state.setups[name]) {

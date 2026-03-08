@@ -13,7 +13,7 @@
 
     <RecipeGraph />
   </main>
-  <aside class="w-lg flex flex-col bg-card gap-4 pt-4">
+  <aside class="w-lg flex flex-col bg-sidebar gap-4 pt-4">
     <Sidebar />
   </aside>
 </div>

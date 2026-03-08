@@ -9,19 +9,3 @@
   const selections = $derived(appState.setups.list());
   const current = $derived(appState.setups.current());
 </script>
-
-<Select.Root
-  type="single"
-  bind:value={() => current, (newValue) => appState.setups.change(newValue)}
->
-  <Select.Trigger class={cn('w-max', className)}>
-    {current}
-  </Select.Trigger>
-  <Select.Content>
-    {#each selections as setup}
-      <Select.Item value={setup} label={setup}>
-        {setup}
-      </Select.Item>
-    {/each}
-  </Select.Content>
-</Select.Root>
