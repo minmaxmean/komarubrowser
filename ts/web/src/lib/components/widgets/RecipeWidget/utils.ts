@@ -56,19 +56,18 @@ export const calcUnit = (
 };
 
 const TICKS_PER_SEC = 20;
+const USE_TICKS = false;
+const DECIMAL_PLACES = 3;
 
-export const timeUnit = (
-  durPerTick: number | Fraction,
-  useTicks = false,
-): { amount: string; unit: string } => {
-  if (useTicks) {
+export const timeUnit = (durPerTick: number | Fraction): { amount: string; unit: string } => {
+  if (USE_TICKS) {
     return {
-      amount: durPerTick.toString(),
+      amount: new Fraction(durPerTick).toString(DECIMAL_PLACES),
       unit: 'ticks',
     };
   }
   return {
-    amount: new Fraction(durPerTick).div(TICKS_PER_SEC).toString(),
+    amount: new Fraction(durPerTick).div(TICKS_PER_SEC).toString(DECIMAL_PLACES),
     unit: 'sec',
   };
 };

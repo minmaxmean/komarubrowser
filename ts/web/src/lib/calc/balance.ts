@@ -1,5 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
+import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
 
 export type IngredientBalanceType = 'input' | 'output' | 'recycle';
@@ -11,7 +12,11 @@ export type IngredientBalance = {
 
 export type Balance = IngredientBalance[];
 
-export const calcBalance = (recipes: Recipe[], machineCnt: MachineCount): Balance => {
+export const calcBalance = (
+  recipes: Recipe[],
+  machineCnt: MachineCount,
+  effeciteDurs: EffectiveDurations,
+): Balance => {
   const ingMap = new Map<string, IngB>();
   type IngB = {
     ingId: string;
@@ -29,7 +34,9 @@ export const calcBalance = (recipes: Recipe[], machineCnt: MachineCount): Balanc
         produced: new Fraction(0),
         consumed: new Fraction(0),
       };
-      ing.consumed = ing.consumed.add(new Fraction(input.amount).mul(rCnt).div(r.duration));
+      ing.consumed = ing.consumed.add(
+        new Fraction(input.amount).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
+      );
       ingMap.set(ingId, ing);
     });
   });
@@ -44,7 +51,9 @@ export const calcBalance = (recipes: Recipe[], machineCnt: MachineCount): Balanc
         produced: new Fraction(0),
         consumed: new Fraction(0),
       };
-      ing.produced = ing.produced.add(new Fraction(output.amount).mul(rCnt).div(r.duration));
+      ing.produced = ing.produced.add(
+        new Fraction(output.amount).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
+      );
       ingMap.set(ingId, ing);
     });
   });

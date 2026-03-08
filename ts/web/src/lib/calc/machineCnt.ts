@@ -119,6 +119,7 @@ export const calcMachineCnt = (
       machineCnt.set(pId, new Fraction(pAddCnt.add(pCnt)));
     });
   });
+
   [...rev_top_sorted].reverse().forEach((pId) => {
     let pCnt = machineCnt.get(pId)!;
     if (!pCnt) return;
@@ -144,9 +145,7 @@ export const calcMachineCnt = (
       return false;
     });
     if (pCnt.equals(0)) return;
-
     if (remainingPoopTargets.length === 0) return;
-
     if (remainingPoopTargets.length > 1)
       throw new CalcError(
         `don't know how to split output from ${pId} between ${remainingPoopTargets}`,

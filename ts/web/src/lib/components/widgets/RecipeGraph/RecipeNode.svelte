@@ -15,7 +15,7 @@
 
   const { id, data }: NodeProps<RecipeNodeType> = $props();
   const { recipe } = $derived(data);
-  const dur = $derived(timeUnit(calculations.effetiveDuration(id) ?? 0, true));
+  const dur = $derived(timeUnit(calculations.effetiveDuration(id) ?? 0));
   const isAuto = $derived(appState.getIsAuto(id));
 </script>
 

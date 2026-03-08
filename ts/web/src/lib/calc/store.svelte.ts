@@ -33,7 +33,7 @@ const calcResult = $derived.by<Calcuations>(() => {
       appState.anchorCntMap(),
       res.effectiveDurations,
     );
-    res.balance = calcBalance(appState.selectedRecipes, res.machineCnt);
+    res.balance = calcBalance(appState.selectedRecipes, res.machineCnt, res.effectiveDurations);
   } catch (e) {
     if (e instanceof CalcError) {
       res.errorMsg = `Could not auto balance:\n${e.message}`;
