@@ -21,8 +21,8 @@ echo "Server Directory: $STAR_T_SERVER_DIR"
 
 # 3. Deploy the mod to the real server folder
 echo "Updating mod jar..."
-rm -f "$STAR_T_SERVER_DIR/mods/komarubrowser-*.jar"
-cp "$MOD_JAR_ABS" "$STAR_T_SERVER_DIR/mods/"
+rm -f "$STAR_T_SERVER_DIR/mods/"komarubrowser-*.jar
+cp "$MOD_JAR_ABS" "$STAR_T_SERVER_DIR/mods/."
 
 # 4. Launch
 cd "$STAR_T_SERVER_DIR"

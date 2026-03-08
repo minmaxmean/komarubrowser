@@ -5,6 +5,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_run_devserver", "js_test")
 load("@aspect_rules_js//npm:defs.bzl", "npm_package")
 load("@npm//:defs.bzl", "npm_link_all_packages", "npm_link_targets")
 load("@npm//ts/web:vite/package_json.bzl", vite_bin = "bin")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
 # gazelle:exclude *
 npm_link_all_packages(name = "node_modules")
@@ -76,10 +77,7 @@ vite_bin.vite(
     srcs = DEPS + SRCS,
     args = ["build"],
     chdir = package_name(),
-    out_dirs = [
-        "dist",
-        ".svelte-kit",
-    ],
+    out_dirs = ["dist"],
     silent_on_success = False,
     visibility = ["//visibility:public"],
 )
@@ -103,4 +101,9 @@ js_run_devserver(
 npm_package(
     name = "web",
     visibility = ["//:__pkg__"],
+)
+
+pkg_tar(
+    name = "build_pkg",
+    srcs = [":build"],
 )
