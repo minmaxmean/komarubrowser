@@ -6,6 +6,7 @@
   import { appState } from '$lib/appstate/app_state.svelte';
   import { calculations } from '$lib/calc/store.svelte';
   import { Button } from '$lib/components/ui/button';
+  import { Checkbox } from '$lib/components/ui/checkbox';
   import Input from '$lib/components/ui/input/input.svelte';
   import EnergyTierInput from '../EnergyTier/EnergyTierInput.svelte';
   import RecipeWidget from '../RecipeWidget/RecipeWidget.svelte';
@@ -22,18 +23,7 @@
   {#snippet machineSettings()}
     <div class="col-span-4 bg-(--machine-block) py-1 my-2">Machine</div>
 
-    <div class="text-right">Machine Tier</div>
-    <EnergyTierInput
-      class="text-right col-span-2"
-      minTier={recipe.min_tier}
-      bind:value={
-        () => appState.getMachineTier(id, recipe.min_tier),
-        (newVal) => appState.setMachineTier(id, newVal)
-      }
-    />
-    <div></div>
-
-    <div class="text-right"># Machines</div>
+    <p class="text-right"># Machines</p>
     <Input
       disabled={appState.isAuto(id)}
       class="text-right col-span-2"
@@ -55,6 +45,27 @@
         <Manual class="opacity-50" />
       {/if}
     </Button>
+
+    <p class="text-right">Machine Tier</p>
+    <EnergyTierInput
+      class="text-right col-span-2"
+      minTier={recipe.min_tier}
+      bind:value={
+        () => appState.getMachineTier(id, recipe.min_tier),
+        (newVal) => appState.setMachineTier(id, newVal)
+      }
+    />
+    <p></p>
+
+    <p class="text-right">Has Perfect OC</p>
+    <div class="flex flex-row justify-end col-span-2">
+      <Checkbox
+        bind:checked={
+          () => appState.getPerfectOC(id), (newVal) => appState.setPerfectOC(id, newVal)
+        }
+      />
+    </div>
+    <p></p>
 
     <p class="text-right">Effective Duration</p>
     <div></div>

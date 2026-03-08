@@ -92,25 +92,25 @@
 
   <div class="col-span-4 bg-(--recipe-block) py-1">Recipe</div>
 
-  <p class="text-right">Base Duration</p>
-  <div></div>
-  <p class="text-right">{dur.amount}</p>
-  <p class="text-left">{dur.unit}</p>
-
-  <p class="text-right">Base Voltage Tier</p>
+  <p class="text-right">Voltage Tier</p>
   <div></div>
   <div class="flex justify-end"><EnergyTierWidget tier={recipe.min_tier} /></div>
   <p class="text-left"></p>
 
+  <p class="text-right">Duration</p>
+  <div></div>
+  <p class="text-right">{dur.amount}</p>
+  <p class="text-left">{dur.unit}</p>
+
   {#if recipe.eut_consumed > 0}
-    <p class="text-right">Base Power Usage</p>
+    <p class="text-right">Power Usage</p>
     <div></div>
     <p class="text-right">{recipe.eut_consumed}</p>
     <p class="text-left">EU/t</p>
   {/if}
 
   {#if recipe.eut_produced > 0}
-    <p class="text-right">Base Power Production</p>
+    <p class="text-right">Power Production</p>
     <div></div>
     <p class="text-right">{recipe.eut_produced}</p>
     <p class="text-left">EU/t</p>

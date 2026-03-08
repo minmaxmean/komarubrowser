@@ -12,7 +12,8 @@ function effectiveDuration(r: Recipe, cust: MachineCustomization | undefined): F
   let baseDuration = new Fraction(r.duration);
   if (!cust) return baseDuration;
   if (cust.energyTier > r.min_tier) {
-    baseDuration = baseDuration.div(BASE_OVERCLOCK.pow(cust.energyTier - r.min_tier));
+    const ocScale = cust.hasPerfectOC ? PERFECT_OVERCLOCK : BASE_OVERCLOCK;
+    baseDuration = baseDuration.div(ocScale.pow(cust.energyTier - r.min_tier));
   }
   return baseDuration;
 }

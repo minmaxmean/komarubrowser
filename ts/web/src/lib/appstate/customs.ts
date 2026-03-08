@@ -4,6 +4,7 @@ import type { EnergyTierID } from '@komarubrowser/common/db/energyTier';
 export type MachineCustomization = {
   cnt: Fraction;
   energyTier: EnergyTierID;
+  hasPerfectOC: boolean;
 };
 
 export type Customs = Partial<Record<string, MachineCustomization>>;

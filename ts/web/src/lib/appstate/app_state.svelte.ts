@@ -59,6 +59,7 @@ class AppStateWrapper {
       this.state.customs[nodeId] = {
         cnt: new Fraction(1),
         energyTier: energyTier,
+        hasPerfectOC: false,
       };
     }
   };
@@ -80,14 +81,29 @@ class AppStateWrapper {
     return new Map(entries);
   };
   isAuto = (node_id: string): boolean => !this.state.customs[node_id];
+
   getMachineTier = (nodeId: string, defaultTier: EnergyTierID): EnergyTierID => {
     return this.state.customs[nodeId]?.energyTier ?? defaultTier;
   };
-
   setMachineTier = (nodeId: string, newVal: EnergyTierID) => {
     const machineCustom = this.state.customs[nodeId];
     if (!machineCustom) return;
     machineCustom.energyTier = newVal;
+  };
+
+  getPerfectOC = (nodeId: string): boolean => {
+    return this.state.customs[nodeId]?.hasPerfectOC ?? false;
+  };
+  setPerfectOC = (nodeId: string, newVal: boolean) => {
+    const machineCustom = this.state.customs[nodeId];
+    if (!machineCustom) return;
+    machineCustom.hasPerfectOC = newVal;
+  };
+
+  togglePerfectOC = (nodeId: string) => {
+    const machineCustom = this.state.customs[nodeId];
+    if (!machineCustom) return;
+    machineCustom.hasPerfectOC = !machineCustom.hasPerfectOC;
   };
 }
 

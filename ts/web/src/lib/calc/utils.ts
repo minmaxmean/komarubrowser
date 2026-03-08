@@ -7,7 +7,7 @@ const simplifyMap: Record<string, string> = {
   'gtceu:electrolyzer/water_electrolysis': 'O2',
 };
 
-type SBArg = number | string | Fraction;
+type SBArg = number | string | Fraction | boolean;
 
 type SRMapArg = Map<string, SRArg>;
 type SRRecordArgs = Record<string, SBArg>;
@@ -16,7 +16,7 @@ type SRArg = SBArg | SRMapArg | SRRecordArgs | SRArrayArg;
 
 export function sr(input: SRArg): unknown {
   if (typeof input === 'string') return simplifyMap[input] ?? input;
-  if (typeof input === 'number') return input;
+  if (typeof input === 'number' || typeof input === 'boolean') return input;
   if (input instanceof Fraction) {
     return input.toString();
   }
