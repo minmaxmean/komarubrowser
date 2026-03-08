@@ -1,9 +1,12 @@
 <script lang="ts">
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+  import { appState } from '$lib/appstate/app_state.svelte';
   import { calculations } from '$lib/calc/store.svelte';
+  import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
+  import Separator from '$lib/components/ui/separator/separator.svelte';
+  import SetupSelector from '$lib/components/widgets/SetupWidget/SetupSelector.svelte';
   import { dbStore } from '$lib/db/dbStore.svelte';
-  import ScrollArea from '../ui/scroll-area/scroll-area.svelte';
-  import Separator from '../ui/separator/separator.svelte';
+  import SetupWidget from '../widgets/SetupWidget/SetupWidget.svelte';
   import BalanceList from './BalanceList.svelte';
 
   const itemIds = $derived(calculations.balance.map((b) => b.ingredientId));
@@ -12,11 +15,12 @@
   const systemInput = $derived(calculations.balance.filter((i) => i.type === 'input'));
   const systemOutput = $derived(calculations.balance.filter((i) => i.type === 'output'));
   const systemRecycle = $derived(calculations.balance.filter((i) => i.type === 'recycle'));
+
+  $inspect(appState.setups.list());
 </script>
 
 <div class="px-4 py-4">
-  <h2 class="text-lg font-semibold">Production Balance</h2>
-  <p class="text-xs text-muted-foreground">Net items per second</p>
+  <SetupWidget />
 </div>
 
 {#if calculations.errorMsg}
