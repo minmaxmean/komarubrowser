@@ -13,8 +13,14 @@
     value?: EnergyTierID;
     minTier: EnergyTierID;
     class?: ClassValue | undefined | null;
+    disabled?: boolean;
   };
-  let { minTier: minTier, value = $bindable(minTier), class: className }: Props = $props();
+  let {
+    class: className,
+    minTier: minTier,
+    value = $bindable(minTier),
+    disabled = $bindable(),
+  }: Props = $props();
   const selections = $derived(energyTiers.filter((et) => et.id >= minTier));
 </script>
 
@@ -23,7 +29,7 @@
   name="energyTier"
   bind:value={() => value.toString(), (newValue) => (value = energyTier(Number.parseInt(newValue)))}
 >
-  <Select.Trigger class={cn('w-full justify-end', className)}>
+  <Select.Trigger class={cn('w-full justify-end', className)} {disabled}>
     <EnergyTierWidget tier={value} />
   </Select.Trigger>
   <Select.Content>

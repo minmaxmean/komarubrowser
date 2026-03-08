@@ -31,6 +31,7 @@ const calcResult = $derived.by<Calcuations>(() => {
     res.machineCnt = calcMachineCnt(
       $state.snapshot(appState.selectedRecipes),
       appState.machineCntMap(),
+      res.effectiveDurations,
     );
     res.balance = calcBalance(appState.selectedRecipes, res.machineCnt);
   } catch (e) {
@@ -55,9 +56,6 @@ export const calculations = {
   },
   effetiveDuration(recipeId: string): Fraction | null {
     return calcResult.effectiveDurations?.get(recipeId) ?? null;
-  },
-  get badMachines(): string[] {
-    return calcResult.badMachines;
   },
   isBadMachine(recipeId: string): boolean {
     return calcResult.badMachines.includes(recipeId);

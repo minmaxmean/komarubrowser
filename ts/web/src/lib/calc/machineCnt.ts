@@ -1,6 +1,7 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
+import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
 
 type EdgeMap = Map<string, Set<string>>;
@@ -38,7 +39,13 @@ export class CalcError extends Error {
   }
 }
 
-function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction): Fraction {
+function _calc_ratio(
+  consumer: Recipe,
+  producer: Recipe,
+  consumerCnt: Fraction,
+  consumerEffectiveDur: Fraction | undefined,
+  producerEffecitDur: Fraction | undefined,
+): Fraction {
   const consumedItem = consumer.inputs.find((input) =>
     producer.output_ids.includes(input.accepted_ids[0]),
   );
@@ -57,12 +64,20 @@ function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction):
       producer.id,
     ]);
   }
-  const consumed_pt = consumerCnt.mul(consumedItem.amount).div(consumer.duration);
-  const produced_pt = new Fraction(producedItem.amount).div(producer.duration);
+  const consumed_pt = consumerCnt
+    .mul(consumedItem.amount)
+    .div(consumerEffectiveDur ?? consumer.duration);
+  const produced_pt = new Fraction(producedItem.amount).div(
+    producerEffecitDur ?? producer.duration,
+  );
   return consumed_pt.div(produced_pt);
 }
 
-export const calcMachineCnt = (recipes: Recipe[], anchorCnt: MachineCount): MachineCount => {
+export const calcMachineCnt = (
+  recipes: Recipe[],
+  anchorCnt: MachineCount,
+  effeciteDurs: EffectiveDurations,
+): MachineCount => {
   const flowEdges = calcEdges(recipes);
   if (recipes.length === 0 || flowEdges.length === 0) {
     console.log('No edges or recipies found', recipes, flowEdges);
@@ -98,7 +113,13 @@ export const calcMachineCnt = (recipes: Recipe[], anchorCnt: MachineCount): Mach
     eatsFrom.get(cId)?.forEach((pId) => {
       if (anchors.has(pId)) return;
       const pCnt = machineCnt.get(pId) ?? 0;
-      const pAddCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, cCnt);
+      const pAddCnt = _calc_ratio(
+        machines.get(cId)!,
+        machines.get(pId)!,
+        cCnt,
+        effeciteDurs.get(cId),
+        effeciteDurs.get(pId),
+      );
       machineCnt.set(pId, new Fraction(pAddCnt.add(pCnt)));
     });
   });
@@ -111,7 +132,13 @@ export const calcMachineCnt = (recipes: Recipe[], anchorCnt: MachineCount): Mach
       if (anchors.has(cId)) return false;
       const cCnt = machineCnt.get(cId);
       if (!cCnt) return true;
-      const cAdditionCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, cCnt);
+      const cAdditionCnt = _calc_ratio(
+        machines.get(cId)!,
+        machines.get(pId)!,
+        cCnt,
+        effeciteDurs.get(cId),
+        effeciteDurs.get(pId),
+      );
       pCnt = pCnt.sub(cAdditionCnt);
       if (pCnt.lt(0))
         throw new CalcError(`something bad happned pCnt ${pCnt} went below zero for ${pId}`, [
@@ -131,7 +158,13 @@ export const calcMachineCnt = (recipes: Recipe[], anchorCnt: MachineCount): Mach
       );
     const cId = poopTargets.values().toArray()[0];
     const cCurCnt = machineCnt.get(cId) ?? new Fraction(0);
-    const cAdditionCnt = _calc_ratio(machines.get(cId)!, machines.get(pId)!, pCnt).inverse();
+    const cAdditionCnt = _calc_ratio(
+      machines.get(cId)!,
+      machines.get(pId)!,
+      pCnt,
+      effeciteDurs.get(cId),
+      effeciteDurs.get(pId),
+    ).inverse();
     machineCnt.set(cId, new Fraction(cAdditionCnt.add(cCurCnt)));
   });
   return machineCnt;

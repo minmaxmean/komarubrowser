@@ -17,6 +17,7 @@
   const { recipe } = $derived(data);
   const machineCnt = $derived(calculations.machineCnt(id).toString());
   const dur = $derived(timeUnit(calculations.effetiveDuration(id) ?? 0, true));
+  const isAuto = $derived(appState.isAuto(id));
 </script>
 
 <RecipeWidget {recipe} withHandles>
@@ -25,7 +26,7 @@
 
     <p class="text-right"># Machines</p>
     <Input
-      disabled={appState.isAuto(id)}
+      disabled={isAuto}
       class="text-right col-span-2"
       value={machineCnt}
       onchange={(e) => {
@@ -49,6 +50,7 @@
     <p class="text-right">Machine Tier</p>
     <EnergyTierInput
       class="text-right col-span-2"
+      disabled={isAuto}
       minTier={recipe.min_tier}
       bind:value={
         () => appState.getMachineTier(id, recipe.min_tier),
@@ -60,6 +62,7 @@
     <p class="text-right">Has Perfect OC</p>
     <div class="flex flex-row justify-end col-span-2">
       <Checkbox
+        disabled={isAuto}
         bind:checked={
           () => appState.getPerfectOC(id), (newVal) => appState.setPerfectOC(id, newVal)
         }
