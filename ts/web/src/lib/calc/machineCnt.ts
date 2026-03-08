@@ -1,6 +1,5 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
-import type { Customs } from '$lib/components/widgets/RecipeGraph/customs';
 import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
 import type { MachineCount } from './store.svelte';
 
@@ -65,17 +64,20 @@ function _calc_ratio(consumer: Recipe, producer: Recipe, consumerCnt: Fraction):
   return consumed_pt.div(produced_pt);
 }
 
-export const calcMachineCnt = (recipes: Recipe[], cust: Customs): MachineCount => {
+export const calcMachineCnt = (recipes: Recipe[], anchorCnt: MachineCount): MachineCount => {
   const flowEdges = calcEdges(recipes);
   if (recipes.length === 0 || flowEdges.length === 0) {
+    console.log('No edges or recipies found', recipes, flowEdges);
     return new Map();
   }
   const machines: Map<string, Recipe> = new Map();
   const machineCnt: MachineCount = new Map();
   recipes.forEach((r) => {
     machines.set(r.id, r);
-    const cnt = cust.manualMachinesCnt[r.id];
-    if (cust.manualMachines.includes(r.id) && cnt) machineCnt.set(r.id, new Fraction(cnt));
+    const cnt = anchorCnt.get(r.id);
+    if (cnt) {
+      machineCnt.set(r.id, new Fraction(cnt));
+    }
   });
   const anchors = new Set(machineCnt.keys());
   if (anchors.size === 0) {

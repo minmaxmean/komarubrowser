@@ -16,8 +16,11 @@ type Calcuations = {
 const calcResult = $derived.by<Calcuations>(() => {
   const res: Calcuations = { machineCnt: null, balance: null, errorMsg: null, badMachines: [] };
   try {
-    res.machineCnt = calcMachineCnt(appState.value.selectedRecipes, appState.value.calcCustoms);
-    res.balance = calcBalance(appState.value.selectedRecipes, res.machineCnt);
+    res.machineCnt = calcMachineCnt(
+      $state.snapshot(appState.selectedRecipes),
+      appState.machineCntMap(),
+    );
+    res.balance = calcBalance(appState.selectedRecipes, res.machineCnt);
   } catch (e) {
     if (e instanceof CalcError) {
       res.errorMsg = `Could not auto balance:\n${e.message}`;
@@ -30,6 +33,7 @@ const calcResult = $derived.by<Calcuations>(() => {
     toast.error(res.errorMsg);
     console.error(e);
   }
+  console.log('calcResult', res);
   return res;
 });
 

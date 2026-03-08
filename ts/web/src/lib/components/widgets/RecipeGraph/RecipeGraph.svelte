@@ -6,25 +6,10 @@
   import { appState } from '$lib/appstate/app_state.svelte';
   import { calculations } from '$lib/calc/store.svelte';
   import RecipeNode from './RecipeNode.svelte';
-  import {
-    type EdgeType,
-    type NodeType,
-    type RecipeNodeData,
-    applyMachineCnt,
-    calcGraph,
-    reposition,
-  } from './graph';
+  import { type EdgeType, type NodeType, calcGraph, reposition } from './graph';
 
   // 1. Single derived model combining appState and derived calculations
-  const graphModel = $derived.by(() => {
-    const rawGraph = calcGraph(appState.value.selectedRecipes, appState.value.calcCustoms);
-
-    rawGraph.nodes = rawGraph.nodes.map((n) =>
-      applyMachineCnt(n, calculations.machineCnt(n.id), calculations.isBadMachine(n.id)),
-    );
-
-    return rawGraph;
-  });
+  const graphModel = $derived(calcGraph(appState.selectedRecipes));
 
   let nodes = $state.raw<NodeType[]>([]);
   let edges = $state.raw<EdgeType[]>([]);
@@ -59,9 +44,8 @@
   const nodeTypes: NodeTypes = { recipe: RecipeNode };
 
   const minimapNodeColor: GetMiniMapNodeAttribute = (node) => {
-    const data = node.data as RecipeNodeData;
-    if (data.isBad) return 'var(--color-red-800)';
-    if (!data.calcSettings.isAuto) return 'var(--machine-block)';
+    if (calculations.isBadMachine(node.id)) return 'var(--color-red-800)';
+    if (!appState.isAuto(node.id)) return 'var(--machine-block)';
     return 'var(--color-neutral-700)';
   };
 </script>

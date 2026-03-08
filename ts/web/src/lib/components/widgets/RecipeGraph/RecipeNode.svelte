@@ -3,16 +3,16 @@
   import Wand from '@lucide/svelte/icons/wand-sparkles';
   import { type NodeProps } from '@xyflow/svelte';
   import Fraction from 'fraction.js';
+  import { appState } from '$lib/appstate/app_state.svelte';
+  import { calculations } from '$lib/calc/store.svelte';
   import { Button } from '$lib/components/ui/button';
   import Input from '$lib/components/ui/input/input.svelte';
   import RecipeWidget from '../RecipeWidget/RecipeWidget.svelte';
-  import { useCustoms } from './customs';
   import type { RecipeNodeType } from './graph';
 
   const { id, data }: NodeProps<RecipeNodeType> = $props();
-  const { calcSettings, recipe, calcResult } = $derived(data);
-  const { toggleManual, setMachineCnt } = useCustoms();
-  const machineCnt = $derived(new Fraction(calcResult ?? 0).toString());
+  const { recipe } = $derived(data);
+  const machineCnt = $derived(new Fraction(calculations.machineCnt(id) ?? 0).toString());
 </script>
 
 <RecipeWidget {recipe} withHandles>
@@ -20,16 +20,21 @@
     <div class="col-span-4 bg-(--machine-block) py-1 my-2">Machine</div>
     <div></div>
     <Input
-      disabled={calcSettings.isAuto}
+      disabled={appState.isAuto(id)}
       class="text-right col-span-2"
       value={machineCnt}
       onchange={(e) => {
         const newVal = new Fraction(e.currentTarget.value);
-        setMachineCnt(id, newVal);
+        appState.setMachineCnt(id, newVal);
       }}
     />
-    <Button size="icon-sm" variant="ghost" class="hover:bg-muted" onclick={() => toggleManual(id)}>
-      {#if calcSettings.isAuto}
+    <Button
+      size="icon-sm"
+      variant="ghost"
+      class="hover:bg-muted"
+      onclick={() => appState.toggleManual(id)}
+    >
+      {#if appState.isAuto(id)}
         <Wand class="opacity-50" />
       {:else}
         <Manual class="opacity-50" />

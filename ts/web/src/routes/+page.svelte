@@ -9,7 +9,7 @@
 <div class="flex flex-row h-full w-full">
   <Toaster richColors />
   <main class="w-full flex flex-col gap-4 p-4 min-w-0">
-    <RecipeSelector bind:selectedItems={appState.value.selectedRecipes} />
+    <RecipeSelector bind:selectedItems={appState.selectedRecipes} />
 
     <RecipeGraph />
   </main>
