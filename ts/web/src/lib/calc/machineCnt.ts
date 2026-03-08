@@ -78,6 +78,9 @@ export const calcMachineCnt = (
   anchorCnt: MachineCount,
   effeciteDurs: EffectiveDurations,
 ): MachineCount => {
+  if (recipes.length === 0) {
+    return new Map();
+  }
   const flowEdges = calcEdges(recipes);
   const machines: Map<string, Recipe> = new Map();
   const machineCnt: MachineCount = new Map();

@@ -14,8 +14,6 @@
   const systemInput = $derived(calculations.balance.filter((i) => i.type === 'input'));
   const systemOutput = $derived(calculations.balance.filter((i) => i.type === 'output'));
   const systemRecycle = $derived(calculations.balance.filter((i) => i.type === 'recycle'));
-
-  $inspect(appState.setups.list());
 </script>
 
 <div class="px-4 py-4">

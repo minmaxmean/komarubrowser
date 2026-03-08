@@ -1,5 +1,6 @@
 import Fraction from 'fraction.js';
 import superjson from 'superjson';
+import { toast } from 'svelte-sonner';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { MachineCount } from '$lib/calc/store.svelte';
 import {
@@ -17,8 +18,9 @@ type Setup = {
   customs: Customs;
 };
 
-const newSetup = (name: string): Setup => ({
-  name,
+const CLEAN_SETUP = 'Setup 1';
+const cleanSetup = (): Setup => ({
+  name: CLEAN_SETUP,
   selectedRecipes: [],
   customs: {},
 });
@@ -29,9 +31,9 @@ type AppState = {
 };
 
 const initAppState: AppState = {
-  currentSetup: 'Setup 1',
+  currentSetup: CLEAN_SETUP,
   setups: {
-    'Setup 1': newSetup('Setup 1'),
+    [CLEAN_SETUP]: cleanSetup(),
   },
 };
 
@@ -66,17 +68,22 @@ class AppStateWrapper {
   }
 
   public setups = {
-    duplicate: (name: string) => {
-      if (this.#state.setups[name]) {
-        throw Error(`Setup ${name} already exists`);
-      }
+    duplicate: () => {
+      const name = this.#state.currentSetup + ' copy';
       this.#state.setups[name] = { ...this.currentSetup, name };
+      this.#state.currentSetup = name;
     },
-    delete: (name: string) => {
-      if (!this.#state.setups[name]) {
-        console.debug(`Setup doesn't exist`);
+    deleteCurrent: () => {
+      const current = this.#state.currentSetup;
+      delete this.#state.setups[current];
+      const next = this.setups.list().find((i) => i != current);
+      if (next) {
+        this.#state.currentSetup = next;
+      } else {
+        this.#state.currentSetup = CLEAN_SETUP;
+        this.#state.setups[CLEAN_SETUP] = cleanSetup();
+        return;
       }
-      delete this.#state.setups[name];
     },
     change: (name: string) => {
       if (!this.#state.setups[name]) {

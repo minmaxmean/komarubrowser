@@ -9,9 +9,10 @@
 
   const selections = $derived(appState.setups.list());
   const current = $derived(appState.setups.current());
+  $inspect(current, selections);
 </script>
 
-<ButtonGroup.Root class="w-full rounded-md border border-input">
+<ButtonGroup.Root class="w-full rounded-md border border-input text-pretty">
   <Select.Root
     type="single"
     bind:value={() => current, (newValue) => appState.setups.change(newValue)}
@@ -30,14 +31,19 @@
   <Button variant="secondary" size="icon" class="hover:bg-background">
     <Edit />
   </Button>
-  <Button variant="secondary" size="icon" class="hover:bg-background">
+  <Button
+    variant="secondary"
+    size="icon"
+    class="hover:bg-background"
+    onclick={() => appState.setups.duplicate()}
+  >
     <Copy />
   </Button>
   <Button
     variant="secondary"
     size="icon"
     class="hover:bg-(--input-block)"
-    disabled={selections.length <= 1}
+    onclick={() => appState.setups.deleteCurrent()}
   >
     <Trash />
   </Button>
