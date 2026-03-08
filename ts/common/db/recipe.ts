@@ -1,5 +1,5 @@
 import type { GeneratedAlways, Insertable, JSONColumnType, Selectable } from "kysely";
-import { EnergyTierID } from "./energyTier.js";
+import type { EnergyTierID } from "./energyTier.js";
 
 export type RecipeIngredient = {
   accepted_ids: string[];

@@ -3,11 +3,9 @@
   import type { GetMiniMapNodeAttribute, NodeTypes } from '@xyflow/svelte';
   import { mode as colorMode } from 'mode-watcher';
   import { untrack } from 'svelte';
-  import type { Recipe } from '@komarubrowser/common/db/recipe';
   import { appState } from '$lib/appstate/app_state.svelte';
   import { calculations } from '$lib/calc/store.svelte';
   import RecipeNode from './RecipeNode.svelte';
-  import type { Customs } from './customs';
   import {
     type EdgeType,
     type NodeType,

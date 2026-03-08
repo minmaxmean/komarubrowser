@@ -5,7 +5,12 @@ import type { Recipe } from '@komarubrowser/common/db/recipe';
 import { deepMerge } from '$lib/utils';
 import { type Customs, type NodeCalcState, initCalcState } from './customs';
 
-export type RecipeNodeData = { recipe: Recipe; calcSettings: NodeCalcState; isBad: boolean };
+export type RecipeNodeData = {
+  recipe: Recipe;
+  calcSettings: NodeCalcState;
+  calcResult: Fraction | null;
+  isBad: boolean;
+};
 export type RecipeNodeType = Node<RecipeNodeData, 'recipe'>;
 
 export type NodeType = RecipeNodeType;
@@ -43,7 +48,12 @@ export function calcGraph(recipes: Recipe[], customs: Customs): FlowGraph {
       id: r.id,
       position: { x: idx * 10, y: idx * 60 },
       type: 'recipe',
-      data: { recipe: r, calcSettings: initCalcState(r.id, customs), isBad: false },
+      data: {
+        recipe: r,
+        calcSettings: initCalcState(r.id, customs),
+        isBad: false,
+        calcResult: null,
+      },
     }),
   );
   return { nodes, edges: calcEdges(recipes) };
@@ -77,7 +87,7 @@ export const applyMachineCnt = (
 ): RecipeNodeType =>
   deepMerge(n, {
     data: {
-      calcSettings: { machineCnt },
+      calcResult: machineCnt,
       isBad,
     },
   });

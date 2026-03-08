@@ -30,6 +30,11 @@ export const useCustoms = () => {
         customs.manualMachinesCnt[nodeId] = new Fraction(1);
       }
     },
+    setMachineCnt: (nodeId: string, newCnt: Fraction) => {
+      const exists = customs.manualMachines.includes(nodeId);
+      if (!exists || newCnt.equals(customs.manualMachinesCnt[nodeId])) return;
+      customs.manualMachinesCnt[nodeId] = newCnt;
+    },
   };
 };
 

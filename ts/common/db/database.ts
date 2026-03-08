@@ -1,8 +1,8 @@
 import { type Dialect, Kysely, ParseJSONResultsPlugin } from "kysely";
 import type { IngredientTable } from "./ingredient.js";
 import type { ManifestTable } from "./manifest.js";
-import { RecipeTable } from "./recipe.js";
-import { RecipeCategoryTable } from "./recipeType.js";
+import type { RecipeTable } from "./recipe.js";
+import type { RecipeCategoryTable } from "./recipeType.js";
 
 export type Database = {
   ingredient: IngredientTable;
