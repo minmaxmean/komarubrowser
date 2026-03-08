@@ -1,4 +1,4 @@
-import type Fraction from 'fraction.js';
+import Fraction from 'fraction.js';
 import { toast } from 'svelte-sonner';
 import { appState } from '$lib/appstate/app_state.svelte';
 import { type IngredientBalance, calcBalance } from './balance.js';
@@ -38,8 +38,8 @@ const calcResult = $derived.by<Calcuations>(() => {
 });
 
 export const calculations = {
-  machineCnt(recipeId: string): Fraction | null {
-    return calcResult.machineCnt?.get(recipeId) ?? null;
+  machineCnt(recipeId: string): Fraction {
+    return calcResult.machineCnt?.get(recipeId) ?? new Fraction(0);
   },
   get badMachines(): string[] {
     return calcResult.badMachines;

@@ -37,9 +37,7 @@
   {/if}
 
   <p class="text-right text-pretty">{displayName}</p>
-  <div class="flex items-center justify-center">
-    <IngredientIcon {...getTextProps(item)} />
-  </div>
+  <IngredientIcon class="flex items-center justify-center" {...getTextProps(item)} />
   <p class="text-right">{amount}</p>
   <p class="text-left">{unit}{chance}</p>
 </div>
