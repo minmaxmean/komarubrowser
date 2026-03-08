@@ -24,13 +24,13 @@ const calcResult = $derived.by<Calcuations>(() => {
 
     effectiveDurations: calcEffectiveDurations(
       $state.snapshot(appState.selectedRecipes),
-      $state.snapshot(appState.customsMap()),
+      $state.snapshot(appState.allCustomsMap()),
     ),
   };
   try {
     res.machineCnt = calcMachineCnt(
       $state.snapshot(appState.selectedRecipes),
-      appState.machineCntMap(),
+      appState.anchorCntMap(),
       res.effectiveDurations,
     );
     res.balance = calcBalance(appState.selectedRecipes, res.machineCnt);

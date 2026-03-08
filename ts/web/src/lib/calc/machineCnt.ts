@@ -79,10 +79,6 @@ export const calcMachineCnt = (
   effeciteDurs: EffectiveDurations,
 ): MachineCount => {
   const flowEdges = calcEdges(recipes);
-  if (recipes.length === 0 || flowEdges.length === 0) {
-    console.log('No edges or recipies found', recipes, flowEdges);
-    return new Map();
-  }
   const machines: Map<string, Recipe> = new Map();
   const machineCnt: MachineCount = new Map();
   recipes.forEach((r) => {

@@ -1,12 +1,13 @@
 import Fraction from 'fraction.js';
 import superjson from 'superjson';
-import type { EnergyTierID } from '@komarubrowser/common/db/energyTier';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { MachineCount } from '$lib/calc/store.svelte';
 import {
   type Customs,
   type CustomsMap,
-  type MachineCustomization,
+  type MachineCust,
+  type MachineCustGetter,
+  type MachineCustSetter,
   defaultCustomization,
 } from './customs';
 
@@ -56,54 +57,44 @@ class AppStateWrapper {
   set selectedRecipes(v: Recipe[]) {
     this.state.selectedRecipes = v;
   }
-  getCustomization<K extends keyof MachineCustomization>(
-    nodeId: string,
-    key: K,
-  ): MachineCustomization[K] {
-    const exists: MachineCustomization = this.state.customs[nodeId] || defaultCustomization;
-    return exists[key];
-  }
-  setCustomization<K extends keyof MachineCustomization>(
-    nodeId: string,
-    key: K,
-    value: MachineCustomization[K],
-  ) {
-    const exists: MachineCustomization = this.state.customs[nodeId] || defaultCustomization;
-    exists[key] = value;
-  }
-  setIsAuto = (nodeId: string, isAuto: boolean) => this.setCustomization(nodeId, 'isAuto', isAuto);
-  isAuto = (nodeId: string): boolean => this.getCustomization(nodeId, 'isAuto');
+  private custGetter =
+    <K extends keyof MachineCust>(key: K): MachineCustGetter<K> =>
+    (nodeId) => {
+      const cust: MachineCust = this.state.customs[nodeId] || defaultCustomization;
+      return cust[key];
+    };
+  private custSetter =
+    <K extends keyof MachineCust>(key: K): MachineCustSetter<K> =>
+    (nodeId, value) => {
+      const cust: MachineCust = this.state.customs[nodeId] || defaultCustomization;
+      console.log(`${key} setter`, $state.snapshot(cust), value);
+      cust[key] = value;
+      this.state.customs[nodeId] = cust;
+    };
+  public setIsAuto = this.custSetter('isAuto');
+  public getIsAuto = this.custGetter('isAuto');
+  toggleIsAuto = (nodeId: string) => this.setIsAuto(nodeId, !this.getIsAuto(nodeId));
 
-  setMachineCnt = (nodeId: string, cnt: Fraction) => this.setCustomization(nodeId, 'cnt', cnt);
+  public setMachineCnt = this.custSetter('cnt');
 
-  setMachineTier = (nodeId: string, energyTier: EnergyTierID) =>
-    this.setCustomization(nodeId, 'energyTier', energyTier);
-  getMachineTier = (nodeId: string) => this.getCustomization(nodeId, 'energyTier');
+  setMachineTier = this.custSetter('energyTier');
+  getMachineTier = this.custGetter('energyTier');
 
-  getPerfectOC = (nodeId: string): boolean => {
-    return this.state.customs[nodeId]?.hasPerfectOC ?? false;
-  };
-  setPerfectOC = (nodeId: string, newVal: boolean) => {
-    const machineCustom = this.state.customs[nodeId];
-    if (!machineCustom) return;
-    machineCustom.hasPerfectOC = newVal;
-  };
+  getPerfectOC = this.custGetter('hasPerfectOC');
+  setPerfectOC = this.custSetter('hasPerfectOC');
 
-  togglePerfectOC = (nodeId: string) => {
-    const machineCustom = this.state.customs[nodeId];
-    if (!machineCustom) return;
-    machineCustom.hasPerfectOC = !machineCustom.hasPerfectOC;
-  };
+  togglePerfectOC = (nodeId: string) => this.setPerfectOC(nodeId, !this.getPerfectOC(nodeId));
 
-  customsMap = (): CustomsMap => {
+  allCustomsMap = (): CustomsMap => {
     const entries = Object.entries(this.state.customs).filter(
-      (arr): arr is [string, MachineCustomization] => !!arr[1],
+      (arr): arr is [string, MachineCust] => !!arr[1],
     );
     return new Map(entries);
   };
-  machineCntMap = (): MachineCount => {
+  anchorCntMap = (): MachineCount => {
     const entries = Object.entries(this.state.customs)
-      .filter((arr): arr is [string, MachineCustomization] => !!arr[1])
+      .filter((arr): arr is [string, MachineCust] => !!arr[1])
+      .filter((arr) => !arr[1].isAuto)
       .map(([node_id, machineCustom]) => [node_id, machineCustom.cnt ?? new Fraction(0)] as const);
     return new Map(entries);
   };

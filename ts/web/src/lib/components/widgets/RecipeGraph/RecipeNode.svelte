@@ -17,7 +17,7 @@
   const { recipe } = $derived(data);
   const machineCnt = $derived(calculations.machineCnt(id).toString());
   const dur = $derived(timeUnit(calculations.effetiveDuration(id) ?? 0, true));
-  const isAuto = $derived(appState.isAuto(id));
+  const isAuto = $derived(appState.getIsAuto(id));
   $inspect(id, isAuto);
 </script>
 
@@ -30,18 +30,15 @@
       disabled={isAuto}
       class="text-right col-span-2"
       value={machineCnt}
-      onchange={(e) => {
-        const newVal = new Fraction(e.currentTarget.value);
-        appState.setMachineCnt(id, newVal);
-      }}
+      onchange={(e) => appState.setMachineCnt(id, new Fraction(e.currentTarget.value))}
     />
     <Button
       size="icon-sm"
       variant="ghost"
       class="hover:bg-muted"
-      onclick={() => appState.toggleManual(id, recipe.min_tier)}
+      onclick={() => appState.toggleIsAuto(id)}
     >
-      {#if appState.isAuto(id)}
+      {#if isAuto}
         <Wand class="opacity-50" />
       {:else}
         <Manual class="opacity-50" />
@@ -65,7 +62,7 @@
       <Checkbox
         disabled={isAuto}
         bind:checked={
-          () => appState.getPerfectOC(id), (newVal) => appState.setPerfectOC(id, newVal)
+          () => appState.getPerfectOC(id) ?? false, (newVal) => appState.setPerfectOC(id, newVal)
         }
       />
     </div>

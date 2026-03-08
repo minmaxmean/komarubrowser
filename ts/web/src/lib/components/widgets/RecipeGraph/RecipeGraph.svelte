@@ -45,7 +45,7 @@
 
   const minimapNodeColor: GetMiniMapNodeAttribute = (node) => {
     if (calculations.isBadMachine(node.id)) return 'var(--color-red-800)';
-    if (!appState.isAuto(node.id)) return 'var(--machine-block)';
+    if (!appState.getIsAuto(node.id)) return 'var(--machine-block)';
     return 'var(--color-neutral-700)';
   };
 </script>

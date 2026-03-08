@@ -1,6 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
-import type { CustomsMap, MachineCustomization } from '$lib/appstate/customs';
+import type { CustomsMap, MachineCust } from '$lib/appstate/customs';
 import { srlog } from './utils';
 
 export type EffectiveDurations = Map<string, Fraction>;
@@ -8,10 +8,10 @@ export type EffectiveDurations = Map<string, Fraction>;
 const BASE_OVERCLOCK = new Fraction(2);
 const PERFECT_OVERCLOCK = new Fraction(4);
 
-function effectiveDuration(r: Recipe, cust: MachineCustomization | undefined): Fraction {
+function effectiveDuration(r: Recipe, cust: MachineCust | undefined): Fraction {
   let baseDuration = new Fraction(r.duration);
   if (!cust) return baseDuration;
-  if (cust.energyTier > r.min_tier) {
+  if (cust.energyTier && cust.energyTier > r.min_tier) {
     const ocScale = cust.hasPerfectOC ? PERFECT_OVERCLOCK : BASE_OVERCLOCK;
     baseDuration = baseDuration.div(ocScale.pow(cust.energyTier - r.min_tier));
   }
