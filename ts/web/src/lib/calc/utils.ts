@@ -7,14 +7,14 @@ const simplifyMap: Record<string, string> = {
   'gtceu:electrolyzer/water_electrolysis': 'O2',
 };
 
-type SBArg = string | Fraction;
+type SBArg = number | string | Fraction;
 
-type SRMapArg = Map<string, SBArg>;
-type SRRecordOut = Record<string, string>;
+type SRMapArg = Map<string, SRArg>;
+type SRRecordArgs = Record<string, SBArg>;
 type SRArrayArg = SBArg[];
-type SRArg = SBArg | SRMapArg | SRRecordOut | SRArrayArg;
+type SRArg = SBArg | SRMapArg | SRRecordArgs | SRArrayArg;
 
-export function sr<T extends SRArg>(input: T): unknown {
+export function sr(input: SRArg): unknown {
   if (typeof input === 'string') return simplifyMap[input] ?? input;
   if (typeof input === 'number') return input;
   if (input instanceof Fraction) {
@@ -33,4 +33,13 @@ export function sr<T extends SRArg>(input: T): unknown {
     return o;
   }
   throw Error(`Unknown input: ${input}`);
+}
+
+export function srlog(msg: string, input: SRArg) {
+  const s = sr(input);
+  if (typeof s === 'string') {
+    console.log(msg, s);
+  }
+  console.log(msg);
+  console.table(s);
 }

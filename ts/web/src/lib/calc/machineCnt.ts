@@ -3,8 +3,6 @@ import type { Recipe } from '@komarubrowser/common/db/recipe';
 import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
 import type { MachineCount } from './store.svelte';
 
-// export
-
 type EdgeMap = Map<string, Set<string>>;
 
 function addEdge(edges: EdgeMap, source: string, target: string) {

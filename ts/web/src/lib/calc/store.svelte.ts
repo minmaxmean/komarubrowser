@@ -2,19 +2,31 @@ import Fraction from 'fraction.js';
 import { toast } from 'svelte-sonner';
 import { appState } from '$lib/appstate/app_state.svelte';
 import { type IngredientBalance, calcBalance } from './balance.js';
+import { type EffectiveDurations, calcEffectiveDurations } from './effective.js';
 import { CalcError, calcMachineCnt } from './machineCnt.js';
 
 export type MachineCount = Map<string, Fraction>;
 
 type Calcuations = {
   machineCnt: MachineCount | null;
+  effectiveDurations: EffectiveDurations;
   balance: IngredientBalance[] | null;
   errorMsg: string | null;
   badMachines: string[];
 };
 
 const calcResult = $derived.by<Calcuations>(() => {
-  const res: Calcuations = { machineCnt: null, balance: null, errorMsg: null, badMachines: [] };
+  const res: Calcuations = {
+    machineCnt: null,
+    balance: null,
+    errorMsg: null,
+    badMachines: [],
+
+    effectiveDurations: calcEffectiveDurations(
+      $state.snapshot(appState.selectedRecipes),
+      $state.snapshot(appState.customsMap()),
+    ),
+  };
   try {
     res.machineCnt = calcMachineCnt(
       $state.snapshot(appState.selectedRecipes),
@@ -40,6 +52,9 @@ const calcResult = $derived.by<Calcuations>(() => {
 export const calculations = {
   machineCnt(recipeId: string): Fraction {
     return calcResult.machineCnt?.get(recipeId) ?? new Fraction(0);
+  },
+  effetiveDuration(recipeId: string): Fraction | null {
+    return calcResult.effectiveDurations?.get(recipeId) ?? null;
   },
   get badMachines(): string[] {
     return calcResult.badMachines;

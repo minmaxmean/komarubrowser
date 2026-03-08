@@ -7,3 +7,5 @@ export type MachineCustomization = {
 };
 
 export type Customs = Partial<Record<string, MachineCustomization>>;
+
+export type CustomsMap = Map<string, MachineCustomization>;

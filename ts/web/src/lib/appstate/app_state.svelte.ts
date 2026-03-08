@@ -3,7 +3,7 @@ import superjson from 'superjson';
 import type { EnergyTierID } from '@komarubrowser/common/db/energyTier';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { MachineCount } from '$lib/calc/store.svelte';
-import type { Customs } from './customs';
+import type { Customs, CustomsMap, MachineCustomization } from './customs';
 
 export type AppState = {
   selectedRecipes: Recipe[];
@@ -66,6 +66,12 @@ class AppStateWrapper {
     const machineCustom = this.state.customs[nodeId];
     if (!machineCustom || newCnt.equals(machineCustom.cnt)) return;
     machineCustom.cnt = newCnt;
+  };
+  customsMap = (): CustomsMap => {
+    const entries = Object.entries(this.state.customs).filter(
+      (arr): arr is [string, MachineCustomization] => !!arr[1],
+    );
+    return new Map(entries);
   };
   machineCntMap = (): MachineCount => {
     const entries = Object.entries(this.state.customs)

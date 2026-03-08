@@ -9,11 +9,13 @@
   import Input from '$lib/components/ui/input/input.svelte';
   import EnergyTierInput from '../EnergyTier/EnergyTierInput.svelte';
   import RecipeWidget from '../RecipeWidget/RecipeWidget.svelte';
+  import { timeUnit } from '../RecipeWidget/utils';
   import type { RecipeNodeType } from './graph';
 
   const { id, data }: NodeProps<RecipeNodeType> = $props();
   const { recipe } = $derived(data);
   const machineCnt = $derived(calculations.machineCnt(id).toString());
+  const dur = $derived(timeUnit(calculations.effetiveDuration(id) ?? 0, true));
 </script>
 
 <RecipeWidget {recipe} withHandles>
@@ -53,5 +55,10 @@
         <Manual class="opacity-50" />
       {/if}
     </Button>
+
+    <p class="text-right">Effective Duration</p>
+    <div></div>
+    <p class="text-right">{dur.amount}</p>
+    <p class="text-left">{dur.unit}</p>
   {/snippet}
 </RecipeWidget>
