@@ -46,7 +46,6 @@ const calcResult = $derived.by<Calcuations>(() => {
     toast.error(res.errorMsg);
     console.error(e);
   }
-  console.log('calcResult', res);
   return res;
 });
 
@@ -56,6 +55,9 @@ export const calculations = {
   },
   effetiveDuration(recipeId: string): Fraction | null {
     return calcResult.effectiveDurations?.get(recipeId) ?? null;
+  },
+  badMachinesStr(): string {
+    return calcResult.badMachines.join(' ');
   },
   isBadMachine(recipeId: string): boolean {
     return calcResult.badMachines.includes(recipeId);

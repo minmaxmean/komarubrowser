@@ -22,12 +22,10 @@ export const calcEffectiveDurations = (
   recipes: Recipe[],
   customs: CustomsMap,
 ): EffectiveDurations => {
-  srlog('customs', customs);
   const effecive: EffectiveDurations = new Map();
   recipes.forEach((r) => {
     const cust = customs.get(r.id);
     effecive.set(r.id, effectiveDuration(r, cust));
   });
-  srlog('effetive', effecive);
   return effecive;
 };

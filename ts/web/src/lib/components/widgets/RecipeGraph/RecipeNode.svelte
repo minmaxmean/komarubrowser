@@ -18,6 +18,7 @@
   const machineCnt = $derived(calculations.machineCnt(id).toString());
   const dur = $derived(timeUnit(calculations.effetiveDuration(id) ?? 0, true));
   const isAuto = $derived(appState.isAuto(id));
+  $inspect(id, isAuto);
 </script>
 
 <RecipeWidget {recipe} withHandles>
@@ -53,7 +54,7 @@
       disabled={isAuto}
       minTier={recipe.min_tier}
       bind:value={
-        () => appState.getMachineTier(id, recipe.min_tier),
+        () => appState.getMachineTier(id) ?? recipe.min_tier,
         (newVal) => appState.setMachineTier(id, newVal)
       }
     />

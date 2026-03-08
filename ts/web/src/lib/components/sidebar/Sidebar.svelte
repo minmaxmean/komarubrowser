@@ -27,9 +27,7 @@
     <p class="col-start-2">
       Usually this means that you need to manually set number of machines for more recipies.
     </p>
-    <p class="col-start-2">
-      {calculations.badMachines.join(' ')}
-    </p>
+    <p class="col-start-2">{calculations.badMachinesStr()}</p>
   </div>
 {/if}
 

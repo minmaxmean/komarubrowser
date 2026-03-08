@@ -3,7 +3,12 @@ import superjson from 'superjson';
 import type { EnergyTierID } from '@komarubrowser/common/db/energyTier';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { MachineCount } from '$lib/calc/store.svelte';
-import type { Customs, CustomsMap, MachineCustomization } from './customs';
+import {
+  type Customs,
+  type CustomsMap,
+  type MachineCustomization,
+  defaultCustomization,
+} from './customs';
 
 export type AppState = {
   selectedRecipes: Recipe[];
@@ -51,45 +56,29 @@ class AppStateWrapper {
   set selectedRecipes(v: Recipe[]) {
     this.state.selectedRecipes = v;
   }
-  toggleManual = (nodeId: string, energyTier: EnergyTierID) => {
-    const exists = this.state.customs[nodeId];
-    if (exists) {
-      delete this.state.customs[nodeId];
-    } else {
-      this.state.customs[nodeId] = {
-        cnt: new Fraction(1),
-        energyTier: energyTier,
-        hasPerfectOC: false,
-      };
-    }
-  };
-  setMachineCnt = (nodeId: string, newCnt: Fraction) => {
-    const machineCustom = this.state.customs[nodeId];
-    if (!machineCustom || newCnt.equals(machineCustom.cnt)) return;
-    machineCustom.cnt = newCnt;
-  };
-  customsMap = (): CustomsMap => {
-    const entries = Object.entries(this.state.customs).filter(
-      (arr): arr is [string, MachineCustomization] => !!arr[1],
-    );
-    return new Map(entries);
-  };
-  machineCntMap = (): MachineCount => {
-    const entries = Object.entries(this.state.customs)
-      .map(([node_id, machineCustom]) => [node_id, machineCustom?.cnt ?? new Fraction(0)] as const)
-      .filter((arr) => arr[1].gt(0));
-    return new Map(entries);
-  };
-  isAuto = (node_id: string): boolean => !this.state.customs[node_id];
+  getCustomization<K extends keyof MachineCustomization>(
+    nodeId: string,
+    key: K,
+  ): MachineCustomization[K] {
+    const exists: MachineCustomization = this.state.customs[nodeId] || defaultCustomization;
+    return exists[key];
+  }
+  setCustomization<K extends keyof MachineCustomization>(
+    nodeId: string,
+    key: K,
+    value: MachineCustomization[K],
+  ) {
+    const exists: MachineCustomization = this.state.customs[nodeId] || defaultCustomization;
+    exists[key] = value;
+  }
+  setIsAuto = (nodeId: string, isAuto: boolean) => this.setCustomization(nodeId, 'isAuto', isAuto);
+  isAuto = (nodeId: string): boolean => this.getCustomization(nodeId, 'isAuto');
 
-  getMachineTier = (nodeId: string, defaultTier: EnergyTierID): EnergyTierID => {
-    return this.state.customs[nodeId]?.energyTier ?? defaultTier;
-  };
-  setMachineTier = (nodeId: string, newVal: EnergyTierID) => {
-    const machineCustom = this.state.customs[nodeId];
-    if (!machineCustom) return;
-    machineCustom.energyTier = newVal;
-  };
+  setMachineCnt = (nodeId: string, cnt: Fraction) => this.setCustomization(nodeId, 'cnt', cnt);
+
+  setMachineTier = (nodeId: string, energyTier: EnergyTierID) =>
+    this.setCustomization(nodeId, 'energyTier', energyTier);
+  getMachineTier = (nodeId: string) => this.getCustomization(nodeId, 'energyTier');
 
   getPerfectOC = (nodeId: string): boolean => {
     return this.state.customs[nodeId]?.hasPerfectOC ?? false;
@@ -104,6 +93,19 @@ class AppStateWrapper {
     const machineCustom = this.state.customs[nodeId];
     if (!machineCustom) return;
     machineCustom.hasPerfectOC = !machineCustom.hasPerfectOC;
+  };
+
+  customsMap = (): CustomsMap => {
+    const entries = Object.entries(this.state.customs).filter(
+      (arr): arr is [string, MachineCustomization] => !!arr[1],
+    );
+    return new Map(entries);
+  };
+  machineCntMap = (): MachineCount => {
+    const entries = Object.entries(this.state.customs)
+      .filter((arr): arr is [string, MachineCustomization] => !!arr[1])
+      .map(([node_id, machineCustom]) => [node_id, machineCustom.cnt ?? new Fraction(0)] as const);
+    return new Map(entries);
   };
 }
 
