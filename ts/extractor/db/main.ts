@@ -4,7 +4,7 @@ import Database from "better-sqlite3";
 
 import { getDb } from "@komarubrowser/common/db/database.js";
 import { migrate } from "@komarubrowser/common/db/schema.js";
-import type { NewRecipe } from "@komarubrowser/common/db/recipe.js";
+import type { NewRecipe, RecipeIngredient } from "@komarubrowser/common/db/recipe.js";
 import { Database as KBDatabase, KyselyDB } from "@komarubrowser/common/db/database.js";
 import { EnergyTierID, energyTiers } from "@komarubrowser/common/db/energyTier.js";
 
@@ -15,12 +15,14 @@ import {
   readIngredientsJson,
   readMachinesJson,
   readRecipesJson,
+  RecipeIngredientJson,
   RecipeJson,
   RecipeMachines,
 } from "@komarubrowser/extractor_utils/jsonSchema.js";
 
 import { buildManifestItems } from "./manifest.js";
 import { NewRecipeCategory } from "@komarubrowser/common/db/recipeType.js";
+import { Ingredient, NewIngredient } from "@komarubrowser/common/db/ingredient.js";
 
 const SKIP_RECIPE_CATEGORIES = new Set([
   "gtceu:arc_furnace#arc_furnace_recycling",
@@ -45,6 +47,20 @@ const pickDisplayMachine = (machines: string[]): string => {
     }
   }
   return machines[0];
+};
+
+const minifyRecipeIngredient = (i: RecipeIngredientJson): RecipeIngredient => {
+  const res: RecipeIngredient = {
+    i: i.acceptedIds[0],
+    a: i.amount,
+  };
+  if (i.perTick) {
+    res.perTick = true;
+  }
+  if (i.chance !== 100_00) {
+    res.c = i.chance;
+  }
+  return res;
 };
 
 const buildRecipeTypes = (
@@ -136,15 +152,12 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       return textureLocation;
     };
 
-    const ingredientRows = Array.from(deduplicated.values()).map((ing) => {
+    const ingredientRows = Array.from(deduplicated.values()).map((ing): NewIngredient => {
       const actualTextureLocation = getTextureLocation(ing);
       return {
         id: ing.id,
         display_name: ing.displayName,
         is_fluid: ing.isFluid ? 1 : 0,
-        tags: JSON.stringify(ing.tags),
-        source_jar: ing.sourceJar,
-        original_texture_location: ing.textureLocation || "",
         texture_location: actualTextureLocation,
         hex_color: ing.hexColor,
       };
@@ -165,22 +178,8 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
         eut_consumed: r.eutConsumed,
         eut_produced: r.eutProduced,
         min_tier: r.minTier as EnergyTierID,
-        inputs: JSON.stringify(
-          r.inputs.map((i) => ({
-            i: i.acceptedIds.slice(0, 1),
-            amount: i.amount,
-            chance: i.chance,
-            perTick: i.perTick,
-          })),
-        ),
-        outputs: JSON.stringify(
-          r.outputs.map((i) => ({
-            i: i.acceptedIds.slice(0, 1),
-            amount: i.amount,
-            chance: i.chance,
-            perTick: i.perTick,
-          })),
-        ),
+        inputs: JSON.stringify(r.inputs.map(minifyRecipeIngredient)),
+        outputs: JSON.stringify(r.outputs.map(minifyRecipeIngredient)),
       }));
     console.log(`  Found ${recipeRows.length} recipes...`);
 

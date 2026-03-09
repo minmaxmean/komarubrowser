@@ -5,9 +5,6 @@ export type IngredientTable = {
   id: string;
   display_name: string;
   is_fluid: number;
-  tags: JSONColumnType<string[]>;
-  source_jar: string;
-  original_texture_location: string;
   texture_location: string | null;
   hex_color?: string;
 
@@ -18,9 +15,6 @@ export const INGREDIENT_COLUMNS: (keyof IngredientTable)[] = [
   "id",
   "display_name",
   "is_fluid",
-  "tags",
-  "source_jar",
-  "original_texture_location",
   "texture_location",
   "hex_color",
   "namespace",

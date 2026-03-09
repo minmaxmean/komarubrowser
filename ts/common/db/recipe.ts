@@ -2,10 +2,10 @@ import type { GeneratedAlways, Insertable, JSONColumnType, Selectable } from "ky
 import type { EnergyTierID } from "./energyTier.js";
 
 export type RecipeIngredient = {
-  i: string[];
-  amount: number;
-  chance: number; // 100_00 represents 100%
-  perTick: boolean;
+  i: string;
+  a: number;
+  c?: number; // 100_00 represents 100%
+  perTick?: boolean;
 };
 
 export type RecipeTable = {
