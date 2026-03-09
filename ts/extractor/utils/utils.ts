@@ -80,3 +80,25 @@ export const safeCopy = async (src: string, dest: string): Promise<void> => {
   await mkdirp(path.dirname(dest));
   await fs.copyFile(src, dest);
 };
+
+export const SKIPPED_JARS = new Set([
+  "client-1.20.1-20230612.114412-srg.jar",
+
+  "Architects-Palette-1.20.1-1.3.6.1.jar",
+  "ChippedExpress-universal-20x.jar",
+  "MysticalAgriculture-1.20.1-7.0.23.jar",
+  "ThermalExtra-3.3.0-1.20.1.jar",
+  "XyCraft Core-0.6.22.jar",
+  "XyCraft World-0.6.22.jar",
+  "buildinggadgets2-1.0.8.jar",
+  "chipped-forge-1.20.1-3.0.7.jar",
+  "chisel_chipped_integration-v1.1.6-1.20.1.jar",
+  "cofh_core-1.20.1-11.0.2.56.jar",
+  // "create-1.20.1-6.0.8.jar",
+  "create-new-age-forge-1.20.1-1.1.4.jar",
+  "createlowheated-forge-1.20.1-6.0.6-4.jar",
+  "createdieselgenerators-1.20.1-1.3.5.jar",
+  "rechiseled-1.1.6-forge-mc1.20.jar",
+  "thermal_foundation-1.20.1-11.0.6.70.jar",
+  "xtonesreworked-1.0.4-F_1.20.1-47.2.0.jar",
+]);

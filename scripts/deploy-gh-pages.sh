@@ -2,10 +2,11 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$SCRIPT_DIR"
+REPO_ROOT="$(cd $SCRIPT_DIR/.. && pwd)"
 
 echo "=== Building //ts/web:build_pkg ==="
 cd "$REPO_ROOT"
+pnpm install
 bazel build //ts/web:build_pkg
 
 TAR_PATH="bazel-bin/ts/web/build_pkg.tar"
@@ -14,43 +15,37 @@ if [[ ! -f "$TAR_PATH" ]]; then
     exit 1
 fi
 
-echo "=== Extracting build to temporary directory ==="
+echo "=== Setting up tmp JJ workspace ==="
 TMP_DIR=$(mktemp -d)
-trap "rm -rf $TMP_DIR" EXIT
+DIST_DIR="$TMP_DIR/dist"
+
+
+echo "DIST_DIR: $DIST_DIR"
+jj workspace forget gh-pages
+jj workspace add --name gh-pages -r gh-pages "$DIST_DIR"
+jj workspace list
+
+echo "=== Extracting build to temporary directory ==="
 tar -xf "$TAR_PATH" -C "$TMP_DIR"
 
-DIST_DIR="$TMP_DIR/dist"
 if [[ ! -d "$DIST_DIR" ]]; then
     echo "Error: dist directory not found in tar. Contents:"
     ls -la "$TMP_DIR"
     exit 1
 fi
 
-echo "=== Switching to gh-pages branch ==="
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-if git show-ref --verify --quiet refs/heads/gh-pages; then
-    git checkout gh-pages
-else
-    git checkout --orphan gh-pages
-fi
-
-echo "=== Clearing old content ==="
-git rm -rf .
-
-echo "=== Copying new content ==="
-cp -r "$DIST_DIR"/* .
-git add .
-
 echo "=== Committing ==="
+cd "$DIST_DIR"
+echo $PWD
 COMMIT_MSG="Deploy to GitHub Pages $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-git commit -m "$COMMIT_MSG"
+jj commit -m "$COMMIT_MSG"
+jj bookmark move gh-pages --to @-
 
 echo "=== Pushing to origin/gh-pages ==="
-git push -u origin gh-pages
-
-echo "=== Switching back to $CURRENT_BRANCH ==="
-git checkout "$CURRENT_BRANCH"
+# jj git push -b gh-pages
 
 echo "=== Done! ==="
 echo "Your site should be available at: https://minmaxmean.github.io/komarubrowser/"
+
+# jj workspace forget gh-pages
+# "rm -rf $TMP_DIR" EXIT

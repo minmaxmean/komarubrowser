@@ -10,8 +10,6 @@ const JAR_MAPPINGS: Record<string, string> = {
   "thermal_core-1.20.1-11.0.6.24.jar": "cofh_core-1.20.1-11.0.2.56.jar",
 };
 
-const SKIPPED_JARS = new Set(["client-1.20.1-20230612.114412-srg.jar"]);
-
 const ADDITIONAL_JARS: Record<string, string[]> = {
   "XyCraft World-0.6.22.jar": ["XyCraft Core-0.6.22.jar"],
   "thermal_core-1.20.1-11.0.6.24.jar": [
@@ -88,7 +86,7 @@ export async function extractPngs(args: ExtractPngArgs): Promise<void> {
     ingredients
       .map((i) => i.sourceJar)
       .filter(Boolean)
-      .filter((jar) => !SKIPPED_JARS.has(jar)),
+      .filter((jar) => !utils.SKIPPED_JARS.has(jar)),
   );
 
   console.log(`Reading JAR list from ${INGREDIENTS_FILE}...`);

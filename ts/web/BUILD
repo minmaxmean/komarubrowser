@@ -42,8 +42,6 @@ copy_file(
 copy_to_directory(
     name = "minecraft_assets",
     srcs = [
-        "//minecraft/star_t:ingredients.json",
-        "//minecraft/star_t:recipes.json",
         "//ts/extractor/db:build_db",
         "//ts/extractor/pngs:extract_pngs",
     ],

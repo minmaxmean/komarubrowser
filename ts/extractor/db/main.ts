@@ -71,7 +71,8 @@ const buildRecipeTypes = (
 };
 
 const IGNORED_TEXTURE_MODS = new Set(["thermal", "minecraft", "systeams", "thermal_extra"]);
-const ignoreMissingTexture = (id: string) => IGNORED_TEXTURE_MODS.has(id.split(":")[0]);
+const ignoreMissingTexture = (id: string, jar: string) =>
+  IGNORED_TEXTURE_MODS.has(id.split(":")[0]) || utils.SKIPPED_JARS.has(jar);
 
 export async function buildDb(args: BuildDBArgs): Promise<void> {
   const { INGREDIENTS_FILE, RECIPES_FILE, RECIPE_CATEGORIES: MACHINES_FILE, DB_OUTPUT, EXTRACTED_PNG_DIR } = args;
@@ -118,10 +119,12 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       if (!i.textureLocation) return null;
       const textureLocation = "assets/" + i.textureLocation.replace(":", "/");
       if (!manifestSet.has(textureLocation)) {
-        if (!ignoreMissingTexture(i.id) && !textureLocation.startsWith("assets/minecraft")) {
-          throw Error(`texture for item not found in manifest: id: ${i.id} textureLocation: ${textureLocation}`);
+        if (!ignoreMissingTexture(i.id, i.sourceJar) && !textureLocation.startsWith("assets/minecraft")) {
+          throw Error(
+            `texture for item not found in manifest: id: ${i.id} ${i.sourceJar} textureLocation: ${textureLocation}`,
+          );
         }
-        return null;
+        return "assets/ae2/textures/item/basic_card.png";
       }
       return textureLocation;
     };
