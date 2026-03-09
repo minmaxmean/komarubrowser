@@ -22,6 +22,8 @@ import {
 import { buildManifestItems } from "./manifest.js";
 import { NewRecipeCategory } from "@komarubrowser/common/db/recipeType.js";
 
+// const SKIP:wq
+
 async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
   const dialect = new SqliteDialect({ database: db });
