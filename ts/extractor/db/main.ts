@@ -22,7 +22,26 @@ import {
 
 import { buildManifestItems } from "./manifest.js";
 import { NewRecipeCategory } from "@komarubrowser/common/db/recipeType.js";
-import { Ingredient, NewIngredient } from "@komarubrowser/common/db/ingredient.js";
+import { NewIngredient } from "@komarubrowser/common/db/ingredient.js";
+
+const SKIP_INGREDIENT_NAMESPACE = new Set([
+  "architects_palette",
+  "createdieselgenerators",
+  "vintage",
+  "chipped",
+  "chisel_chipped_integration",
+  "create",
+  "dustrial_decor",
+  "rechiseled",
+  "xycraft_world",
+  "xtonesreworked",
+  "fantasyfurniture",
+  "rechiseledcreate",
+  "framedblocks",
+  "thermal",
+]);
+
+const SKIP_INGREDIENT_ID_LIKE = ["_flowing", ":flowing_", "_bucket"];
 
 const SKIP_RECIPE_CATEGORIES = new Set([
   "gtceu:arc_furnace#arc_furnace_recycling",
@@ -129,8 +148,12 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     // 2. Process Ingredients
     console.log(`Reading ingredients from ${INGREDIENTS_FILE}...`);
-    const ingredients = await readIngredientsJson(INGREDIENTS_FILE);
-
+    const ingredients = (await readIngredientsJson(INGREDIENTS_FILE)).filter((i) => {
+      const namespace = i.id.split(":")[0];
+      if (SKIP_INGREDIENT_NAMESPACE.has(namespace)) return false;
+      if (SKIP_INGREDIENT_ID_LIKE.some((like) => i.id.includes(like))) return false;
+      return true;
+    });
     const deduplicated = new Map<string, IngredientJson>();
     for (const i of ingredients) {
       const existing = deduplicated.get(i.id);
