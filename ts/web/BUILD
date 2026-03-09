@@ -72,17 +72,17 @@ SRCS = [
     ":vite_srcs",
 ]
 
-svelte_kit_bin.svelte_kit(
-    name = "sync",
-    srcs = DEPS + SRCS,
-    args = ["sync"],
-    chdir = package_name(),
-    env = {"KIT_BASE": "/komarubrowser"},
-    out_dirs = [".svelte-kit"],
-    silent_on_success = False,
-    visibility = ["//visibility:public"],
-)
-
+# svelte_kit_bin.svelte_kit(
+#     name = "sync",
+#     srcs = DEPS + SRCS,
+#     args = ["sync"],
+#     chdir = package_name(),
+#     env = {"KIT_BASE": "/komarubrowser"},
+#     out_dirs = [".svelte-kit"],
+#     silent_on_success = False,
+#     visibility = ["//visibility:public"],
+# )
+#
 vite_bin.vite(
     name = "build",
     srcs = DEPS + SRCS,
@@ -114,17 +114,17 @@ pkg_tar(
     name = "build_pkg",
     srcs = [":build"],
 )
-
-svelte_check_bin.svelte_check_binary(
-    name = "check",
-    args = [
-        "--tsconfig",
-        "./tsconfig.json",
-    ],
-    chdir = package_name(),
-    # data = [":build"],
-    data = DEPS + SRCS + [":sync"],
-)
+#
+# svelte_check_bin.svelte_check_binary(
+#     name = "check",
+#     args = [
+#         "--tsconfig",
+#         "./tsconfig.json",
+#     ],
+#     chdir = package_name(),
+#     # data = [":build"],
+#     data = DEPS + SRCS + [":sync"],
+# )
 
 vite_bin.vite_binary(
     name = "preview",

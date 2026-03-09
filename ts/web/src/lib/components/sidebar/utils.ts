@@ -1,11 +1,12 @@
 import type Fraction from 'fraction.js';
 
 type AmountUnit = {
-  amount: Fraction;
+  amount: string;
   unit: string;
 };
 
 const TICKS_PER_SEC = 20;
+const DECIMAL_PLACES = 3;
 
 export const calcUnit = (
   isFluid: boolean,
@@ -13,11 +14,14 @@ export const calcUnit = (
   useBuckets: boolean = false,
 ): AmountUnit => {
   amount = amount.mul(TICKS_PER_SEC);
-  if (!isFluid) {
-    return { amount, unit: '' };
+  let unit = '';
+  if (isFluid) {
+    if (useBuckets) {
+      amount = amount.div(1000);
+      unit = 'b';
+    } else {
+      unit = 'mb';
+    }
   }
-  if (useBuckets) {
-    return { amount: amount.div(1000), unit: 'b' };
-  }
-  return { amount, unit: 'mb' };
+  return { amount: amount.valueOf().toFixed(DECIMAL_PLACES), unit };
 };
