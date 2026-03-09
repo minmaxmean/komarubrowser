@@ -167,7 +167,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
         min_tier: r.minTier as EnergyTierID,
         inputs: JSON.stringify(
           r.inputs.map((i) => ({
-            accepted_ids: i.acceptedIds.slice(0, 1),
+            i: i.acceptedIds.slice(0, 1),
             amount: i.amount,
             chance: i.chance,
             perTick: i.perTick,
@@ -175,7 +175,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
         ),
         outputs: JSON.stringify(
           r.outputs.map((i) => ({
-            accepted_ids: i.acceptedIds.slice(0, 1),
+            i: i.acceptedIds.slice(0, 1),
             amount: i.amount,
             chance: i.chance,
             perTick: i.perTick,
