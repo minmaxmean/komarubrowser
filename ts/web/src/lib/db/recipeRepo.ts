@@ -31,10 +31,10 @@ export class RecipeRepo {
         ops.push(eb('recipe_type', '=', filter.recipeType));
       }
       if (filter.inputIngredientIncludes) {
-        ops.push(eb('recipe.input_ids', 'like', `%${filter.inputIngredientIncludes}%`));
+        ops.push(eb('recipe.inputs', 'like', `%${filter.inputIngredientIncludes}%` as any));
       }
       if (filter.outputIngredientIncludes) {
-        ops.push(eb('recipe.output_ids', 'like', `%${filter.outputIngredientIncludes}%`));
+        ops.push(eb('recipe.outputs', 'like', `%${filter.outputIngredientIncludes}%` as any));
       }
       if (filter.mode === 'or') {
         return eb.or(ops);

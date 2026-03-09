@@ -19,11 +19,9 @@ type FlowGraph = {
 export const calcEdges = (recipes: Recipe[]): EdgeType[] =>
   recipes.flatMap((producer) =>
     producer.outputs.flatMap((output) => {
-      const productedItem = output.accepted_ids[0];
+      const productedItem = output.i;
       const consumers = recipes.filter((consumer) =>
-        consumer.inputs.some(
-          (input) => input.accepted_ids[0] === productedItem && input.chance > 0,
-        ),
+        consumer.inputs.some((input) => input.i === productedItem && (!input.c || input.c > 0)),
       );
       return consumers.map(
         (consumer): EdgeType => ({

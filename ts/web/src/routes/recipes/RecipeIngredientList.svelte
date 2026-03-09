@@ -9,6 +9,6 @@
 
 <ul>
   {#each items as item}
-    <li>{item.accepted_ids[0]} x {item.amount}</li>
+    <li>{item.i} x {item.a}</li>
   {/each}
 </ul>

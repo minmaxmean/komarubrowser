@@ -37,7 +37,7 @@
   const recipeCategory = $derived(
     await dbStore.data?.recipeCategory.getById(recipe.recipe_type, recipe.recipe_category),
   );
-  const dur = $derived(timeUnit(recipe.duration, true));
+  const dur = $derived(timeUnit(recipe.duration));
 </script>
 
 <div
@@ -77,7 +77,7 @@
   {#if recipe.inputs.length > 0}
     <div class="col-span-4 bg-(--input-block) py-1">Input</div>
     {#each recipe.inputs as ingredient}
-      {@const item = items?.get(ingredient.accepted_ids[0])}
+      {@const item = items?.get(ingredient.i)}
       <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'target'} />
     {/each}
   {/if}
@@ -85,7 +85,7 @@
   {#if recipe.outputs.length > 0}
     <div class="col-span-4 bg-(--output-block) py-1">Output</div>
     {#each recipe.outputs as ingredient}
-      {@const item = items?.get(ingredient.accepted_ids[0])}
+      {@const item = items?.get(ingredient.i)}
       <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'source'} />
     {/each}
   {/if}

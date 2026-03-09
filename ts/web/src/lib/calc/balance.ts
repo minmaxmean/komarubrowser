@@ -27,15 +27,15 @@ export const calcBalance = (
   recipes.forEach((r) => {
     r.inputs.forEach((input) => {
       const rCnt = machineCnt.get(r.id);
-      if (!rCnt || input.chance === 0) return;
-      const ingId = input.accepted_ids[0];
+      if (!rCnt || input.c === 0) return;
+      const ingId = input.i;
       const ing: IngB = ingMap.get(ingId) ?? {
         ingId,
         produced: new Fraction(0),
         consumed: new Fraction(0),
       };
       ing.consumed = ing.consumed.add(
-        new Fraction(input.amount).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
+        new Fraction(input.a).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
       );
       ingMap.set(ingId, ing);
     });
@@ -45,14 +45,14 @@ export const calcBalance = (
     r.outputs.forEach((output) => {
       const rCnt = machineCnt.get(r.id);
       if (!rCnt) return;
-      const ingId = output.accepted_ids[0];
+      const ingId = output.i;
       const ing: IngB = ingMap.get(ingId) ?? {
         ingId,
         produced: new Fraction(0),
         consumed: new Fraction(0),
       };
       ing.produced = ing.produced.add(
-        new Fraction(output.amount).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
+        new Fraction(output.a).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
       );
       ingMap.set(ingId, ing);
     });

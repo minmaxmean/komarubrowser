@@ -47,7 +47,7 @@ function _calc_ratio(
   producerEffecitDur: Fraction | undefined,
 ): Fraction {
   const consumedItem = consumer.inputs.find((input) =>
-    producer.output_ids.includes(input.accepted_ids[0]),
+    producer.outputs.some((out) => out.i === input.i),
   );
   if (!consumedItem) {
     throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
@@ -55,9 +55,7 @@ function _calc_ratio(
       producer.id,
     ]);
   }
-  const producedItem = producer.outputs.find(
-    (output) => output.accepted_ids[0] === consumedItem.accepted_ids[0],
-  );
+  const producedItem = producer.outputs.find((output) => output.i === consumedItem.i);
   if (!producedItem) {
     throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
       consumer.id,
@@ -65,11 +63,9 @@ function _calc_ratio(
     ]);
   }
   const consumed_pt = consumerCnt
-    .mul(consumedItem.amount)
+    .mul(consumedItem.a)
     .div(consumerEffectiveDur ?? consumer.duration);
-  const produced_pt = new Fraction(producedItem.amount).div(
-    producerEffecitDur ?? producer.duration,
-  );
+  const produced_pt = new Fraction(producedItem.a).div(producerEffecitDur ?? producer.duration);
   return consumed_pt.div(produced_pt);
 }
 

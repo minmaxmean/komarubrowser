@@ -20,19 +20,17 @@
     class: className,
     handleType,
   }: RecipeIngredientWidgetProps = $props();
-  const displayName = $derived(
-    cleanAndCapitalize(item?.display_name ?? ingredient.accepted_ids[0]),
-  );
-  const { amount, unit } = $derived(calcUnit(!!item?.is_fluid, ingredient.amount));
-  const chance = $derived(calcChance(ingredient.chance));
+  const displayName = $derived(cleanAndCapitalize(item?.display_name ?? ingredient.i));
+  const { amount, unit } = $derived(calcUnit(!!item?.is_fluid, ingredient.a));
+  const chance = $derived(calcChance(ingredient.c));
 </script>
 
 <div class={cn('col-span-4 grid grid-cols-subgrid relative items-center', className)}>
-  {#if handleType && ingredient.chance > 0}
+  {#if handleType && (!ingredient.c || ingredient.c > 0)}
     <Handle
       type={handleType}
       position={handleType === 'source' ? Position.Right : Position.Left}
-      id={ingredient.accepted_ids[0]}
+      id={ingredient.i}
     />
   {/if}
 

@@ -22,8 +22,8 @@ export const cleanAndCapitalize = (id: string): string => {
 
 export const getItemIds = (r: Recipe): string[] => {
   return [r.recipe_type].concat(
-    r.inputs.map((i) => i.accepted_ids[0]),
-    r.outputs.map((i) => i.accepted_ids[0]),
+    r.inputs.map((i) => i.i),
+    r.outputs.map((i) => i.i),
   );
 };
 
@@ -34,8 +34,8 @@ type AmountUnit = {
   unit: string;
 };
 
-export const calcChance = (chance: number): string => {
-  if (chance === FULL_CHANCE) {
+export const calcChance = (chance?: number): string => {
+  if (chance === undefined) {
     return '';
   }
   return `${chance / 100}%`;
