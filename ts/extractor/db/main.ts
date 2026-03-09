@@ -22,7 +22,12 @@ import {
 import { buildManifestItems } from "./manifest.js";
 import { NewRecipeCategory } from "@komarubrowser/common/db/recipeType.js";
 
-// const SKIP:wq
+const SKIP_RECIPE_CATEGORIES = new Set([
+  "gtceu:arc_furnace#arc_furnace_recycling",
+  "gtceu:packer#packer",
+  "gtceu:macerator#macerator_recycling",
+  "gtceu:extractor#extractor_recycling",
+]);
 
 async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
@@ -150,31 +155,33 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
     // 3. Process Recipes
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
     const recipesJson = await readRecipesJson(RECIPES_FILE);
-    const recipeRows: NewRecipe[] = recipesJson.map((r) => ({
-      id: r.id,
-      recipe_type: r.recipeType,
-      recipe_category: r.recipeCategory,
-      duration: r.duration,
-      eut_consumed: r.eutConsumed,
-      eut_produced: r.eutProduced,
-      min_tier: r.minTier as EnergyTierID,
-      inputs: JSON.stringify(
-        r.inputs.map((i) => ({
-          accepted_ids: i.acceptedIds.slice(0, 1),
-          amount: i.amount,
-          chance: i.chance,
-          perTick: i.perTick,
-        })),
-      ),
-      outputs: JSON.stringify(
-        r.outputs.map((i) => ({
-          accepted_ids: i.acceptedIds.slice(0, 1),
-          amount: i.amount,
-          chance: i.chance,
-          perTick: i.perTick,
-        })),
-      ),
-    }));
+    const recipeRows: NewRecipe[] = recipesJson
+      .filter((r) => !SKIP_RECIPE_CATEGORIES.has(r.recipeType + "#" + r.recipeCategory))
+      .map((r) => ({
+        id: r.id,
+        recipe_type: r.recipeType,
+        recipe_category: r.recipeCategory,
+        duration: r.duration,
+        eut_consumed: r.eutConsumed,
+        eut_produced: r.eutProduced,
+        min_tier: r.minTier as EnergyTierID,
+        inputs: JSON.stringify(
+          r.inputs.map((i) => ({
+            accepted_ids: i.acceptedIds.slice(0, 1),
+            amount: i.amount,
+            chance: i.chance,
+            perTick: i.perTick,
+          })),
+        ),
+        outputs: JSON.stringify(
+          r.outputs.map((i) => ({
+            accepted_ids: i.acceptedIds.slice(0, 1),
+            amount: i.amount,
+            chance: i.chance,
+            perTick: i.perTick,
+          })),
+        ),
+      }));
     console.log(`  Found ${recipeRows.length} recipes...`);
 
     console.log(`Reading recipe categories from ${MACHINES_FILE}...`);
