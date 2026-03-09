@@ -7,3 +7,7 @@ node = "latest"
 "npm:npm-groovy-lint" = "latest"
 pnpm = "latest"
 
+
+[tasks.deploy]
+description = "Deploy to CloudFlare pages"
+run = "wrangler pages deploy bazel-bin/ts/web/dist --branch prod"

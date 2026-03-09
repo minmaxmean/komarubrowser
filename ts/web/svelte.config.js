@@ -8,9 +8,6 @@ const config = {
       pages: 'dist',
       assets: 'dist',
     }),
-    paths: {
-      base: process.env.KIT_BASE ?? (process.argv.includes('dev') ? '' : '/komarubrowser'),
-    },
   },
   compilerOptions: {
     experimental: {
