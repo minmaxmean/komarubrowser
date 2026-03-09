@@ -30,6 +30,8 @@ const zRecipeIngredient = z.object({
   acceptedIds: z.array(zResourceID),
   perTick: z.boolean().optional(),
 });
+export type RecipeIngredientJson = z.Infer<typeof zRecipeIngredient>;
+
 const zRecipeJson = z.object({
   id: zResourceID,
   recipeType: zResourceID,

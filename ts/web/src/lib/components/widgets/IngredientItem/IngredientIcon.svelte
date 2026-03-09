@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import type { ClassValue } from 'tailwind-variants';
   import { cn } from '$lib/utils';
   import { type IconVariants, iconVariants } from './iconVariants';
@@ -9,14 +10,15 @@
     hex_color?: string;
     class?: ClassValue;
   } & IconVariants;
-  const default_texture_location = '/komaru_16.png';
+  const default_texture_location = `komaru_16.png`;
   const {
     display_name,
-    url = default_texture_location,
+    url: raw_url = default_texture_location,
     hex_color,
     size,
     class: className,
   }: Props = $props();
+  const url = $derived(`${base}/${raw_url}`);
 </script>
 
 {#if hex_color}

@@ -1,4 +1,6 @@
+import { base } from '$app/paths';
+
 export const assets = {
-  ASSETS_DB: '/assets/assets.db',
-  SQLITE_WASM: 'wasm/sql-wasm.wasm',
+  ASSETS_DB: `${base}/assets/assets.db`,
+  SQLITE_WASM: `${base}wasm/sql-wasm.wasm`,
 };

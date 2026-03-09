@@ -38,14 +38,15 @@ echo "=== Committing ==="
 cd "$DIST_DIR"
 echo $PWD
 COMMIT_MSG="Deploy to GitHub Pages $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+jj file track --include-ignored assets/
 jj commit -m "$COMMIT_MSG"
 jj bookmark move gh-pages --to @-
 
 echo "=== Pushing to origin/gh-pages ==="
-# jj git push -b gh-pages
+jj git push -b gh-pages
 
 echo "=== Done! ==="
 echo "Your site should be available at: https://minmaxmean.github.io/komarubrowser/"
 
-# jj workspace forget gh-pages
-# "rm -rf $TMP_DIR" EXIT
+jj workspace forget gh-pages
+rm -rf $TMP_DIR

@@ -1,5 +1,5 @@
 import path from "path";
-import { SqliteDialect, Kysely, type Insertable } from "kysely";
+import { SqliteDialect, Kysely, type Insertable, sql } from "kysely";
 import Database from "better-sqlite3";
 
 import { getDb } from "@komarubrowser/common/db/database.js";
@@ -124,7 +124,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
             `texture for item not found in manifest: id: ${i.id} ${i.sourceJar} textureLocation: ${textureLocation}`,
           );
         }
-        return "assets/ae2/textures/item/basic_card.png";
+        return null;
       }
       return textureLocation;
     };
@@ -158,7 +158,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       min_tier: r.minTier as EnergyTierID,
       inputs: JSON.stringify(
         r.inputs.map((i) => ({
-          accepted_ids: i.acceptedIds,
+          accepted_ids: i.acceptedIds.slice(0, 1),
           amount: i.amount,
           chance: i.chance,
           perTick: i.perTick,
@@ -166,7 +166,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       ),
       outputs: JSON.stringify(
         r.outputs.map((i) => ({
-          accepted_ids: i.acceptedIds,
+          accepted_ids: i.acceptedIds.slice(0, 1),
           amount: i.amount,
           chance: i.chance,
           perTick: i.perTick,
@@ -183,6 +183,8 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
 
     console.log(`Inserting ${recipeRows.length} recipes...`);
     await insertMany("recipe", recipeRows);
+
+    await sql`VACUUM`.execute(db);
 
     console.log(`Committing database to ${DB_OUTPUT}...`);
     await utils.atomicMove(tempDbPath, DB_OUTPUT);

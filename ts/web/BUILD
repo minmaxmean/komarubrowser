@@ -75,17 +75,26 @@ vite_bin.vite(
     srcs = DEPS + SRCS,
     args = ["build"],
     chdir = package_name(),
-    out_dirs = ["dist"],
+    env = {
+        "KIT_BASE": "/komarubrowser",
+    },
+    out_dirs = [
+        "dist",
+        ".svelte-kit",
+    ],
     silent_on_success = False,
     visibility = ["//visibility:public"],
 )
 
-# vite_bin.vite_binary(
-#     name = "dev",
-#     chdir = package_name(),
-#     data = DEPS + SRCS,
-#     # tags = ["ibazel_notify_changes"],
-# )
+vite_bin.vite_binary(
+    name = "preview",
+    args = [
+        "preview",
+        "--debug",
+    ],
+    chdir = package_name(),
+    data = [":build"],
+)
 
 vite_bin.vite_binary(name = "vite_server")
 
