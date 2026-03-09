@@ -1,7 +1,7 @@
 import Fraction from 'fraction.js';
 import superjson from 'superjson';
 import { toast } from 'svelte-sonner';
-import type { Recipe } from '@komarubrowser/common/db/recipe';
+import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 import type { MachineCount } from '$lib/calc/store.svelte';
 import {
   type Customs,

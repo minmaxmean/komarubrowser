@@ -1,5 +1,5 @@
-import type { KyselyDB } from '@komarubrowser/common/db/database';
-import type { Manifest } from '@komarubrowser/common/db/manifest';
+import type { KyselyDB } from '@komarubrowser/common/db/database.js';
+import type { Manifest } from '@komarubrowser/common/db/manifest.js';
 
 export class ManifestRepo {
   constructor(private db: KyselyDB) {}

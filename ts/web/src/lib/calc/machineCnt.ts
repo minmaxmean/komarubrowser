@@ -1,5 +1,5 @@
 import Fraction from 'fraction.js';
-import type { Recipe } from '@komarubrowser/common/db/recipe';
+import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';

@@ -4,6 +4,8 @@ load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_rules_js//js:defs.bzl", "js_run_devserver", "js_test")
 load("@aspect_rules_js//npm:defs.bzl", "npm_package")
 load("@npm//:defs.bzl", "npm_link_all_packages", "npm_link_targets")
+load("@npm//ts/web:@sveltejs/kit/package_json.bzl", svelte_kit_bin = "bin")
+load("@npm//ts/web:svelte-check/package_json.bzl", svelte_check_bin = "bin")
 load("@npm//ts/web:vite/package_json.bzl", vite_bin = "bin")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
@@ -70,6 +72,17 @@ SRCS = [
     ":vite_srcs",
 ]
 
+svelte_kit_bin.svelte_kit(
+    name = "sync",
+    srcs = DEPS + SRCS,
+    args = ["sync"],
+    chdir = package_name(),
+    env = {"KIT_BASE": "/komarubrowser"},
+    out_dirs = [".svelte-kit"],
+    silent_on_success = False,
+    visibility = ["//visibility:public"],
+)
+
 vite_bin.vite(
     name = "build",
     srcs = DEPS + SRCS,
@@ -78,22 +91,9 @@ vite_bin.vite(
     env = {
         "KIT_BASE": "/komarubrowser",
     },
-    out_dirs = [
-        "dist",
-        ".svelte-kit",
-    ],
+    out_dirs = ["dist"],
     silent_on_success = False,
     visibility = ["//visibility:public"],
-)
-
-vite_bin.vite_binary(
-    name = "preview",
-    args = [
-        "preview",
-        "--debug",
-    ],
-    chdir = package_name(),
-    data = [":build"],
 )
 
 vite_bin.vite_binary(name = "vite_server")
@@ -113,4 +113,25 @@ npm_package(
 pkg_tar(
     name = "build_pkg",
     srcs = [":build"],
+)
+
+svelte_check_bin.svelte_check_binary(
+    name = "check",
+    args = [
+        "--tsconfig",
+        "./tsconfig.json",
+    ],
+    chdir = package_name(),
+    # data = [":build"],
+    data = DEPS + SRCS + [":sync"],
+)
+
+vite_bin.vite_binary(
+    name = "preview",
+    args = [
+        "preview",
+        "--debug",
+    ],
+    chdir = package_name(),
+    data = [":build"],
 )

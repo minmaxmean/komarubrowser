@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Handle, type HandleProps, Position } from '@xyflow/svelte';
   import type { ClassValue } from 'svelte/elements';
-  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
-  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe';
+  import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
+  import type { RecipeIngredient } from '@komarubrowser/common/db/recipe.js';
   import { getTextProps } from '$lib/db/recipeCategoryRepo';
   import { cn } from '$lib/utils';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';

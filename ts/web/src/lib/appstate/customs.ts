@@ -1,5 +1,5 @@
 import Fraction from 'fraction.js';
-import type { EnergyTierID } from '@komarubrowser/common/db/energyTier';
+import type { EnergyTierID } from '@komarubrowser/common/db/energyTier.js';
 
 export type MachineCust = {
   isAuto: boolean;

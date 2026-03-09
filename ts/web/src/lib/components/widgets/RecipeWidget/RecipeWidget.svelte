@@ -3,7 +3,7 @@
   import Plus from '@lucide/svelte/icons/plus';
   import type { Snippet } from 'svelte';
   import type { ClassValue } from 'svelte/elements';
-  import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import type { Recipe } from '@komarubrowser/common/db/recipe.js';
   import { Button } from '$lib/components/ui/button';
   import { dbStore } from '$lib/db/dbStore.svelte';
   import { getTextProps } from '$lib/db/recipeCategoryRepo';

@@ -1,6 +1,6 @@
 import darge from '@dagrejs/dagre';
 import type { BuiltInEdge, Node } from '@xyflow/svelte';
-import type { Recipe } from '@komarubrowser/common/db/recipe';
+import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 
 export type RecipeNodeData = {
   recipe: Recipe;

@@ -1,6 +1,6 @@
 import Fraction from 'fraction.js';
-import type { Ingredient } from '@komarubrowser/common/db/ingredient';
-import type { Recipe } from '@komarubrowser/common/db/recipe';
+import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
+import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 
 export const getDisplayName = (id: string, map?: Map<string, Ingredient>) => {
   if (!id) {

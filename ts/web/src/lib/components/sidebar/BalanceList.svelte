@@ -18,7 +18,7 @@
 </script>
 
 <script lang="ts">
-  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
+  import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
   import type { IngredientBalance } from '$lib/calc/balance';
   import * as Collapsible from '$lib/components/ui/collapsible';
   import { getTextProps } from '$lib/db/recipeCategoryRepo';

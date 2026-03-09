@@ -1,7 +1,7 @@
 <script lang="ts">
   import Chevron from '@lucide/svelte/icons/chevron-right';
-  import type { Ingredient } from '@komarubrowser/common/db/ingredient';
-  import type { Recipe } from '@komarubrowser/common/db/recipe';
+  import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
+  import type { Recipe } from '@komarubrowser/common/db/recipe.js';
   import { recipeCategoryId } from '@komarubrowser/common/db/recipeType.js';
   import * as Collapsible from '$lib/components/ui/collapsible';
   import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';

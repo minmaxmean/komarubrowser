@@ -1,4 +1,4 @@
-import type { Ingredient } from '@komarubrowser/common/db/ingredient';
+import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
 import type { SuperRepo } from '$lib/db/dbStore.svelte';
 import type { FullRecipeCategory } from '$lib/db/recipeCategoryRepo';
 import type { Searcher } from '../IngredientInput/search';
