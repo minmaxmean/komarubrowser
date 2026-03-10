@@ -38,7 +38,7 @@ const SKIP_INGREDIENT_NAMESPACE = new Set([
   "fantasyfurniture",
   "rechiseledcreate",
   "framedblocks",
-  "thermal",
+  //  "thermal",
 ]);
 
 const SKIP_INGREDIENT_ID_LIKE = ["_flowing", ":flowing_", "_bucket"];
@@ -56,6 +56,10 @@ async function initDb(dbPath: string): Promise<KyselyDB> {
   await migrate(new Kysely<any>({ dialect }));
   return getDb(dialect, false);
 }
+
+const cleanDisplayName = (name: string): string => {
+  return name.replaceAll(/§./g, "");
+};
 
 const pickDisplayMachine = (machines: string[]): string => {
   for (const energyTier of energyTiers) {
@@ -105,7 +109,7 @@ const buildRecipeTypes = (
       return {
         recipe_type: recipeType,
         recipe_category: recipeCategory,
-        display_name: displayName,
+        display_name: cleanDisplayName(displayName),
         machine_id: pickDisplayMachine(all_machines),
         all_machines: JSON.stringify(all_machines),
       };
@@ -179,7 +183,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
       const actualTextureLocation = getTextureLocation(ing);
       return {
         id: ing.id,
-        display_name: ing.displayName,
+        display_name: cleanDisplayName(ing.displayName),
         is_fluid: ing.isFluid ? 1 : 0,
         texture_location: actualTextureLocation,
         hex_color: ing.hexColor,

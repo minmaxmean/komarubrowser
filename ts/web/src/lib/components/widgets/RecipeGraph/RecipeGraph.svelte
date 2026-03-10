@@ -9,7 +9,7 @@
   import { type EdgeType, type NodeType, calcGraph, reposition } from './graph';
 
   // 1. Single derived model combining appState and derived calculations
-  const graphModel = $derived(calcGraph(appState.selectedRecipes));
+  const graphModel = $derived(calcGraph(appState.selectedRecipes, calculations.edges));
 
   let nodes = $state.raw<NodeType[]>([]);
   let edges = $state.raw<EdgeType[]>([]);

@@ -1,6 +1,7 @@
 import darge from '@dagrejs/dagre';
 import type { BuiltInEdge, Node } from '@xyflow/svelte';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+import type { CalculatedEdge } from '$lib/calc/edges';
 
 export type RecipeNodeData = {
   recipe: Recipe;
@@ -16,26 +17,7 @@ type FlowGraph = {
   edges: EdgeType[];
 };
 
-export const calcEdges = (recipes: Recipe[]): EdgeType[] =>
-  recipes.flatMap((producer) =>
-    producer.outputs.flatMap((output) => {
-      const productedItem = output.i;
-      const consumers = recipes.filter((consumer) =>
-        consumer.inputs.some((input) => input.i === productedItem && (!input.c || input.c > 0)),
-      );
-      return consumers.map(
-        (consumer): EdgeType => ({
-          id: `${producer.id}_${consumer.id}_${productedItem}`,
-          source: producer.id,
-          target: consumer.id,
-          sourceHandle: productedItem,
-          targetHandle: productedItem,
-        }),
-      );
-    }),
-  );
-
-export function calcGraph(recipes: Recipe[]): FlowGraph {
+export function calcGraph(recipes: Recipe[], calcEdges: CalculatedEdge[]): FlowGraph {
   const nodes = recipes.map(
     (r, idx): RecipeNodeType => ({
       id: r.id,
@@ -44,7 +26,14 @@ export function calcGraph(recipes: Recipe[]): FlowGraph {
       data: { recipe: r },
     }),
   );
-  return { nodes, edges: calcEdges(recipes) };
+  const edges = calcEdges.map(({ source, target, common }) => ({
+    id: `${source}_${target}_${common}`,
+    source,
+    target,
+    sourceHandle: common,
+    targetHandle: common,
+  }));
+  return { nodes, edges };
 }
 
 export function reposition(nodes: NodeType[], edges: EdgeType[]): NodeType[] {

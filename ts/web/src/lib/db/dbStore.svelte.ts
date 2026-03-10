@@ -25,7 +25,7 @@ export const defaultGlobalFilter: GlobalFilter = {
       'fantasyfurniture',
       'rechiseledcreate',
       'framedblocks',
-      'thermal',
+      //      'thermal',
     ],
     idLike: ['%_flowing', '%:flowing_%', '%_bucket', '%_axe', '%_paxel', '%_sword', '%_shovel'],
     displayNameLike: [],

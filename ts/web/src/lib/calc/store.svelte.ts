@@ -2,6 +2,7 @@ import Fraction from 'fraction.js';
 import { toast } from 'svelte-sonner';
 import { appState } from '$lib/appstate/app_state.svelte';
 import { type IngredientBalance, calcBalance } from './balance.js';
+import { type CalculatedEdge, calcEdges } from './edges.js';
 import { type EffectiveDurations, calcEffectiveDurations } from './effective.js';
 import { CalcError, calcMachineCnt } from './machineCnt.js';
 
@@ -13,6 +14,7 @@ type Calcuations = {
   balance: IngredientBalance[] | null;
   errorMsg: string | null;
   badMachines: string[];
+  edges: CalculatedEdge[];
 };
 
 const calcResult = $derived.by<Calcuations>(() => {
@@ -21,6 +23,7 @@ const calcResult = $derived.by<Calcuations>(() => {
     balance: null,
     errorMsg: null,
     badMachines: [],
+    edges: calcEdges($state.snapshot(appState.selectedRecipes)),
 
     effectiveDurations: calcEffectiveDurations(
       $state.snapshot(appState.selectedRecipes),
@@ -30,6 +33,7 @@ const calcResult = $derived.by<Calcuations>(() => {
   try {
     res.machineCnt = calcMachineCnt(
       $state.snapshot(appState.selectedRecipes),
+      res.edges,
       appState.anchorCntMap(),
       res.effectiveDurations,
     );
@@ -67,5 +71,8 @@ export const calculations = {
   },
   get errorMsg(): string | null {
     return calcResult.errorMsg;
+  },
+  get edges(): CalculatedEdge[] {
+    return calcResult.edges;
   },
 };

@@ -1,6 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
-import { calcEdges } from '$lib/components/widgets/RecipeGraph/graph';
+import type { CalculatedEdge } from './edges';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
 
@@ -71,13 +71,13 @@ function _calc_ratio(
 
 export const calcMachineCnt = (
   recipes: Recipe[],
+  edges: CalculatedEdge[],
   anchorCnt: MachineCount,
   effeciteDurs: EffectiveDurations,
 ): MachineCount => {
   if (recipes.length === 0) {
     return new Map();
   }
-  const flowEdges = calcEdges(recipes);
   const machines: Map<string, Recipe> = new Map();
   const machineCnt: MachineCount = new Map();
   recipes.forEach((r) => {
@@ -96,7 +96,7 @@ export const calcMachineCnt = (
   }
   const poopsTo: Map<string, Set<string>> = new Map();
   const eatsFrom: Map<string, Set<string>> = new Map();
-  flowEdges.forEach(({ source, target }) => {
+  edges.forEach(({ source, target }) => {
     addEdge(poopsTo, source, target);
     addEdge(eatsFrom, target, source);
   });
