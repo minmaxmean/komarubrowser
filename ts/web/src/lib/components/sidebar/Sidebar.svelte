@@ -1,6 +1,5 @@
 <script lang="ts">
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
-  import { appState } from '$lib/appstate/app_state.svelte';
   import { calculations } from '$lib/calc/store.svelte';
   import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
   import Separator from '$lib/components/ui/separator/separator.svelte';

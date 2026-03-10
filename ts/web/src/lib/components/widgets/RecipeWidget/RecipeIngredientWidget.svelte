@@ -1,21 +1,24 @@
 <script lang="ts">
-  import { Handle, type HandleProps, Position } from '@xyflow/svelte';
+  import { type HandleProps, Position } from '@xyflow/svelte';
   import type { ClassValue } from 'svelte/elements';
   import type { Ingredient } from '@komarubrowser/common/db/ingredient.js';
   import type { RecipeIngredient } from '@komarubrowser/common/db/recipe.js';
   import { getTextProps } from '$lib/db/recipeCategoryRepo';
   import { cn } from '$lib/utils';
   import IngredientIcon from '../IngredientItem/IngredientIcon.svelte';
+  import RecipeHandle from './RecipeHandle.svelte';
   import { calcChance, calcUnit, cleanAndCapitalize } from './utils';
 
   type RecipeIngredientWidgetProps = {
+    recipeId: string;
     ingredient: RecipeIngredient;
     item?: Ingredient;
     class?: ClassValue | undefined | null;
     handleType?: HandleProps['type'] | false;
   };
   const {
-    ingredient: ingredient,
+    recipeId,
+    ingredient,
     item,
     class: className,
     handleType,
@@ -26,12 +29,8 @@
 </script>
 
 <div class={cn('col-span-4 grid grid-cols-subgrid relative items-center', className)}>
-  {#if handleType && (!ingredient.c || ingredient.c > 0)}
-    <Handle
-      type={handleType}
-      position={handleType === 'source' ? Position.Right : Position.Left}
-      id={ingredient.i}
-    />
+  {#if recipeId && handleType && (!ingredient.c || ingredient.c > 0)}
+    <RecipeHandle nodeId={recipeId} type={handleType} id={ingredient.i} />
   {/if}
 
   <p class="text-right text-pretty">{displayName}</p>

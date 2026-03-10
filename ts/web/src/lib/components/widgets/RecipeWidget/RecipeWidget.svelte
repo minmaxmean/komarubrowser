@@ -78,7 +78,12 @@
     <div class="col-span-4 bg-(--input-block) py-1">Input</div>
     {#each recipe.inputs as ingredient}
       {@const item = items?.get(ingredient.i)}
-      <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'target'} />
+      <RecipeIngredientWidget
+        recipeId={recipe.id}
+        {ingredient}
+        {item}
+        handleType={withHandles && 'target'}
+      />
     {/each}
   {/if}
 
@@ -86,7 +91,12 @@
     <div class="col-span-4 bg-(--output-block) py-1">Output</div>
     {#each recipe.outputs as ingredient}
       {@const item = items?.get(ingredient.i)}
-      <RecipeIngredientWidget {ingredient} {item} handleType={withHandles && 'source'} />
+      <RecipeIngredientWidget
+        recipeId={recipe.id}
+        {ingredient}
+        {item}
+        handleType={withHandles && 'source'}
+      />
     {/each}
   {/if}
 
