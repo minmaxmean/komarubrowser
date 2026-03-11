@@ -18,21 +18,20 @@ type Calcuations = {
 };
 
 const calcResult = $derived.by<Calcuations>(() => {
+  const selectedRecipes = $state.snapshot(appState.selectedRecipes);
+  const customsMap = $state.snapshot(appState.allCustomsMap());
   const res: Calcuations = {
     machineCnt: null,
     balance: null,
     errorMsg: null,
     badMachines: [],
-    edges: calcEdges($state.snapshot(appState.selectedRecipes)),
+    edges: calcEdges(selectedRecipes, customsMap),
 
-    effectiveDurations: calcEffectiveDurations(
-      $state.snapshot(appState.selectedRecipes),
-      $state.snapshot(appState.allCustomsMap()),
-    ),
+    effectiveDurations: calcEffectiveDurations(selectedRecipes, customsMap),
   };
   try {
     res.machineCnt = calcMachineCnt(
-      $state.snapshot(appState.selectedRecipes),
+      selectedRecipes,
       res.edges,
       appState.anchorCntMap(),
       res.effectiveDurations,

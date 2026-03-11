@@ -1,6 +1,5 @@
 import Fraction from 'fraction.js';
 import superjson from 'superjson';
-import { toast } from 'svelte-sonner';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 import type { MachineCount } from '$lib/calc/store.svelte';
 import {
@@ -152,6 +151,24 @@ class AppStateWrapper {
       .filter((arr) => !arr[1].isAuto)
       .map(([node_id, machineCustom]) => [node_id, machineCustom.cnt ?? new Fraction(0)] as const);
     return new Map(entries);
+  };
+  getDisabledEdges = this.custGetter('disabledEdges');
+  isEdgeDisabled = (nodeId: string, handleId: string): boolean =>
+    (this.getDisabledEdges(nodeId) ?? []).includes(handleId);
+  private setDisabledEdges = this.custSetter('disabledEdges');
+  toggleEdge = (nodeId: string, handleId: string) => {
+    const disaledEdges = this.getDisabledEdges(nodeId) || [];
+    const curIndex = disaledEdges.indexOf(handleId);
+    if (curIndex !== -1) {
+      disaledEdges.splice(curIndex, 1);
+    } else {
+      disaledEdges.push(handleId);
+    }
+    if (disaledEdges.length === 0) {
+      this.setDisabledEdges(nodeId, undefined);
+    } else {
+      this.setDisabledEdges(nodeId, disaledEdges);
+    }
   };
 }
 

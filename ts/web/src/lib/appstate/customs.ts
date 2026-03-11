@@ -6,6 +6,7 @@ export type MachineCust = {
   cnt?: Fraction;
   energyTier?: EnergyTierID;
   hasPerfectOC?: boolean;
+  disabledEdges?: string[];
 };
 
 export type MachineCustKey = keyof MachineCust;
