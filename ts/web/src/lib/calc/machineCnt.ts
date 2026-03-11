@@ -1,5 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+import { applyChance } from '$lib/constants';
 import type { CalculatedEdge } from './edges';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
@@ -46,27 +47,36 @@ function _calc_ratio(
   consumerEffectiveDur: Fraction | undefined,
   producerEffecitDur: Fraction | undefined,
 ): Fraction {
-  const consumedItem = consumer.inputs.find((input) =>
+  const commonItem = consumer.inputs.find((input) =>
     producer.outputs.some((out) => out.i === input.i),
-  );
-  if (!consumedItem) {
+  )?.i;
+  if (!commonItem) {
     throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
       consumer.id,
       producer.id,
     ]);
   }
-  const producedItem = producer.outputs.find((output) => output.i === consumedItem.i);
-  if (!producedItem) {
-    throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
-      consumer.id,
-      producer.id,
-    ]);
-  }
-  const consumed_pt = consumerCnt
-    .mul(consumedItem.a)
-    .div(consumerEffectiveDur ?? consumer.duration);
-  const produced_pt = new Fraction(producedItem.a).div(producerEffecitDur ?? producer.duration);
-  return consumed_pt.div(produced_pt);
+  let totalConsumed = new Fraction(0);
+  consumer.inputs
+    .filter((item) => item.i === commonItem)
+    .forEach((consumedItem) => {
+      const consumed_pt = applyChance(
+        consumerCnt.mul(consumedItem.a).div(consumerEffectiveDur ?? consumer.duration),
+        consumedItem.c,
+      );
+      totalConsumed = totalConsumed.add(consumed_pt);
+    });
+  let totalProduced = new Fraction(0);
+  producer.outputs
+    .filter((item) => item.i === commonItem)
+    .forEach((producedItem) => {
+      const produced_pt = applyChance(
+        new Fraction(producedItem.a).div(producerEffecitDur ?? producer.duration),
+        producedItem.c,
+      );
+      totalProduced = totalProduced.add(produced_pt);
+    });
+  return totalConsumed.div(totalProduced);
 }
 
 export const calcMachineCnt = (

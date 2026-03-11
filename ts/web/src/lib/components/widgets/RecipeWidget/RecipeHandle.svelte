@@ -12,20 +12,6 @@
 
   const disabled = $derived(appState.isEdgeDisabled(nodeId, id));
   const editable = $derived(useStore().nodesConnectable);
-  $effect(() => {
-    if (
-      (id === 'kubejs:impure_nether_star' || id === 'minecraft:nether_star') &&
-      rest.type === 'source'
-    ) {
-      $inspect(
-        `nodeId ${nodeId} isDisabled`,
-        disabled,
-        'connectable',
-        editable,
-        appState.getDisabledEdges(nodeId),
-      );
-    }
-  });
 </script>
 
 <Handle

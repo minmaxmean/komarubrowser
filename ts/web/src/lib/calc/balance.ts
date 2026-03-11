@@ -1,5 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
+import { FULL_CHANCE, applyChance } from '$lib/constants';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
 
@@ -34,9 +35,11 @@ export const calcBalance = (
         produced: new Fraction(0),
         consumed: new Fraction(0),
       };
-      ing.consumed = ing.consumed.add(
+      const consumed = applyChance(
         new Fraction(input.a).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
+        input.c,
       );
+      ing.consumed = ing.consumed.add(consumed);
       ingMap.set(ingId, ing);
     });
   });
@@ -51,9 +54,11 @@ export const calcBalance = (
         produced: new Fraction(0),
         consumed: new Fraction(0),
       };
-      ing.produced = ing.produced.add(
+      const produced = applyChance(
         new Fraction(output.a).mul(rCnt).div(effeciteDurs.get(r.id) ?? r.duration),
+        output.c,
       );
+      ing.produced = ing.produced.add(produced);
       ingMap.set(ingId, ing);
     });
   });

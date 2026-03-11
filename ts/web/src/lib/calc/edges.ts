@@ -8,21 +8,21 @@ export type CalculatedEdge = {
 };
 
 export const calcEdges = (recipes: Recipe[], customs: CustomsMap): CalculatedEdge[] =>
-  recipes.flatMap((producer) =>
-    producer.outputs.flatMap((output): CalculatedEdge[] => {
-      const productedItem = output.i;
-      if (customs.get(producer.id)?.disabledEdges?.includes(productedItem)) {
-        return [];
-      }
-      const consumers = recipes.filter((consumer) =>
-        consumer.inputs.some((input) => input.i === productedItem && (!input.c || input.c > 0)),
-      );
-      return consumers.map(
-        (consumer): CalculatedEdge => ({
+  recipes.flatMap((producer) => {
+    const disabledEdges = new Set(customs.get(producer.id)?.disabledEdges ?? []);
+    return recipes.flatMap((consumer): CalculatedEdge[] => {
+      const commonItems = producer.outputs
+        .filter((producedItem) => !disabledEdges.has(producedItem.i))
+        .filter((commonItem) =>
+          consumer.inputs.some((consumedItem) => consumedItem.i === commonItem.i),
+        )
+        .map((item) => item.i);
+      return [...new Set(commonItems)].map(
+        (common): CalculatedEdge => ({
           source: producer.id,
           target: consumer.id,
-          common: productedItem,
+          common: common,
         }),
       );
-    }),
-  );
+    });
+  });

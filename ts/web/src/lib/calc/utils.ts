@@ -38,8 +38,8 @@ export function sr(input: SRArg): unknown {
 export function srlog(msg: string, input: SRArg) {
   const s = sr(input);
   if (typeof s === 'string') {
-    console.debug(msg, s);
+    console.log(msg, s);
   }
-  console.debug(msg);
+  console.log(msg);
   console.table(s);
 }

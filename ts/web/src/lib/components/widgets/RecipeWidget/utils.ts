@@ -27,8 +27,6 @@ export const getItemIds = (r: Recipe): string[] => {
   );
 };
 
-export const FULL_CHANCE = 100_00;
-
 type AmountUnit = {
   amount: number;
   unit: string;
