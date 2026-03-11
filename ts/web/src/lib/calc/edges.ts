@@ -12,9 +12,11 @@ export const calcEdges = (recipes: Recipe[], customs: CustomsMap): CalculatedEdg
     const disabledEdges = new Set(customs.get(producer.id)?.disabledEdges ?? []);
     return recipes.flatMap((consumer): CalculatedEdge[] => {
       const commonItems = producer.outputs
-        .filter((producedItem) => !disabledEdges.has(producedItem.i))
+        .filter((producedItem) => !disabledEdges.has(producedItem.i) && producedItem.c !== 0)
         .filter((commonItem) =>
-          consumer.inputs.some((consumedItem) => consumedItem.i === commonItem.i),
+          consumer.inputs.some(
+            (consumedItem) => consumedItem.i === commonItem.i && consumedItem.c !== 0,
+          ),
         )
         .map((item) => item.i);
       return [...new Set(commonItems)].map(

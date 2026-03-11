@@ -46,9 +46,23 @@ const SKIP_INGREDIENT_ID_LIKE = ["_flowing", ":flowing_", "_bucket"];
 const SKIP_RECIPE_CATEGORIES = new Set([
   "gtceu:arc_furnace#arc_furnace_recycling",
   "gtceu:packer#packer",
-  "gtceu:macerator#macerator_recycling",
-  "gtceu:extractor#extractor_recycling",
+  //  "gtceu:macerator#macerator_recycling",
+  //"gtceu:extractor#extractor_recycling",
 ]);
+
+const RECYCLING_CATEGORIES = new Set(["gtceu:macerator#macerator_recycling", "gtceu:extractor#extractor_recycling"]);
+
+const skipRecipe = (r: RecipeJson): boolean => {
+  const recipeKey = r.recipeType + "#" + r.recipeCategory;
+  if (SKIP_RECIPE_CATEGORIES.has(recipeKey)) return true;
+  if (RECYCLING_CATEGORIES.has(recipeKey)) {
+    const isIngotOrDustRecycle = r.inputs.some((input) =>
+      input.acceptedIds.some((id) => id.endsWith("_dust") || id.endsWith("_ingot")),
+    );
+    return isIngotOrDustRecycle;
+  }
+  return true;
+};
 
 async function initDb(dbPath: string): Promise<KyselyDB> {
   const db = new Database(dbPath);
@@ -196,7 +210,7 @@ export async function buildDb(args: BuildDBArgs): Promise<void> {
     console.log(`Reading recipes from ${RECIPES_FILE}...`);
     const recipesJson = await readRecipesJson(RECIPES_FILE);
     const recipeRows: NewRecipe[] = recipesJson
-      .filter((r) => !SKIP_RECIPE_CATEGORIES.has(r.recipeType + "#" + r.recipeCategory))
+      .filter((r) => skipRecipe(r))
       .map((r) => ({
         id: r.id,
         recipe_type: r.recipeType,
