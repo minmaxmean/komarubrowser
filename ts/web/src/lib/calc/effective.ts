@@ -1,7 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 import type { CustomsMap, MachineCust } from '$lib/appstate/customs';
-import { srlog } from './utils';
 
 export type EffectiveDurations = Map<string, Fraction>;
 

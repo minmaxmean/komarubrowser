@@ -157,6 +157,9 @@ export function energyTierFromID(id: EnergyTierID | EnergyTier): EnergyTier {
   return id;
 }
 
+export const energyTierIDFromName = (name: EnergyTierName): EnergyTierID | null =>
+  energyTiers.find((it) => it.name === name)?.id ?? null;
+
 export const isEnergyTier = (val: number): val is EnergyTierID => val >= 0 && val < energyTiers.length;
 
 export const energyTier = (val: number): EnergyTierID => (isEnergyTier(val) ? val : 0);

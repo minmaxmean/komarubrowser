@@ -1,6 +1,6 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
-import { FULL_CHANCE, applyChance } from '$lib/constants';
+import { applyChance } from '$lib/constants';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
 

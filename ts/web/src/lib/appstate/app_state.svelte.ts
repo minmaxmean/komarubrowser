@@ -1,5 +1,6 @@
 import Fraction from 'fraction.js';
 import superjson from 'superjson';
+import { SvelteMap } from 'svelte/reactivity';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 import type { MachineCount } from '$lib/calc/store.svelte';
 import {
@@ -140,9 +141,9 @@ class AppStateWrapper {
   togglePerfectOC = (nodeId: string) => this.setPerfectOC(nodeId, !this.getPerfectOC(nodeId));
 
   allCustomsMap = (): CustomsMap => {
-    const entries = Object.entries(this.currentSetup.customs).filter(
-      (arr): arr is [string, MachineCust] => !!arr[1],
-    );
+    const entries = Object.entries($state.snapshot(this.currentSetup.customs) as any)
+      .filter((arr): arr is [string, MachineCust] => !!arr[1])
+      .map(([nodeId, cust]) => [nodeId, cust] as const);
     return new Map(entries);
   };
   anchorCntMap = (): MachineCount => {
