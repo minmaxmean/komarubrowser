@@ -1,5 +1,5 @@
 import Fraction from 'fraction.js';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { CustomsMap } from '$lib/appstate/customs';
 import { calcEdges } from './edges.ts';
@@ -9,50 +9,28 @@ import type { MachineCount } from './store.svelte.ts';
 import { mapFromObject, shortCustom, shortRecipe } from './testutis.ts';
 
 const MOCK_RECIPES: Recipe[] = [
-  shortRecipe(
-    'mining',
-    { drilling_fluid: 5000 },
-    { rare_ore_residue: 400, raw_ore_slurry: 600 },
-    640,
-    'LV',
-  ),
-  shortRecipe(
-    'raw_ore_slurry',
-    { raw_ore_slurry: 1000 },
-    { mixed_mineral_residue: 750, molten_ore_mixture: 250 },
-    240,
-    'MV',
-  ),
-  shortRecipe(
-    'mixed_mineral_residue',
-    { mixed_mineral_residue: 1000 },
-    { sulfuric_mineral_mixture: 400, oxygenous_mineral_mixture: 600 },
-    240,
-    'HV',
-  ),
-  shortRecipe(
-    'sulfuric_mineral_mixture',
-    { sulfuric_mineral_mixture: 500 },
-    { crushed_barite_ore: 1, crushed_chalcopyrite_ore: 1, crushed_bornite_ore: 1 },
-    230,
-    'HV',
-  ),
+  shortRecipe('SO2', { S: 1, O: 2000 }, { SO2: 1000 }, 3 * 20, 'ULV'),
+  shortRecipe('SO3', { SO2: 1000, O: 1000 }, { SO3: 1000 }, 10 * 20, 'ULV'),
+  shortRecipe('H2SO4', { SO3: 1000, H2O: 1000 }, { H2SO4: 1000 }, 8 * 20, 'ULV'),
 ];
 
 const machineCntFromObj = (r: Record<string, number | string | Fraction>): MachineCount =>
   new Map(Object.keys(r).map((k) => [k, new Fraction(r[k])] as const));
 
-test('smoke', () => {
-  const customs: CustomsMap = mapFromObject({ mining: shortCustom({ cnt: 1 }) });
-  const anchorCnt: MachineCount = machineCntFromObj({ mining: 1 });
-  const edges = calcEdges(MOCK_RECIPES, customs);
-  const effectiveDurs = calcEffectiveDurations(MOCK_RECIPES, customs);
+describe('H2SO4 - bamboo', () => {
   const want: MachineCount = machineCntFromObj({
-    mining: 1,
-    raw_ore_slurry: '0.225',
-    mixed_mineral_residue: '3.(3)',
-    sulfuric_mineral_mixture: '0.23',
+    SO2: 1,
+    SO3: '3.(3)',
+    H2SO4: '2.(6)',
   });
-  const got = calcMachineCnt(MOCK_RECIPES, edges, anchorCnt, effectiveDurs);
-  expect(got).toStrictEqual(want);
+  for (const [target, cnt] of want) {
+    test(`${target} = ${cnt}`, () => {
+      const customs: CustomsMap = mapFromObject({ [target]: shortCustom({ cnt }) });
+      const anchorCnt: MachineCount = machineCntFromObj({ [target]: cnt });
+      const edges = calcEdges(MOCK_RECIPES, customs);
+      const effectiveDurs = calcEffectiveDurations(MOCK_RECIPES, customs);
+      const got = calcMachineCnt(MOCK_RECIPES, edges, anchorCnt, effectiveDurs);
+      expect(got).toStrictEqual(want);
+    });
+  }
 });

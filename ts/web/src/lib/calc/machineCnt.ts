@@ -4,6 +4,7 @@ import { applyChance } from '$lib/constants';
 import type { CalculatedEdge } from './edges';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
+import { srlog } from './utils';
 
 type EdgeMap = Map<string, Set<string>>;
 
@@ -39,7 +40,18 @@ export class CalcError extends Error {
     super(message);
   }
 }
-
+const commonItem = (consumer: Recipe, producer: Recipe): string => {
+  const common = consumer.inputs.find((input) =>
+    producer.outputs.some((out) => out.i === input.i),
+  )?.i;
+  if (!common) {
+    throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
+      consumer.id,
+      producer.id,
+    ]);
+  }
+  return common;
+};
 function _calc_ratio(
   consumer: Recipe,
   producer: Recipe,
@@ -97,6 +109,7 @@ export const calcMachineCnt = (
       machineCnt.set(r.id, new Fraction(cnt));
     }
   });
+  // srlog('machineCnt', machineCnt);
   const anchors = new Set(machineCnt.keys());
   if (anchors.size === 0) {
     throw new CalcError(
@@ -111,65 +124,60 @@ export const calcMachineCnt = (
     addEdge(eatsFrom, target, source);
   });
 
+  const _bps = (r: Recipe, common: string, type: 'inputs' | 'outputs'): Fraction => {
+    const dur = effeciteDurs.get(r.id);
+    const val = r[type]
+      .filter((ing) => ing.i === common)
+      .reduce((val, ing) => {
+        return val.add(applyChance(new Fraction(ing.a).div(dur ?? r.duration), ing.c));
+      }, new Fraction(0));
+    if (val.equals(0)) {
+      throw new CalcError(`_bps for ${r.id} turned out to be 0`, [r.id]);
+    }
+    return val;
+  };
+
   const rev_top_sorted = rev_top_sort(machines.keys().toArray(), poopsTo);
-  rev_top_sorted.forEach((cId) => {
-    const cCnt = machineCnt.get(cId)!;
-    if (!cCnt) return;
-    eatsFrom.get(cId)?.forEach((pId) => {
-      if (anchors.has(pId)) return;
-      const pCnt = machineCnt.get(pId) ?? 0;
-      const pAddCnt = _calc_ratio(
-        machines.get(cId)!,
-        machines.get(pId)!,
-        cCnt,
-        effeciteDurs.get(cId),
-        effeciteDurs.get(pId),
-      );
-      machineCnt.set(pId, new Fraction(pAddCnt.add(pCnt)));
+  // console.log('rev_top_sorted:', rev_top_sorted);
+  // Push to left: consumer (known) -> producer (unknown)
+  rev_top_sorted.forEach((myId) => {
+    const myCnt = machineCnt.get(myId);
+    const me = machines.get(myId);
+    if (!myCnt || !me) return;
+    eatsFrom.get(myId)?.forEach((targetId) => {
+      const target = machines.get(targetId);
+      if (anchors.has(targetId) || !target) return;
+      const common = commonItem(me, target);
+      const targetBpt = _bps(target, common, 'outputs');
+      const myBpt = _bps(me, common, 'inputs');
+      const targetAddCnt = myBpt.mul(myCnt).div(targetBpt);
+      // console.log(`${myId} -> ${targetId}`);
+      // console.log(
+      //   `myBps: ${myBpt.mul(20).toString()} / targetBps: ${targetBpt.mul(20).toString()} = ${targetAddCnt.toString()}`,
+      // );
+      machineCnt.set(targetId, targetAddCnt.add(machineCnt.get(targetId) ?? 0));
+      // srlog('machineCnt', machineCnt);
     });
   });
 
-  [...rev_top_sorted].reverse().forEach((pId) => {
-    let pCnt = machineCnt.get(pId)!;
-    if (!pCnt) return;
-    const poopTargets = poopsTo.get(pId);
-    if (!poopTargets) return;
-    const remainingPoopTargets = [...poopTargets].filter((cId) => {
-      if (anchors.has(cId)) return false;
-      const cCnt = machineCnt.get(cId);
-      if (!cCnt) return true;
-      const cAdditionCnt = _calc_ratio(
-        machines.get(cId)!,
-        machines.get(pId)!,
-        cCnt,
-        effeciteDurs.get(cId),
-        effeciteDurs.get(pId),
-      );
-      pCnt = pCnt.sub(cAdditionCnt);
-      if (pCnt.lt(0))
-        throw new CalcError(`something bad happned pCnt ${pCnt} went below zero for ${pId}`, [
-          pId,
-          cId,
-        ]);
-      return false;
+  // Push to right: producer (known) -> consumer (unknown)
+  // console.log('top_sorted:', [...rev_top_sorted].reverse());
+  [...rev_top_sorted].reverse().forEach((myId) => {
+    const myCnt = machineCnt.get(myId);
+    const me = machines.get(myId);
+    if (!myCnt || !me) return;
+    poopsTo.get(myId)?.forEach((targetId) => {
+      const target = machines.get(targetId);
+      if (anchors.has(targetId) || !target) return;
+      const common = commonItem(target, me);
+      const targetBpt = _bps(target, common, 'inputs');
+      const myBpt = _bps(me, common, 'outputs');
+      const targetAddCnt = myBpt.mul(myCnt).div(targetBpt);
+
+      machineCnt.set(targetId, targetAddCnt.add(machineCnt.get(targetId) ?? 0));
+      // srlog('machineCnt', machineCnt);
     });
-    if (pCnt.equals(0)) return;
-    if (remainingPoopTargets.length === 0) return;
-    if (remainingPoopTargets.length > 1)
-      throw new CalcError(
-        `don't know how to split output from ${pId} between ${remainingPoopTargets}`,
-        [pId],
-      );
-    const cId = poopTargets.values().toArray()[0];
-    const cCurCnt = machineCnt.get(cId) ?? new Fraction(0);
-    const cAdditionCnt = _calc_ratio(
-      machines.get(cId)!,
-      machines.get(pId)!,
-      pCnt,
-      effeciteDurs.get(cId),
-      effeciteDurs.get(pId),
-    ).inverse();
-    machineCnt.set(cId, new Fraction(cAdditionCnt.add(cCurCnt)));
   });
+  // srlog('machineCnt', machineCnt);
   return machineCnt;
 };

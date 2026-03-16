@@ -27,7 +27,7 @@ export const shortRecipe = (
 
 type ShortCustom = {
   isAuto?: boolean;
-  cnt?: number;
+  cnt?: number | string | Fraction;
   tier?: EnergyTierName;
 };
 
