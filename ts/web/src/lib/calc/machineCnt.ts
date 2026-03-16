@@ -1,34 +1,29 @@
 import Fraction from 'fraction.js';
 import type { Recipe } from '@komarubrowser/common/db/recipe.js';
 import { applyChance } from '$lib/constants';
-import type { CalculatedEdge } from './edges';
+import type { DirectedEdges } from './edges';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
 
-type EdgeMap = Map<string, Set<string>>;
-
-function addEdge(edges: EdgeMap, source: string, target: string) {
-  const targets = edges.get(source) ?? new Set();
-  targets.add(target);
-  edges.set(source, targets);
-}
-
-function _rev_top_sort(node_id: string, edges: EdgeMap, visited: Set<string>, ans: string[]) {
+function _rev_top_sort(node_id: string, edges: DirectedEdges, visited: Set<string>, ans: string[]) {
   visited.add(node_id);
-  edges.get(node_id)?.forEach((to) => {
+  edges.get(node_id)?.eatsFrom.forEach((to) => {
+    if (!visited.has(to)) _rev_top_sort(to, edges, visited, ans);
+  });
+  edges.get(node_id)?.poopsTo.forEach((to) => {
     if (!visited.has(to)) _rev_top_sort(to, edges, visited, ans);
   });
   ans.push(node_id);
 }
 
-function rev_top_sort(nodes: string[], edges: EdgeMap): string[] {
+function top_sort(nodes: string[], edges: DirectedEdges): string[] {
   const ans: string[] = [];
   const visited = new Set<string>();
   nodes.forEach((node_id) => {
     if (visited.has(node_id)) return;
     _rev_top_sort(node_id, edges, visited, ans);
   });
-  return ans;
+  return ans.reverse();
 }
 
 export class CalcError extends Error {
@@ -54,7 +49,7 @@ const commonItem = (consumer: Recipe, producer: Recipe): string => {
 
 export const calcMachineCnt = (
   recipes: Recipe[],
-  edges: CalculatedEdge[],
+  edges: DirectedEdges,
   anchorCnt: MachineCount,
   effeciteDurs: EffectiveDurations,
 ): MachineCount => {
@@ -78,12 +73,6 @@ export const calcMachineCnt = (
       recipes.map((r) => r.id),
     );
   }
-  const poopsTo: Map<string, Set<string>> = new Map();
-  const eatsFrom: Map<string, Set<string>> = new Map();
-  edges.forEach(({ source, target }) => {
-    addEdge(poopsTo, source, target);
-    addEdge(eatsFrom, target, source);
-  });
 
   const _bps = (r: Recipe, common: string, type: 'inputs' | 'outputs'): Fraction => {
     const dur = effeciteDurs.get(r.id);
@@ -98,14 +87,16 @@ export const calcMachineCnt = (
     return val;
   };
 
-  const rev_top_sorted = rev_top_sort(machines.keys().toArray(), poopsTo);
-  // console.log('rev_top_sorted:', rev_top_sorted);
+  const top_sorted = top_sort(machines.keys().toArray(), edges);
+  console.log('top_sorted:', top_sorted);
+
   // Push to left: consumer (known) -> producer (unknown)
-  rev_top_sorted.forEach((myId) => {
+  top_sorted.forEach((myId) => {
     const myCnt = machineCnt.get(myId);
     const me = machines.get(myId);
-    if (!myCnt || !me) return;
-    eatsFrom.get(myId)?.forEach((targetId) => {
+    const myEdges = edges.get(myId);
+    if (!myCnt || !me || !myEdges) return;
+    myEdges.eatsFrom.forEach((targetId) => {
       const target = machines.get(targetId);
       if (anchors.has(targetId) || !target) return;
       const common = commonItem(me, target);
@@ -119,15 +110,7 @@ export const calcMachineCnt = (
       machineCnt.set(targetId, targetAddCnt.add(machineCnt.get(targetId) ?? 0));
       // srlog('machineCnt', machineCnt);
     });
-  });
-
-  // Push to right: producer (known) -> consumer (unknown)
-  // console.log('top_sorted:', [...rev_top_sorted].reverse());
-  [...rev_top_sorted].reverse().forEach((myId) => {
-    const myCnt = machineCnt.get(myId);
-    const me = machines.get(myId);
-    if (!myCnt || !me) return;
-    poopsTo.get(myId)?.forEach((targetId) => {
+    myEdges.poopsTo.forEach((targetId) => {
       const target = machines.get(targetId);
       if (anchors.has(targetId) || !target) return;
       const common = commonItem(target, me);
@@ -139,6 +122,6 @@ export const calcMachineCnt = (
       // srlog('machineCnt', machineCnt);
     });
   });
-  // srlog('machineCnt', machineCnt);
+
   return machineCnt;
 };

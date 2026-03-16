@@ -2,7 +2,7 @@ import Fraction from 'fraction.js';
 import { describe, expect, test } from 'vitest';
 import type { Recipe } from '@komarubrowser/common/db/recipe';
 import type { CustomsMap } from '$lib/appstate/customs';
-import { calcEdges } from './edges.ts';
+import { calcDirectedEdges } from './edges.ts';
 import { calcEffectiveDurations } from './effective';
 import { calcMachineCnt } from './machineCnt.ts';
 import type { MachineCount } from './store.svelte.ts';
@@ -27,7 +27,7 @@ describe('H2SO4 - bamboo', () => {
     test(`${target} = ${cnt}`, () => {
       const customs: CustomsMap = mapFromObject({ [target]: shortCustom({ cnt }) });
       const anchorCnt: MachineCount = machineCntFromObj({ [target]: cnt });
-      const edges = calcEdges(MOCK_RECIPES, customs);
+      const edges = calcDirectedEdges(MOCK_RECIPES, customs);
       const effectiveDurs = calcEffectiveDurations(MOCK_RECIPES, customs);
       const got = calcMachineCnt(MOCK_RECIPES, edges, anchorCnt, effectiveDurs);
       expect(got).toStrictEqual(want);

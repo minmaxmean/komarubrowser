@@ -2,7 +2,7 @@ import Fraction from 'fraction.js';
 import { toast } from 'svelte-sonner';
 import { appState } from '$lib/appstate/app_state.svelte';
 import { type IngredientBalance, calcBalance } from './balance.js';
-import { type CalculatedEdge, calcEdges } from './edges.js';
+import { type CalculatedEdge, calcDirectedEdges, calcEdges } from './edges.js';
 import { type EffectiveDurations, calcEffectiveDurations } from './effective.js';
 import { CalcError, calcMachineCnt } from './machineCnt.js';
 
@@ -30,9 +30,10 @@ const calcResult = $derived.by<Calcuations>(() => {
     effectiveDurations: calcEffectiveDurations(selectedRecipes, customsMap),
   };
   try {
+    const directedEdges = calcDirectedEdges(selectedRecipes, customsMap);
     res.machineCnt = calcMachineCnt(
       selectedRecipes,
-      res.edges,
+      directedEdges,
       appState.anchorCntMap(),
       res.effectiveDurations,
     );

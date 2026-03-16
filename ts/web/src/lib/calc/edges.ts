@@ -29,7 +29,7 @@ export const calcEdges = (recipes: Recipe[], customs: CustomsMap): CalculatedEdg
     });
   });
 
-export type DirectedEdgeList = { poopsTo: Set<string>; eatsFrom: Set<String> };
+export type DirectedEdgeList = { poopsTo: Set<string>; eatsFrom: Set<string> };
 export type DirectedEdges = Map<string, DirectedEdgeList>;
 
 // Do BFS to direct edges from anchors
