@@ -80,4 +80,23 @@ describe('calcDirectedEdges', () => {
       assert.deepEqual(got, want);
     });
   });
+  describe('Fusion Hydrogen - B', () => {
+    const recipes: Recipe[] = [
+      shortRecipe('D', { H: 160 }, { D: 40 }, 8, 'LV'),
+      shortRecipe('T', { D: 160 }, { T: 40 }, 8, 'MV'),
+      shortRecipe('fusion', { D: 1000, T: 1000 }, { HPlasma: 1000 }, '7.2', 'IV'),
+    ];
+    test('fusion = 1', () => {
+      const customs: CustomsMap = mapFromObject({
+        fusion: shortCustom({ cnt: 1 }),
+      });
+      const want: DirectedEdges = mapFromObject({
+        fusion: shortDirectedEdgeList({ eatsFrom: ['D', 'T'] }),
+        T: shortDirectedEdgeList({ eatsFrom: ['D'] }),
+        D: shortDirectedEdgeList({}),
+      });
+      const got = calcDirectedEdges(recipes, customs);
+      assert.deepEqual(got, want);
+    });
+  });
 });

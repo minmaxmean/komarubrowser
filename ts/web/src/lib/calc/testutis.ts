@@ -11,7 +11,7 @@ export const shortRecipe = (
   id: string,
   inputs: ShortIngredients,
   outputs: ShortIngredients,
-  duration: number,
+  durationSec: number | string | Fraction,
   minTier: EnergyTierName,
 ): Recipe => ({
   id,
@@ -19,7 +19,7 @@ export const shortRecipe = (
   recipe_category: '',
   inputs: shortIngredits(inputs),
   outputs: shortIngredits(outputs),
-  duration,
+  duration: new Fraction(durationSec).mul(20).valueOf(),
   min_tier: energyTierIDFromName(minTier)!,
   eut_consumed: 0,
   eut_produced: 0,

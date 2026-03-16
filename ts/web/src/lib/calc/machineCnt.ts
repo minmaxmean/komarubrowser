@@ -88,7 +88,6 @@ export const calcMachineCnt = (
   };
 
   const top_sorted = top_sort(machines.keys().toArray(), edges);
-  console.log('top_sorted:', top_sorted);
 
   // Push to left: consumer (known) -> producer (unknown)
   top_sorted.forEach((myId) => {
@@ -103,12 +102,7 @@ export const calcMachineCnt = (
       const targetBpt = _bps(target, common, 'outputs');
       const myBpt = _bps(me, common, 'inputs');
       const targetAddCnt = myBpt.mul(myCnt).div(targetBpt);
-      // console.log(`${myId} -> ${targetId}`);
-      // console.log(
-      //   `myBps: ${myBpt.mul(20).toString()} / targetBps: ${targetBpt.mul(20).toString()} = ${targetAddCnt.toString()}`,
-      // );
       machineCnt.set(targetId, targetAddCnt.add(machineCnt.get(targetId) ?? 0));
-      // srlog('machineCnt', machineCnt);
     });
     myEdges.poopsTo.forEach((targetId) => {
       const target = machines.get(targetId);
@@ -119,7 +113,6 @@ export const calcMachineCnt = (
       const targetAddCnt = myBpt.mul(myCnt).div(targetBpt);
 
       machineCnt.set(targetId, targetAddCnt.add(machineCnt.get(targetId) ?? 0));
-      // srlog('machineCnt', machineCnt);
     });
   });
 
