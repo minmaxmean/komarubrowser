@@ -4,7 +4,6 @@ import { applyChance } from '$lib/constants';
 import type { CalculatedEdge } from './edges';
 import type { EffectiveDurations } from './effective';
 import type { MachineCount } from './store.svelte';
-import { srlog } from './utils';
 
 type EdgeMap = Map<string, Set<string>>;
 
@@ -52,44 +51,6 @@ const commonItem = (consumer: Recipe, producer: Recipe): string => {
   }
   return common;
 };
-function _calc_ratio(
-  consumer: Recipe,
-  producer: Recipe,
-  consumerCnt: Fraction,
-  consumerEffectiveDur: Fraction | undefined,
-  producerEffecitDur: Fraction | undefined,
-): Fraction {
-  const commonItem = consumer.inputs.find((input) =>
-    producer.outputs.some((out) => out.i === input.i),
-  )?.i;
-  if (!commonItem) {
-    throw new CalcError(`recipies ${consumer.id} and ${producer.id} has no common item`, [
-      consumer.id,
-      producer.id,
-    ]);
-  }
-  let totalConsumed = new Fraction(0);
-  consumer.inputs
-    .filter((item) => item.i === commonItem)
-    .forEach((consumedItem) => {
-      const consumed_pt = applyChance(
-        consumerCnt.mul(consumedItem.a).div(consumerEffectiveDur ?? consumer.duration),
-        consumedItem.c,
-      );
-      totalConsumed = totalConsumed.add(consumed_pt);
-    });
-  let totalProduced = new Fraction(0);
-  producer.outputs
-    .filter((item) => item.i === commonItem)
-    .forEach((producedItem) => {
-      const produced_pt = applyChance(
-        new Fraction(producedItem.a).div(producerEffecitDur ?? producer.duration),
-        producedItem.c,
-      );
-      totalProduced = totalProduced.add(produced_pt);
-    });
-  return totalConsumed.div(totalProduced);
-}
 
 export const calcMachineCnt = (
   recipes: Recipe[],
